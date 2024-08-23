@@ -20,6 +20,7 @@ author:
     organization: Google
     email: dankocoj@google.com
  -
+    ins: B. R. Hamilton
     name: Benjamin "Russ" Hamilton
     organization: Google
     email: behamilton@google.com
@@ -198,7 +199,7 @@ according to {{OHTTP}} as the response to the request message. Since we are
 repurposing the OHTTP encapsulation mechanism, we define the media type
 "message/auction response" which is used for encryption.
 
-The message framing is as in {{#request}}, but the entire response payload is
+The message framing is as in {{request}}, but the entire response payload is
 compressed with Compression. The Server shall zero pad the response (TODO).
 
 The response has the following format:
