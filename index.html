@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>privacysandbox/draft-ietf-protected-audience-auction-service main preview</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <style type="text/css">/*<![CDATA[*/
+      body { font-family: "Helvetica Neue","Open Sans", Helvetica, Calibri,sans-serif; }
+      h1, h2, td { font-family: "Helvetica Neue", "Roboto Condensed", "Open Sans", Helvetica, Calibri, sans-serif; }
+      h1 { font-size: 20px; } h2 { font-size: 16px; }
+      table { margin: 5px 10px; border-collapse: collapse; }
+      th, td { font-weight: normal; text-align: left; padding: 2px 5px; }
+      a:link { color: #000; } a:visited { color: #00a; }
+    /*]]>*/</style>
+  </head>
+  <body>
+    <h1>Editor's drafts for main branch of <a href="https://github.com/privacysandbox/draft-ietf-protected-audience-auction-service">privacysandbox/draft-ietf-protected-audience-auction-service</a></h1>
+    <p>View <a href="issues.html">saved issues</a>, or the latest GitHub <a href="https://github.com/privacysandbox/draft-ietf-protected-audience-auction-service/issues">issues</a> and <a href="https://github.com/privacysandbox/draft-ietf-protected-audience-auction-service/pulls">pull requests</a> in the <a href="https://github.com/privacysandbox/draft-ietf-protected-audience-auction-service">repo</a>.</p>
+    <h2>Preview for branch <a href="dankocoj-draft-setup">dankocoj-draft-setup</a></h2>
+    <table id="branch-dankocoj-draft-setup">
+      <tr>
+        <td><a href="dankocoj-draft-setup/draft-ietf-trusted-auction-services.html" class="html draft-ietf-trusted-auction-services" title="Trusted Auction Services (HTML)">Trusted Auction Services</a></td>
+        <td><a href="dankocoj-draft-setup/draft-ietf-trusted-auction-services.txt" class="txt draft-ietf-trusted-auction-services" title="Trusted Auction Services (Text)">plain text</a></td>
+        <td><a href="https://author-tools.ietf.org/api/iddiff?url_1=https://privacysandbox.github.io/draft-ietf-protected-audience-auction-service/draft-ietf-trusted-auction-services.txt&amp;url_2=https://privacysandbox.github.io/draft-ietf-protected-audience-auction-service/dankocoj-draft-setup/draft-ietf-trusted-auction-services.txt" class="diff draft-ietf-trusted-auction-services">diff with main</a></td>
+      </tr>
+    </table>
+    <script>
+window.onload = function() {
+  var referrer_branch = 'main';
+  // e.g., "https://github.com/user/repo/tree/main"
+  var chunks = document.referrer.split("/");
+  if (chunks[2] === 'github.com' && chunks[5] === 'tree') {
+    referrer_branch = chunks[6];
+  }
+  let branch = document.querySelector('#branch-' + referrer_branch);
+  let h = document.location.hash.substring(1);
+  if (h === 'show') {
+    document.location.hash = '#' + branch.id;
+  } else if (branch && h.startsWith('go')) {
+    let e = branch.querySelector(h.substring(2));
+    if (e && e.href) {
+      document.location = e.href;
+    }
+  }
+};
+    </script>
+  </body>
+</html>
