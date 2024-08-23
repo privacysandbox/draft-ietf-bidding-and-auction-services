@@ -205,18 +205,20 @@ compressed with Compression. The Server shall zero pad the response (TODO).
 The response has the following format:
 
 ~~~~~cddl
-AuctionResponse = {
+response = {
   adRenderURL: tstr,
   ; The ad that will be rendered
 
   ? components: [* tstr],
   ; List of render URLs for
-  ; component ads
+  ; component ads to be displayed
+  ; as part of this ad
 
   ? interestGroupName: tstr,
-  ; Name of the InterestGroup
+  ; Name of the InterestGroup to which
+  ; the ad belongs
 
-  ? interestGroupOwner: tstr,
+  ? interestGroupOwner: origin,
   ; Origin of the Buyer who owns
   ; the interest group
 
@@ -229,13 +231,18 @@ AuctionResponse = {
 
   ? score: float,
   ; Score of the ad determined
-  ; during the auction
+  ; during the auction.
+  ; Any value that is zero or negative indicates
+  ; that the ad cannot win the auction.
+  ; The winner of the auction would be the
+  ; ad that was given the highest score.
 
   ? bid: float,
   ; Bid price corresponding to an ad
 
-  ? bidCurrency: tstr,
-  ; Optional currency of the bid
+  ? bidCurrency: tstr .size 3 .regexp /^[A-Z]{3}$/,
+  ; Optional currency of the bid.
+  ; Three uppercase letters, ISO 4217 alpha code suggested.
 
   ? buyerReportingId: tstr,
   ; Optional BuyerReportingId of
@@ -247,12 +254,19 @@ AuctionResponse = {
   ; the winning Ad
 
   ? isChaff: bool,
-  ; Boolean to indicate that there
-  ; is no remarketing winner
+  ; The auction result
+  ; may be ignored if set to true.
 
-  ? winReportingUrls: winReportingUrlsDef,
+  ? winReportingUrls: {
+    ? buyerReportingUrls: reportingUrls,
+    ? componentSellerReportingUrls: reportingUrls,
+    ? topLevelSellerReportingUrls: reportingUrls
+  },
 
-  ? error: errorDef,
+  ? error: {
+    code: int,
+    message: tstr
+  },
 
   ? adMetadata: json,
   ; Arbitrary metadata to pass
@@ -263,66 +277,49 @@ AuctionResponse = {
   ; top-level seller in case this
   ; is a component auction
 
-  ? kAnonWinnerJoinCandidates: KAnonJoinCandidate,
+  ? kAnonWinnerJoinCandidates: [* KAnonJoinCandidate],
 
   ? kAnonWinnerPositionalIndex: int,
   ; Positional index of the
-  ; k-anon winner
+  ; k-anon winner.
+  ; Note: Positional index \u003e= 0.
+  ; If this is equal to 0, that would imply the
+  ; highest scored bid is also K-Anonymous and hence a winner.
+  ; If this is greater than 0,
+  ; the positional index would imply the index of
+  ; first K-Anonymous scored bid in a sorted
+  ; list in decreasing order of scored bids.
+  ; In this case, the highest scored bid that
+  ; is not K-Anonymous is the ghost winner.
+  ; In case all scored bids fail the K-Anonymity constraint,
+  ; this would be set to -1 since there is no winner.
+  ; In case all scored bids \u003c= 0,
+  ; this would be set to -1 since there is no winner.
 
   ? kAnonGhostWinners: [* KAnonGhostWinner]
 }
 
 origin = tstr .regexp "https://([^/:](:[0-9]+)?/"
 json = tstr ; JSON encoded data
-; Defines the structure of an error object
-errorDef = {
-  code: int,
-
-  ;
-  message: tstr
-
-  ;
-}
 
 ; Defines the structure for reporting URLs
-reportingUrlsDef = {
+reportingUrls = {
   ? reportingUrl: tstr,
-
-  ;
   ? interactionReportingUrls: { * tstr => tstr }
-
-  ;
-}
-
-; Defines the structure for win reporting URLs
-winReportingUrlsDef = {
-  ? buyerReportingUrls: reportingUrlsDef,
-
-  ;
-  ? componentSellerReportingUrls: reportingUrlsDef,
-
-  ;
-  ? topLevelSellerReportingUrls: reportingUrlsDef
-
-  ;
 }
 
 ; Join candidates for K-Anonymity
 KAnonJoinCandidate = {
   adRenderUrlHash: tstr,
-  ; Protected Audience: SHA-256 hash
+  ; SHA-256 hash
   ; of the tuple: render_url, interest group
   ; owner, reportWin() UDF endpoint.
-  ; Protected App Signals: SHA-256 hash
-  ; of render_url, reportWin UDF endpoint
 
   ? adComponentRenderUrlsHash: [* tstr],
-  ; Protected Audience: SHA-256 hash
+  ; SHA-256 hash
   ; of an ad_component_render_url
   ; Note: There is a maximum limit of 40 ad
   ; component render urls per render url.
-  ; Note: Currently component ads are not in
-  ; scope of Protected App Signals for Android
 
   reportingIdHash: tstr
   ; Protected Audience: SHA-256 hash
@@ -335,52 +332,6 @@ KAnonJoinCandidate = {
   ; Note: An adtech can use either
   ; buyerReportingId or
   ; buyerAndSellerReportingId
-  ; Note: Currently reporting Ids are not in
-  ; scope of Protected Audience for Android
-  ; and Protected App Signal for Android.
-}
-
-; In case of multiseller auction, the associated data for the
-; ghost winner will be returned so that the ghost winning bid can
-; be scored during top level auction
-GhostWinnerForTopLevelAuction = {
-  adRenderUrl: tstr,
-  ; The ad render url corresponding
-  ; to ghost winner
-
-  ? adComponentRenderUrls: [* tstr],
-  ; Render URLs for ads which are
-  ; components of the main ghost winning ad
-
-  modifiedBid: float,
-  ; Modified bid price corresponding
-  ; to ghost winning bid
-
-  ? bidCurrency: tstr,
-  ; Optional. Indicates the currency
-  ; used for the bid price
-
-  ? adMetadata: json,
-  ; Arbitrary metadata associated
-  ; with ghost winner to pass to the
-  ; top-level seller
-
-  buyerAndSellerReportingId: tstr
-  ; BuyerAndSellerReportingId of
-  ; the ghost winning Ad
-}
-
-; Private aggregation signals for the ghost winner
-; Single seller auctions: This would correspond to a ghost
-; winner if available
-GhostWinnerPrivateAggregationSignals = {
-  bucket: bytes,
-  ; 128 bit integer in the form
-  ; of bytestring
-
-  value: int
-  ; Note: Event type is "reserved.loss" and bid rejection
-  ; reason is 8 when K-Anonymity threshold is not met
 }
 
 ; Data for the ghost winner sent back to the client
@@ -388,27 +339,62 @@ GhostWinnerPrivateAggregationSignals = {
 ; ghost winning ad
 ; Refer https://wicg.github.io/turtledove/#k-anonymity
 KAnonGhostWinner = {
-  kAnonJoinCandidates: KAnonJoinCandidate,
+  kAnonJoinCandidates: [* KAnonJoinCandidate],
   ; Join candidates for the
   ; K-Anon ghost winner
 
   ? interestGroupIndex: int,
   ; Interest group index
-  ; corresponding to buyer / DSP
+  ; corresponding to buyer
   ; that generated the ghost
   ; winning bid
-  ; Note: This is only relevant in
-  ; case of Protected Audience
 
-  owner: tstr,
-  ; Origin (Chrome) and domain
-  ; (Android) of the buyer / DSP
+  owner: origin,
+  ; Origin (Chrome) of the buyer
   ; who owns the ghost winner
 
- ? ghostWinnerPrivateAggregationSignals:
- GhostWinnerPrivateAggregationSignals,
+  ? ghostWinnerPrivateAggregationSignals: {
+    bucket: bytes,
+    ; 128 bit integer in the form
+    ; of bytestring
 
-  ? ghostWinnerForTopLevelAuction: GhostWinnerForTopLevelAuction
+    value: int
+  },
+  ; Private aggregation signals for the ghost winner
+  ; Single seller auctions: This would correspond to a ghost
+  ; winner if available
+  ; Note: Event type is "reserved.loss" and bid
+  ; rejection reason is 8 when K-Anonymity threshold is not met.
+
+  ? ghostWinnerForTopLevelAuction: {
+    adRenderUrl: tstr,
+    ; The ad render url corresponding
+    ; to ghost winner
+
+    ? adComponentRenderUrls: [* tstr],
+    ; Render URLs for ads which are
+    ; components of the main ghost winning ad
+
+    modifiedBid: float,
+    ; Modified bid price corresponding
+    ; to ghost winning bid
+
+    ? bidCurrency: tstr,
+    ; Optional. Indicates the currency
+    ; used for the bid price
+
+    ? adMetadata: json,
+    ; Arbitrary metadata associated
+    ; with ghost winner to pass to the
+    ; top-level seller
+
+    buyerAndSellerReportingId: tstr
+    ; BuyerAndSellerReportingId of
+    ; the ghost winning Ad
+  }
+  ; In case of multiseller auction, the associated data for the
+  ; ghost winner will be returned so that the ghost winning bid can
+  ; be scored during top level auction.
 }
 ~~~~~
 
