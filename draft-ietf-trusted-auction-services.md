@@ -2,7 +2,7 @@
 coding: utf-8
 
 title: Trusted Auction Services
-docname: draft-ietf-trusted-auction-services
+docname: draft-ietf-trusted-auction-services-latest
 category: std
 
 area: TODO
