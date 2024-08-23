@@ -5,8 +5,8 @@ title: Trusted Auction Services
 docname: draft-ietf-trusted-auction-services-latest
 category: std
 
-area: TODO
-workgroup: TODO
+# area: TODO
+# workgroup: TODO
 keyword: Internet-Draft
 
 ipr: trust200902
