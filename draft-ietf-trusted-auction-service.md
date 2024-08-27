@@ -1,8 +1,8 @@
 ---
 coding: utf-8
 
-title: Trusted Auction Services
-docname: draft-ietf-trusted-auction-services-latest
+title: Trusted Auction Service
+docname: draft-ietf-trusted-auction-service-latest
 category: std
 
 # area: TODO
@@ -34,7 +34,7 @@ informative:
 
 --- abstract
 
-Trusted Auction Services provide a way for advertising auctions to execute in a
+The Trusted Auction Service provides a way for advertising auctions to execute in a
 remote trusted execution environment while preserving user privacy.
 
 --- middle
@@ -57,7 +57,7 @@ can demand computation requirements that may be impractical to execute on
 devices with limited processing power, or may be too slow to render ads due to
 network latency.
 
-The Trusted Auction Services proposal outlines a way to allow Protected Audience
+This Trusted Auction Service proposal outlines a way to allow Protected Audience
 computation to take place on cloud servers in a trusted execution environment,
 rather than running locally on a user's device. Moving computations to cloud in
 a [Trusted Execution Environment (TEE)](https://github.com/privacysandbox/fledge-docs/blob/main/trusted_services_overview.md#trusted-execution-environment)
