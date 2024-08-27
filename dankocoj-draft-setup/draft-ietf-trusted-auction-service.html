@@ -1454,12 +1454,12 @@ corresponds to the below table:<a href="#section-2.2.2-2" class="pilcrow">¶</a>
             </tbody>
           </table>
 <p id="section-2.2.3-3">where the the first 3 bits of the frame header specify the payload version and
-the following 5 bits specify the compression. The format described in this
-document corresponds to version 0.<a href="#section-2.2.3-3" class="pilcrow">¶</a></p>
-<p id="section-2.2.3-4">Messages SHOULD be zero padded up to one of the following bin sizes, where kB is
-understood to mean 1024 bytes: 0kB, 5kB, 10kB, 20kB, 30kB, 40kB, 55kB. Messages
-SHALL NOT be be larger than 55kB. An implementation may need to remove some
-data from the payload to fit inside the largest bucket.<a href="#section-2.2.3-4" class="pilcrow">¶</a></p>
+the following 5 bits specify the compression algorithm. The format described in this<a href="#section-2.2.3-3" class="pilcrow">¶</a></p>
+<p id="section-2.2.3-4">document corresponds to version 0.<a href="#section-2.2.3-4" class="pilcrow">¶</a></p>
+<p id="section-2.2.3-5">Messages SHOULD be zero padded up to one of the following bin sizes:
+0KiB, 5KiB, 10KiB, 20KiB, 30KiB, 40KiB, 55KiB. Messages
+SHALL NOT be be larger than 55KiB. An implementation may need to remove some
+data from the payload to fit inside the largest bucket.<a href="#section-2.2.3-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="encryption">
@@ -1676,7 +1676,7 @@ KAnonGhostWinner = {
 
   ? ghostWinnerForTopLevelAuction: {
     adRenderUrl: tstr,
-    ; The ad render url corresponding
+    ; The ad render URL corresponding
     ; to ghost winner
 
     ? adComponentRenderUrls: [* tstr],
@@ -1698,7 +1698,7 @@ KAnonGhostWinner = {
 
     buyerAndSellerReportingId: tstr
     ; BuyerAndSellerReportingId of
-    ; the ghost winning Ad
+    ; the ghost winning ad
   }
   ; In case of multiseller auction, the associated data for the
   ; ghost winner will be returned so that the ghost winning bid can

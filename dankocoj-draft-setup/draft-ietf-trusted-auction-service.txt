@@ -283,14 +283,15 @@ Table of Contents
                                   Table 2
 
    where the the first 3 bits of the frame header specify the payload
-   version and the following 5 bits specify the compression.  The format
-   described in this document corresponds to version 0.
+   version and the following 5 bits specify the compression algorithm.
+   The format described in this
 
-   Messages SHOULD be zero padded up to one of the following bin sizes,
-   where kB is understood to mean 1024 bytes: 0kB, 5kB, 10kB, 20kB,
-   30kB, 40kB, 55kB.  Messages SHALL NOT be be larger than 55kB.  An
-   implementation may need to remove some data from the payload to fit
-   inside the largest bucket.
+   document corresponds to version 0.
+
+   Messages SHOULD be zero padded up to one of the following bin sizes:
+   0KiB, 5KiB, 10KiB, 20KiB, 30KiB, 40KiB, 55KiB.  Messages SHALL NOT be
+   be larger than 55KiB.  An implementation may need to remove some data
+   from the payload to fit inside the largest bucket.
 
 2.2.4.  Encryption
 
@@ -489,7 +490,7 @@ Table of Contents
 
      ? ghostWinnerForTopLevelAuction: {
        adRenderUrl: tstr,
-       ; The ad render url corresponding
+       ; The ad render URL corresponding
        ; to ghost winner
 
        ? adComponentRenderUrls: [* tstr],
@@ -511,7 +512,7 @@ Table of Contents
 
        buyerAndSellerReportingId: tstr
        ; BuyerAndSellerReportingId of
-       ; the ghost winning Ad
+       ; the ghost winning ad
      }
      ; In case of multiseller auction, the associated data for the
      ; ghost winner will be returned so that the ghost winning bid can
