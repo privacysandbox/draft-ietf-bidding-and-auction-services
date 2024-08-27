@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-08-25T00:51:07.658161+00:00",
+  "timestamp": "2024-08-27T00:47:01.845588+00:00",
   "repo": "privacysandbox/draft-ietf-protected-audience-auction-service",
   "labels": [
     {
@@ -50,5 +50,47 @@
     }
   ],
   "issues": [],
-  "pulls": []
+  "pulls": [
+    {
+      "number": 1,
+      "id": "PR_kwDOMnZLVc55dfIv",
+      "title": "Update and rename draft-ietf-trusted-auction-services.md to draft-iet\u2026",
+      "url": "https://github.com/privacysandbox/draft-ietf-protected-audience-auction-service/pull/1",
+      "state": "OPEN",
+      "author": "brusshamilton",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "\u2026f-trusted-auction-service.md",
+      "createdAt": "2024-08-26T16:21:42Z",
+      "updatedAt": "2024-08-26T17:30:41Z",
+      "baseRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
+      "baseRefName": "main",
+      "baseRefOid": "86dd048dd7ed1b6ec054afcfc4318b1e5d9e8587",
+      "headRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
+      "headRefName": "brusshamilton-patch-1",
+      "headRefOid": "3519a0d4d57777955d37fa7746e3a44353c2f333",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [
+        {
+          "author": "JensenPaul",
+          "authorAssociation": "COLLABORATOR",
+          "body": "may want to remove the \"trusted\" from the name also, so it matches the repo name, but that's up to you.  LGTM otherwise.",
+          "createdAt": "2024-08-26T16:32:42Z",
+          "updatedAt": "2024-08-26T16:32:42Z"
+        },
+        {
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "body": "> may want to remove the \"trusted\" from the name also, so it matches the repo name, but that's up to you. LGTM otherwise.\r\n\r\nI don't think so. Also, I think \"Auction Service\" is a bit too short. If we're concerned about the repository name not matching the proposal, then maybe we should change the repository name?",
+          "createdAt": "2024-08-26T17:30:39Z",
+          "updatedAt": "2024-08-26T17:30:39Z"
+        }
+      ],
+      "reviews": []
+    }
+  ]
 }
