@@ -4,18 +4,18 @@
 <meta charset="utf-8">
 <meta content="Common,Latin" name="scripts">
 <meta content="initial-scale=1.0" name="viewport">
-<title>Trusted Auction Services</title>
+<title>Trusted Auction Service</title>
 <meta content="Daniel Kocoj" name="author">
 <meta content='Benjamin "Russ" Hamilton' name="author">
 <meta content="
-       Trusted Auction Services provide a way for advertising auctions to execute in a
+       The Trusted Auction Service provides a way for advertising auctions to execute in a
 remote trusted execution environment while preserving user privacy. 
     " name="description">
-<meta content="xml2rfc 3.22.0" name="generator">
+<meta content="xml2rfc 3.23.0" name="generator">
 <meta content="Internet-Draft" name="keyword">
-<meta content="draft-ietf-trusted-auction-services-latest" name="ietf.draft">
+<meta content="draft-ietf-trusted-auction-service-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.22.0
+  xml2rfc 3.23.0
     Python 3.12.3
     ConfigArgParse 1.7
     google-i18n-address 3.1.0
@@ -29,7 +29,7 @@ remote trusted execution environment while preserving user privacy.
     setuptools 70.3.0
     wcwidth 0.2.13
 -->
-<link href="draft-ietf-trusted-auction-services.xml" rel="alternate" type="application/rfc+xml">
+<link href="draft-ietf-trusted-auction-service.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
 <style type="text/css">@font-face {
   font-family: 'Lora';
@@ -1025,12 +1025,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <table class="ears">
 <thead><tr>
 <td class="left">Internet-Draft</td>
-<td class="center">Trusted Auction Services</td>
+<td class="center">Trusted Auction Service</td>
 <td class="right">August 2024</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Kocoj &amp; Hamilton</td>
-<td class="center">Expires 24 February 2025</td>
+<td class="center">Expires 28 February 2025</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1040,15 +1040,15 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dt class="label-workgroup">Workgroup:</dt>
 <dd class="workgroup">Network Working Group</dd>
 <dt class="label-internet-draft">Internet-Draft:</dt>
-<dd class="internet-draft">draft-ietf-trusted-auction-services-latest</dd>
+<dd class="internet-draft">draft-ietf-trusted-auction-service-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-08-23" class="published">23 August 2024</time>
+<time datetime="2024-08-27" class="published">27 August 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2025-02-24">24 February 2025</time></dd>
+<dd class="expires"><time datetime="2025-02-28">28 February 2025</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1062,10 +1062,10 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </dd>
 </dl>
 </div>
-<h1 id="title">Trusted Auction Services</h1>
+<h1 id="title">Trusted Auction Service</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
-<p id="section-abstract-1">Trusted Auction Services provide a way for advertising auctions to execute in a
+<p id="section-abstract-1">The Trusted Auction Service provides a way for advertising auctions to execute in a
 remote trusted execution environment while preserving user privacy.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
@@ -1095,7 +1095,7 @@ remote trusted execution environment while preserving user privacy.<a href="#sec
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 24 February 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 28 February 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1128,7 +1128,7 @@ remote trusted execution environment while preserving user privacy.<a href="#sec
             <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="auto internal xref">1</a>.  <a href="#name-introduction" class="internal xref">Introduction</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.1">
-                <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-use-cases" class="internal xref">Use Cases</a></p>
+                <p id="section-toc.1-1.1.2.1.1" class="keepWithNext"><a href="#section-1.1" class="auto internal xref">1.1</a>.  <a href="#name-scope" class="internal xref">Scope</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.1.2.2">
                 <p id="section-toc.1-1.1.2.2.1" class="keepWithNext"><a href="#section-1.2" class="auto internal xref">1.2</a>.  <a href="#name-terminology" class="internal xref">Terminology</a></p>
@@ -1136,13 +1136,41 @@ remote trusted execution environment while preserving user privacy.<a href="#sec
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2">
-            <p id="section-toc.1-1.2.1"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-formats" class="internal xref">Formats</a></p>
+            <p id="section-toc.1-1.2.1"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-message-format-specificatio" class="internal xref">Message Format Specifications</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1">
-                <p id="section-toc.1-1.2.2.1.1"><a href="#section-2.1" class="auto internal xref">2.1</a>.  <a href="#name-browser-to-trusted-auction-" class="internal xref">Browser to Trusted Auction Server Request Message</a></p>
+                <p id="section-toc.1-1.2.2.1.1"><a href="#section-2.1" class="auto internal xref">2.1</a>.  <a href="#name-overview" class="internal xref">Overview</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2">
-                <p id="section-toc.1-1.2.2.2.1"><a href="#section-2.2" class="auto internal xref">2.2</a>.  <a href="#name-trusted-auction-server-to-b" class="internal xref">Trusted Auction Server To Browser Response Message</a></p>
+                <p id="section-toc.1-1.2.2.2.1"><a href="#section-2.2" class="auto internal xref">2.2</a>.  <a href="#name-browser-to-trusted-auction-" class="internal xref">Browser to Trusted Auction Server</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2.2.1">
+                    <p id="section-toc.1-1.2.2.2.2.1.1"><a href="#section-2.2.1" class="auto internal xref">2.2.1</a>.  <a href="#name-request-payload-data" class="internal xref">Request Payload Data</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2.2.2">
+                    <p id="section-toc.1-1.2.2.2.2.2.1"><a href="#section-2.2.2" class="auto internal xref">2.2.2</a>.  <a href="#name-compression" class="internal xref">Compression</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2.2.3">
+                    <p id="section-toc.1-1.2.2.2.2.3.1"><a href="#section-2.2.3" class="auto internal xref">2.2.3</a>.  <a href="#name-framing-and-padding" class="internal xref">Framing and Padding</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2.2.4">
+                    <p id="section-toc.1-1.2.2.2.2.4.1"><a href="#section-2.2.4" class="auto internal xref">2.2.4</a>.  <a href="#name-encryption" class="internal xref">Encryption</a></p>
+</li>
+                </ul>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.3">
+                <p id="section-toc.1-1.2.2.3.1"><a href="#section-2.3" class="auto internal xref">2.3</a>.  <a href="#name-trusted-auction-server-to-b" class="internal xref">Trusted Auction Server To Browser</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.3.2.1">
+                    <p id="section-toc.1-1.2.2.3.2.1.1"><a href="#section-2.3.1" class="auto internal xref">2.3.1</a>.  <a href="#name-decryption" class="internal xref">Decryption</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.3.2.2">
+                    <p id="section-toc.1-1.2.2.3.2.2.1"><a href="#section-2.3.2" class="auto internal xref">2.3.2</a>.  <a href="#name-decompression" class="internal xref">Decompression</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.3.2.3">
+                    <p id="section-toc.1-1.2.2.3.2.3.1"><a href="#section-2.3.3" class="auto internal xref">2.3.3</a>.  <a href="#name-response-payload-data" class="internal xref">Response Payload Data</a></p>
+</li>
+                </ul>
 </li>
             </ul>
 </li>
@@ -1183,7 +1211,7 @@ bidding and auction for Protected Audience ad demand is executed locally. This
 can demand computation requirements that may be impractical to execute on
 devices with limited processing power, or may be too slow to render ads due to
 network latency.<a href="#section-1-2" class="pilcrow">¶</a></p>
-<p id="section-1-3">The Trusted Auction Services proposal outlines a way to allow Protected Audience
+<p id="section-1-3">This Trusted Auction Service proposal outlines a way to allow Protected Audience
 computation to take place on cloud servers in a trusted execution environment,
 rather than running locally on a user's device. Moving computations to cloud in
 a <a href="https://github.com/privacysandbox/fledge-docs/blob/main/trusted_services_overview.md#trusted-execution-environment">Trusted Execution Environment (TEE)</a>
@@ -1225,13 +1253,16 @@ can protect confidentiality of adtech code and signals.<a href="#section-1-4.10.
       </ul>
 <p id="section-1-5">Standardized protocols for interacting with Bidding and Auction Services are
 essential to creating a diverse and healthy ecosystem for such services.<a href="#section-1-5" class="pilcrow">¶</a></p>
-<p id="section-1-6">This document does not describe distribution of private keys to trusted auction
-services.<a href="#section-1-6" class="pilcrow">¶</a></p>
-<div id="use-cases">
+<div id="Scope">
 <section id="section-1.1">
-        <h3 id="name-use-cases">
-<a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-use-cases" class="section-name selfRef">Use Cases</a>
-      </h3>
+        <h3 id="name-scope">
+<a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-scope" class="section-name selfRef">Scope</a>
+        </h3>
+<p id="section-1.1-1">This document provides a specification for the request-response message
+architecture that is required to implement the Protected Audience API for executing
+a remote, TEE-based ad auction.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
+<p id="section-1.1-2">This document does not describe distribution of private keys to trusted auction
+services.<a href="#section-1.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="Terminology">
@@ -1250,109 +1281,37 @@ appear in all capitals, as shown here.<a href="#section-1.2-1" class="pilcrow">�
 </div>
 <div id="format">
 <section id="section-2">
-      <h2 id="name-formats">
-<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-formats" class="section-name selfRef">Formats</a>
+      <h2 id="name-message-format-specificatio">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-message-format-specificatio" class="section-name selfRef">Message Format Specifications</a>
       </h2>
-<div id="request">
+<div id="overview">
 <section id="section-2.1">
-        <h3 id="name-browser-to-trusted-auction-">
-<a href="#section-2.1" class="section-number selfRef">2.1. </a><a href="#name-browser-to-trusted-auction-" class="section-name selfRef">Browser to Trusted Auction Server Request Message</a>
+        <h3 id="name-overview">
+<a href="#section-2.1" class="section-number selfRef">2.1. </a><a href="#name-overview" class="section-name selfRef">Overview</a>
         </h3>
-<p id="section-2.1-1">The message is encrypted using HPKE with the encapsulation performed according
-to <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span>. Since we are repurposing the OHTTP encapsulation mechanism, we
-define the media type "message/auction request" which is used for encryption.<a href="#section-2.1-1" class="pilcrow">¶</a></p>
-<p id="section-2.1-2">The plaintext message has the following framing:<a href="#section-2.1-2" class="pilcrow">¶</a></p>
-<table class="center" id="table-1">
-          <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
-<thead>
-            <tr>
-              <th class="text-left" rowspan="1" colspan="1">Byte</th>
-              <th class="text-left" rowspan="1" colspan="1">0</th>
-              <th class="text-left" rowspan="1" colspan="1">0</th>
-              <th class="text-left" rowspan="1" colspan="1">1 to 4</th>
-              <th class="text-left" rowspan="1" colspan="1">5 to Size+4</th>
-              <th class="text-left" rowspan="1" colspan="1">Size+5 to end</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Bits</td>
-              <td class="text-left" rowspan="1" colspan="1">7-5</td>
-              <td class="text-left" rowspan="1" colspan="1">4-0</td>
-              <td class="text-left" rowspan="1" colspan="1">*</td>
-              <td class="text-left" rowspan="1" colspan="1">*</td>
-              <td class="text-left" rowspan="1" colspan="1">*</td>
-            </tr>
-            <tr>
-              <td class="text-left" rowspan="1" colspan="1">Contents</td>
-              <td class="text-left" rowspan="1" colspan="1">Version</td>
-              <td class="text-left" rowspan="1" colspan="1">Compression</td>
-              <td class="text-left" rowspan="1" colspan="1">Size</td>
-              <td class="text-left" rowspan="1" colspan="1">Request Payload</td>
-              <td class="text-left" rowspan="1" colspan="1">Padding</td>
-            </tr>
-          </tbody>
-        </table>
-<p id="section-2.1-4">where the the first 3 bits of the frame header specify the payload version and
-the following 5 bits specify the compression. The format described in this
-document corresponds to version 0.<a href="#section-2.1-4" class="pilcrow">¶</a></p>
-<p id="section-2.1-5">Messages SHOULD be zero padded up to one of the following bin sizes, where kB is
-understood to mean 1024 bytes: 0kB, 5kB, 10kB, 20kB, 30kB, 40kB, 55kB. Messages
-SHALL NOT be be larger than 55kB. An implementation may need to remove some
-data from the payload to fit inside the largest bucket.<a href="#section-2.1-5" class="pilcrow">¶</a></p>
-<p id="section-2.1-6">The compression method is defined as:<a href="#section-2.1-6" class="pilcrow">¶</a></p>
-<table class="center" id="table-2">
-          <caption><a href="#table-2" class="selfRef">Table 2</a></caption>
-<thead>
-            <tr>
-              <th class="text-center" rowspan="1" colspan="1">Compression</th>
-              <th class="text-left" rowspan="1" colspan="1">Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="text-center" rowspan="1" colspan="1">0</td>
-              <td class="text-left" rowspan="1" colspan="1">No Compression</td>
-            </tr>
-            <tr>
-              <td class="text-center" rowspan="1" colspan="1">1</td>
-              <td class="text-left" rowspan="1" colspan="1">Brotli</td>
-            </tr>
-            <tr>
-              <td class="text-center" rowspan="1" colspan="1">2</td>
-              <td class="text-left" rowspan="1" colspan="1">GZIP</td>
-            </tr>
-            <tr>
-              <td class="text-center" rowspan="1" colspan="1">3-31</td>
-              <td class="text-left" rowspan="1" colspan="1">Reserved</td>
-            </tr>
-          </tbody>
-        </table>
-<p id="section-2.1-8">The request payload contains <span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span> with the following format (described in <span>[<a href="#CDDL" class="cite xref">CDDL</a>]</span>):<a href="#section-2.1-8" class="pilcrow">¶</a></p>
-<div class="lang-cddl sourcecode" id="section-2.1-9">
-<pre>
-request = {
-  version: int,
-
-  publisher: origin,
-
-  interestGroups: {
-    * origin =&gt; bstr
-    ; CBOR encoded list of interest groups compressed
-    ; using the method described in `compression`.
-  },
-
-  generationId: uuid,
-
-  ? enableDebugReporting: bool
-}
-origin = tstr .regexp "https://([^/:](:[0-9]+)?/"
-uuid = tstr .regexp "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
-</pre><a href="#section-2.1-9" class="pilcrow">¶</a>
+<p id="section-2.1-1">To understand this document, it is important to know that the
+communication between the browser and the remote servers uses a
+request-response message exchange pattern. The request will first reach a seller server, after which
+the seller will forward parts of the request to buyer servers. It is then up to the
+seller server to gather buyer responses and form a final response for the browser. More detail
+about the seller and buyer servers can be found in the <a href="https://github.com/privacysandbox/protected-auction-services-docs/blob/main/bidding_auction_services_system_design.md">server-side system design documentation</a>.<a href="#section-2.1-1" class="pilcrow">¶</a></p>
+</section>
 </div>
-<p id="section-2.1-10">Where the values in the <code>interestGroups</code> field correspond to compressed <span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span>
-messages with the following format:<a href="#section-2.1-10" class="pilcrow">¶</a></p>
-<div class="lang-cddl sourcecode" id="section-2.1-11">
+<div id="browser-to-server">
+<section id="section-2.2">
+        <h3 id="name-browser-to-trusted-auction-">
+<a href="#section-2.2" class="section-number selfRef">2.2. </a><a href="#name-browser-to-trusted-auction-" class="section-name selfRef">Browser to Trusted Auction Server</a>
+        </h3>
+<p id="section-2.2-1">This section describes how the browser MUST form request messages in
+order to communicate with the Trusted Auction Server.<a href="#section-2.2-1" class="pilcrow">¶</a></p>
+<div id="request-payload-data">
+<section id="section-2.2.1">
+          <h4 id="name-request-payload-data">
+<a href="#section-2.2.1" class="section-number selfRef">2.2.1. </a><a href="#name-request-payload-data" class="section-name selfRef">Request Payload Data</a>
+          </h4>
+<p id="section-2.2.1-1">A request payload primarily consists of interest groups. An interest group
+is represented by the following <span>[<a href="#CDDL" class="cite xref">CDDL</a>]</span>:<a href="#section-2.2.1-1" class="pilcrow">¶</a></p>
+<div class="lang-cddl sourcecode" id="section-2.2.1-2">
 <pre>
 interestGroups = [ * interestGroup ]
 interestGroup = {
@@ -1388,25 +1347,171 @@ interestGroup = {
     ; the request.
   }
 }
+
 adRenderId = tstr
 json = tstr ; JSON encoded data
-</pre><a href="#section-2.1-11" class="pilcrow">¶</a>
+</pre><a href="#section-2.2.1-2" class="pilcrow">¶</a>
+</div>
+<p id="section-2.2.1-3">Each interest group MUST first be represented as <span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span>, and then MUST
+be indiviudally compressed according to the compression algorithm
+specified in the message framing (<a href="#request-framing" class="auto internal xref">Section 2.2.3</a>). This compressed
+interest group data MUST then be aggregated into a map in the complete
+request, which MUST be <span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span> represented by the following <span>[<a href="#CDDL" class="cite xref">CDDL</a>]</span>:<a href="#section-2.2.1-3" class="pilcrow">¶</a></p>
+<div class="lang-cddl sourcecode" id="section-2.2.1-4">
+<pre>
+request = {
+  version: int,
+  generationId: uuid,
+  publisher: origin,
+  interestGroups: {
+    * origin =&gt; bstr
+    ; CBOR encoded list of interest groups compressed
+    ; using the method described in `compression`.
+  },
+  ? enableDebugReporting: bool
+}
+
+origin = tstr .regexp "https://([^/:](:[0-9]+)?/"
+uuid = tstr .regexp "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+</pre><a href="#section-2.2.1-4" class="pilcrow">¶</a>
+</div>
+<p id="section-2.2.1-5">The complete request MUST also be compressed using the same compression
+algorithm as specified in the message framing (<a href="#request-framing" class="auto internal xref">Section 2.2.3</a>).<a href="#section-2.2.1-5" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="request-compression">
+<section id="section-2.2.2">
+          <h4 id="name-compression">
+<a href="#section-2.2.2" class="section-number selfRef">2.2.2. </a><a href="#name-compression" class="section-name selfRef">Compression</a>
+          </h4>
+<p id="section-2.2.2-1">The payload MAY undergo compression.<a href="#section-2.2.2-1" class="pilcrow">¶</a></p>
+<p id="section-2.2.2-2">The compression method's value in bits 4-0 in <a href="#request-framing" class="auto internal xref">Section 2.2.3</a>
+corresponds to the below table:<a href="#section-2.2.2-2" class="pilcrow">¶</a></p>
+<table class="center" id="table-1">
+            <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
+<thead>
+              <tr>
+                <th class="text-center" rowspan="1" colspan="1">Compression</th>
+                <th class="text-left" rowspan="1" colspan="1">Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="text-center" rowspan="1" colspan="1">0</td>
+                <td class="text-left" rowspan="1" colspan="1">No Compression</td>
+              </tr>
+              <tr>
+                <td class="text-center" rowspan="1" colspan="1">1</td>
+                <td class="text-left" rowspan="1" colspan="1">Brotli</td>
+              </tr>
+              <tr>
+                <td class="text-center" rowspan="1" colspan="1">2</td>
+                <td class="text-left" rowspan="1" colspan="1">GZIP</td>
+              </tr>
+              <tr>
+                <td class="text-center" rowspan="1" colspan="1">3-31</td>
+                <td class="text-left" rowspan="1" colspan="1">Reserved</td>
+              </tr>
+            </tbody>
+          </table>
+</section>
+</div>
+<div id="request-framing">
+<section id="section-2.2.3">
+          <h4 id="name-framing-and-padding">
+<a href="#section-2.2.3" class="section-number selfRef">2.2.3. </a><a href="#name-framing-and-padding" class="section-name selfRef">Framing and Padding</a>
+          </h4>
+<p id="section-2.2.3-1">The plaintext message has the following framing:<a href="#section-2.2.3-1" class="pilcrow">¶</a></p>
+<table class="center" id="table-2">
+            <caption><a href="#table-2" class="selfRef">Table 2</a></caption>
+<thead>
+              <tr>
+                <th class="text-left" rowspan="1" colspan="1">Byte</th>
+                <th class="text-left" rowspan="1" colspan="1">0</th>
+                <th class="text-left" rowspan="1" colspan="1">0</th>
+                <th class="text-left" rowspan="1" colspan="1">1 to 4</th>
+                <th class="text-left" rowspan="1" colspan="1">5 to Size+4</th>
+                <th class="text-left" rowspan="1" colspan="1">Size+5 to end</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="text-left" rowspan="1" colspan="1">Bits</td>
+                <td class="text-left" rowspan="1" colspan="1">7-5</td>
+                <td class="text-left" rowspan="1" colspan="1">4-0</td>
+                <td class="text-left" rowspan="1" colspan="1">*</td>
+                <td class="text-left" rowspan="1" colspan="1">*</td>
+                <td class="text-left" rowspan="1" colspan="1">*</td>
+              </tr>
+              <tr>
+                <td class="text-left" rowspan="1" colspan="1">Contents</td>
+                <td class="text-left" rowspan="1" colspan="1">Version</td>
+                <td class="text-left" rowspan="1" colspan="1">Compression</td>
+                <td class="text-left" rowspan="1" colspan="1">Size</td>
+                <td class="text-left" rowspan="1" colspan="1">Request Payload</td>
+                <td class="text-left" rowspan="1" colspan="1">Padding</td>
+              </tr>
+            </tbody>
+          </table>
+<p id="section-2.2.3-3">where the the first 3 bits of the frame header specify the payload version and
+the following 5 bits specify the compression. The format described in this
+document corresponds to version 0.<a href="#section-2.2.3-3" class="pilcrow">¶</a></p>
+<p id="section-2.2.3-4">Messages SHOULD be zero padded up to one of the following bin sizes, where kB is
+understood to mean 1024 bytes: 0kB, 5kB, 10kB, 20kB, 30kB, 40kB, 55kB. Messages
+SHALL NOT be be larger than 55kB. An implementation may need to remove some
+data from the payload to fit inside the largest bucket.<a href="#section-2.2.3-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="encryption">
+<section id="section-2.2.4">
+          <h4 id="name-encryption">
+<a href="#section-2.2.4" class="section-number selfRef">2.2.4. </a><a href="#name-encryption" class="section-name selfRef">Encryption</a>
+          </h4>
+<p id="section-2.2.4-1">After framing and padding the compressed payload, the entire plaintext message is
+encrypted using HPKE with the encapsulation performed according
+to <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span>. Since we are repurposing the OHTTP encapsulation mechanism, we
+define the media type "message/auction request" which is used for encryption.<a href="#section-2.2.4-1" class="pilcrow">¶</a></p>
+</section>
 </div>
 </section>
 </div>
-<div id="response">
-<section id="section-2.2">
+<div id="server-to-browser">
+<section id="section-2.3">
         <h3 id="name-trusted-auction-server-to-b">
-<a href="#section-2.2" class="section-number selfRef">2.2. </a><a href="#name-trusted-auction-server-to-b" class="section-name selfRef">Trusted Auction Server To Browser Response Message</a>
+<a href="#section-2.3" class="section-number selfRef">2.3. </a><a href="#name-trusted-auction-server-to-b" class="section-name selfRef">Trusted Auction Server To Browser</a>
         </h3>
-<p id="section-2.2-1">The response message is encrypted using HPKE with the encapsulation performed
+<p id="section-2.3-1">This section describes how the browser MUST interpret response messages from
+the Trusted Auction Server.<a href="#section-2.3-1" class="pilcrow">¶</a></p>
+<div id="decryption">
+<section id="section-2.3.1">
+          <h4 id="name-decryption">
+<a href="#section-2.3.1" class="section-number selfRef">2.3.1. </a><a href="#name-decryption" class="section-name selfRef">Decryption</a>
+          </h4>
+<p id="section-2.3.1-1">The response message is encrypted using HPKE with the encapsulation performed
 according to <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span> as the response to the request message. Since we are
 repurposing the OHTTP encapsulation mechanism, we define the media type
-"message/auction response" which is used for encryption.<a href="#section-2.2-1" class="pilcrow">¶</a></p>
-<p id="section-2.2-2">The message framing is as in <a href="#request" class="auto internal xref">Section 2.1</a>, but the entire response payload is
-compressed with Compression. The Server shall zero pad the response (TODO).<a href="#section-2.2-2" class="pilcrow">¶</a></p>
-<p id="section-2.2-3">The response has the following format:<a href="#section-2.2-3" class="pilcrow">¶</a></p>
-<div class="breakable lang-cddl sourcecode" id="section-2.2-4">
+"message/auction response" which is used for encryption. The browser SHALL
+decrypt the response by following the standard <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span> <a href="https://www.rfc-editor.org/rfc/rfc9458#section-4.4-5">Encapsulated Response
+decryption procedure</a>.<a href="#section-2.3.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="decompression">
+<section id="section-2.3.2">
+          <h4 id="name-decompression">
+<a href="#section-2.3.2" class="section-number selfRef">2.3.2. </a><a href="#name-decompression" class="section-name selfRef">Decompression</a>
+          </h4>
+<p id="section-2.3.2-1">The message framing is as in <a href="#request-framing" class="auto internal xref">Section 2.2.3</a>, but the entire response payload is
+compressed. The Server shall zero pad the response (TODO).<a href="#section-2.3.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="response-payload-data">
+<section id="section-2.3.3">
+          <h4 id="name-response-payload-data">
+<a href="#section-2.3.3" class="section-number selfRef">2.3.3. </a><a href="#name-response-payload-data" class="section-name selfRef">Response Payload Data</a>
+          </h4>
+<p id="section-2.3.3-1">The response has the following data, serialized as <span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span> and matching
+the following shape (described via <span>[<a href="#CDDL" class="cite xref">CDDL</a>]</span>):<a href="#section-2.3.3-1" class="pilcrow">¶</a></p>
+<div class="breakable lang-cddl sourcecode" id="section-2.3.3-2">
 <pre>
 response = {
   adRenderURL: tstr,
@@ -1597,9 +1702,11 @@ KAnonGhostWinner = {
   }
   ; In case of multiseller auction, the associated data for the
   ; ghost winner will be returned so that the ghost winning bid can
-  ; be scored during top level auction.
+  ; be scored during the top level auction.
 }
-</pre><a href="#section-2.2-4" class="pilcrow">¶</a>
+</pre><a href="#section-2.3.3-2" class="pilcrow">¶</a>
+</div>
+</section>
 </div>
 </section>
 </div>

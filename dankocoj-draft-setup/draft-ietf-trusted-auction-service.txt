@@ -5,16 +5,16 @@
 Network Working Group                                           D. Kocoj
 Internet-Draft                                            B. R. Hamilton
 Intended status: Standards Track                                  Google
-Expires: 24 February 2025                                 23 August 2024
+Expires: 28 February 2025                                 27 August 2024
 
 
-                        Trusted Auction Services
-               draft-ietf-trusted-auction-services-latest
+                        Trusted Auction Service
+               draft-ietf-trusted-auction-service-latest
 
 Abstract
 
-   Trusted Auction Services provide a way for advertising auctions to
-   execute in a remote trusted execution environment while preserving
+   The Trusted Auction Service provides a way for advertising auctions
+   to execute in a remote trusted execution environment while preserving
    user privacy.
 
 Discussion Venues
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 24 February 2025.
+   This Internet-Draft will expire on 28 February 2025.
 
 Copyright Notice
 
@@ -59,11 +59,19 @@ Copyright Notice
 Table of Contents
 
    1.  Introduction
-     1.1.  Use Cases
+     1.1.  Scope
      1.2.  Terminology
-   2.  Formats
-     2.1.  Browser to Trusted Auction Server Request Message
-     2.2.  Trusted Auction Server To Browser Response Message
+   2.  Message Format Specifications
+     2.1.  Overview
+     2.2.  Browser to Trusted Auction Server
+       2.2.1.  Request Payload Data
+       2.2.2.  Compression
+       2.2.3.  Framing and Padding
+       2.2.4.  Encryption
+     2.3.  Trusted Auction Server To Browser
+       2.3.1.  Decryption
+       2.3.2.  Decompression
+       2.3.3.  Response Payload Data
    3.  Security Considerations
    4.  IANA Considerations
    5.  Normative References
@@ -91,7 +99,7 @@ Table of Contents
    execute on devices with limited processing power, or may be too slow
    to render ads due to network latency.
 
-   The Trusted Auction Services proposal outlines a way to allow
+   This Trusted Auction Service proposal outlines a way to allow
    Protected Audience computation to take place on cloud servers in a
    trusted execution environment, rather than running locally on a
    user's device.  Moving computations to cloud in a Trusted Execution
@@ -131,10 +139,14 @@ Table of Contents
    Services are essential to creating a diverse and healthy ecosystem
    for such services.
 
+1.1.  Scope
+
+   This document provides a specification for the request-response
+   message architecture that is required to implement the Protected
+   Audience API for executing a remote, TEE-based ad auction.
+
    This document does not describe distribution of private keys to
    trusted auction services.
-
-1.1.  Use Cases
 
 1.2.  Terminology
 
@@ -144,78 +156,30 @@ Table of Contents
    14 [RFC2119] [RFC8174] when, and only when, they appear in all
    capitals, as shown here.
 
-2.  Formats
+2.  Message Format Specifications
 
-2.1.  Browser to Trusted Auction Server Request Message
+2.1.  Overview
 
-   The message is encrypted using HPKE with the encapsulation performed
-   according to [OHTTP].  Since we are repurposing the OHTTP
-   encapsulation mechanism, we define the media type "message/auction
-   request" which is used for encryption.
+   To understand this document, it is important to know that the
+   communication between the browser and the remote servers uses a
+   request-response message exchange pattern.  The request will first
+   reach a seller server, after which the seller will forward parts of
+   the request to buyer servers.  It is then up to the seller server to
+   gather buyer responses and form a final response for the browser.
+   More detail about the seller and buyer servers can be found in the
+   server-side system design documentation
+   (https://github.com/privacysandbox/protected-auction-services-
+   docs/blob/main/bidding_auction_services_system_design.md).
 
-   The plaintext message has the following framing:
+2.2.  Browser to Trusted Auction Server
 
-   +==========+=========+=============+========+=============+=========+
-   | Byte     | 0       | 0           | 1 to 4 | 5 to        | Size+5  |
-   |          |         |             |        | Size+4      | to end  |
-   +==========+=========+=============+========+=============+=========+
-   | Bits     | 7-5     | 4-0         | *      | *           | *       |
-   +----------+---------+-------------+--------+-------------+---------+
-   | Contents | Version | Compression | Size   | Request     | Padding |
-   |          |         |             |        | Payload     |         |
-   +----------+---------+-------------+--------+-------------+---------+
+   This section describes how the browser MUST form request messages in
+   order to communicate with the Trusted Auction Server.
 
-                                  Table 1
+2.2.1.  Request Payload Data
 
-   where the the first 3 bits of the frame header specify the payload
-   version and the following 5 bits specify the compression.  The format
-   described in this document corresponds to version 0.
-
-   Messages SHOULD be zero padded up to one of the following bin sizes,
-   where kB is understood to mean 1024 bytes: 0kB, 5kB, 10kB, 20kB,
-   30kB, 40kB, 55kB.  Messages SHALL NOT be be larger than 55kB.  An
-   implementation may need to remove some data from the payload to fit
-   inside the largest bucket.
-
-   The compression method is defined as:
-
-                     +=============+================+
-                     | Compression | Description    |
-                     +=============+================+
-                     |      0      | No Compression |
-                     +-------------+----------------+
-                     |      1      | Brotli         |
-                     +-------------+----------------+
-                     |      2      | GZIP           |
-                     +-------------+----------------+
-                     |     3-31    | Reserved       |
-                     +-------------+----------------+
-
-                                 Table 2
-
-   The request payload contains [CBOR] with the following format
-   (described in [CDDL]):
-
-   request = {
-     version: int,
-
-     publisher: origin,
-
-     interestGroups: {
-       * origin => bstr
-       ; CBOR encoded list of interest groups compressed
-       ; using the method described in `compression`.
-     },
-
-     generationId: uuid,
-
-     ? enableDebugReporting: bool
-   }
-   origin = tstr .regexp "https://([^/:](:[0-9]+)?/"
-   uuid = tstr .regexp "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
-
-   Where the values in the interestGroups field correspond to compressed
-   [CBOR] messages with the following format:
+   A request payload primarily consists of interest groups.  An interest
+   group is represented by the following [CDDL]:
 
    interestGroups = [ * interestGroup ]
    interestGroup = {
@@ -251,22 +215,116 @@ Table of Contents
        ; the request.
      }
    }
+
    adRenderId = tstr
    json = tstr ; JSON encoded data
 
-2.2.  Trusted Auction Server To Browser Response Message
+   Each interest group MUST first be represented as [CBOR], and then
+   MUST be indiviudally compressed according to the compression
+   algorithm specified in the message framing (Section 2.2.3).  This
+   compressed interest group data MUST then be aggregated into a map in
+   the complete request, which MUST be [CBOR] represented by the
+   following [CDDL]:
+
+   request = {
+     version: int,
+     generationId: uuid,
+     publisher: origin,
+     interestGroups: {
+       * origin => bstr
+       ; CBOR encoded list of interest groups compressed
+       ; using the method described in `compression`.
+     },
+     ? enableDebugReporting: bool
+   }
+
+   origin = tstr .regexp "https://([^/:](:[0-9]+)?/"
+   uuid = tstr .regexp "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+
+   The complete request MUST also be compressed using the same
+   compression algorithm as specified in the message framing
+   (Section 2.2.3).
+
+2.2.2.  Compression
+
+   The payload MAY undergo compression.
+
+   The compression method's value in bits 4-0 in Section 2.2.3
+   corresponds to the below table:
+
+                     +=============+================+
+                     | Compression | Description    |
+                     +=============+================+
+                     |      0      | No Compression |
+                     +-------------+----------------+
+                     |      1      | Brotli         |
+                     +-------------+----------------+
+                     |      2      | GZIP           |
+                     +-------------+----------------+
+                     |     3-31    | Reserved       |
+                     +-------------+----------------+
+
+                                 Table 1
+
+2.2.3.  Framing and Padding
+
+   The plaintext message has the following framing:
+
+   +==========+=========+=============+========+=============+=========+
+   | Byte     | 0       | 0           | 1 to 4 | 5 to        | Size+5  |
+   |          |         |             |        | Size+4      | to end  |
+   +==========+=========+=============+========+=============+=========+
+   | Bits     | 7-5     | 4-0         | *      | *           | *       |
+   +----------+---------+-------------+--------+-------------+---------+
+   | Contents | Version | Compression | Size   | Request     | Padding |
+   |          |         |             |        | Payload     |         |
+   +----------+---------+-------------+--------+-------------+---------+
+
+                                  Table 2
+
+   where the the first 3 bits of the frame header specify the payload
+   version and the following 5 bits specify the compression.  The format
+   described in this document corresponds to version 0.
+
+   Messages SHOULD be zero padded up to one of the following bin sizes,
+   where kB is understood to mean 1024 bytes: 0kB, 5kB, 10kB, 20kB,
+   30kB, 40kB, 55kB.  Messages SHALL NOT be be larger than 55kB.  An
+   implementation may need to remove some data from the payload to fit
+   inside the largest bucket.
+
+2.2.4.  Encryption
+
+   After framing and padding the compressed payload, the entire
+   plaintext message is encrypted using HPKE with the encapsulation
+   performed according to [OHTTP].  Since we are repurposing the OHTTP
+   encapsulation mechanism, we define the media type "message/auction
+   request" which is used for encryption.
+
+2.3.  Trusted Auction Server To Browser
+
+   This section describes how the browser MUST interpret response
+   messages from the Trusted Auction Server.
+
+2.3.1.  Decryption
 
    The response message is encrypted using HPKE with the encapsulation
    performed according to [OHTTP] as the response to the request
    message.  Since we are repurposing the OHTTP encapsulation mechanism,
    we define the media type "message/auction response" which is used for
-   encryption.
+   encryption.  The browser SHALL decrypt the response by following the
+   standard [OHTTP] Encapsulated Response decryption procedure
+   (https://www.rfc-editor.org/rfc/rfc9458#section-4.4-5).
 
-   The message framing is as in Section 2.1, but the entire response
-   payload is compressed with Compression.  The Server shall zero pad
-   the response (TODO).
+2.3.2.  Decompression
 
-   The response has the following format:
+   The message framing is as in Section 2.2.3, but the entire response
+   payload is compressed.  The Server shall zero pad the response
+   (TODO).
+
+2.3.3.  Response Payload Data
+
+   The response has the following data, serialized as [CBOR] and
+   matching the following shape (described via [CDDL]):
 
    response = {
      adRenderURL: tstr,
@@ -457,7 +515,7 @@ Table of Contents
      }
      ; In case of multiseller auction, the associated data for the
      ; ghost winner will be returned so that the ghost winning bid can
-     ; be scored during top level auction.
+     ; be scored during the top level auction.
    }
 
 3.  Security Considerations
