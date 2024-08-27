@@ -31,7 +31,6 @@ normative:
   OHTTP: RFC9458
 
 informative:
-
 --- abstract
 
 The Trusted Auction Service provides a way for advertising auctions to execute in a
@@ -39,8 +38,7 @@ remote trusted execution environment while preserving user privacy.
 
 --- middle
 
-Introduction        {#problems}
-============
+# Introduction        {#problems}
 
 Today, real-time bidding and ad auctions are executed on servers that may not
 provide technical guarantees of security. Some users have concerns about how
@@ -80,14 +78,15 @@ have the following benefits:
 Standardized protocols for interacting with Bidding and Auction Services are
 essential to creating a diverse and healthy ecosystem for such services.
 
+## Scope {#Scope}
+This document provides a specification for the request-response message
+architecture that is required to implement the Protected Audience API for executing
+a remote, TEE-based ad auction.
+
 This document does not describe distribution of private keys to trusted auction
 services.
 
-Use Cases    {#use-cases}
----------
-
-Terminology          {#Terminology}
------------
+## Terminology          {#Terminology}
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
 NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED",
@@ -95,63 +94,26 @@ NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED",
 described in BCP 14 {{!RFC2119}} {{!RFC8174}} when, and only when, they
 appear in all capitals, as shown here.
 
-# Formats   {#format}
+# Message Format Specifications   {#format}
 
-## Browser to Trusted Auction Server Request Message {#request}
-The message is encrypted using HPKE with the encapsulation performed according
-to {{OHTTP}}. Since we are repurposing the OHTTP encapsulation mechanism, we
-define the media type "message/auction request" which is used for encryption.
+## Overview
 
-The plaintext message has the following framing:
+To understand this document, it is important to know that the
+communication between the browser and the remote servers uses a
+request-response message exchange pattern. The request will first reach a seller server, after which
+the seller will forward parts of the request to buyer servers. It is then up to the
+seller server to gather buyer responses and form a final response for the browser. More detail
+about the seller and buyer servers can be found in the [server-side system design documentation](https://github.com/privacysandbox/protected-auction-services-docs/blob/main/bidding_auction_services_system_design.md).
 
-|Byte    | 0       | 0           | 1 to 4 | 5 to Size+4     | Size+5 to end |
-|--------|---------|-------------|--------|-----------------|---------------|
-|Bits    | 7-5     | 4-0         | *      | *               |      *        |
-|--------|---------|-------------|--------|-----------------|---------------|
-|Contents| Version | Compression | Size   | Request Payload | Padding       |
+## Browser to Trusted Auction Server {#browser-to-server}
 
-where the the first 3 bits of the frame header specify the payload version and
-the following 5 bits specify the compression. The format described in this
-document corresponds to version 0.
+This section describes how the browser MUST form request messages in
+order to communicate with the Trusted Auction Server.
 
-Messages SHOULD be zero padded up to one of the following bin sizes, where kB is
-understood to mean 1024 bytes: 0kB, 5kB, 10kB, 20kB, 30kB, 40kB, 55kB. Messages
-SHALL NOT be be larger than 55kB. An implementation may need to remove some
-data from the payload to fit inside the largest bucket.
+### Request Payload Data
 
-The compression method is defined as:
-
-| Compression | Description   |
-|:-----------:|:--------------|
-|      0      | No Compression|
-|      1      | Brotli        |
-|      2      | GZIP          |
-|    3-31     | Reserved      |
-
-The request payload contains {{CBOR}} with the following format (described in {{CDDL}}):
-
-~~~~~ cddl
-request = {
-  version: int,
-
-  publisher: origin,
-
-  interestGroups: {
-    * origin => bstr
-    ; CBOR encoded list of interest groups compressed
-    ; using the method described in `compression`.
-  },
-
-  generationId: uuid,
-
-  ? enableDebugReporting: bool
-}
-origin = tstr .regexp "https://([^/:](:[0-9]+)?/"
-uuid = tstr .regexp "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
-~~~~~
-
-Where the values in the `interestGroups` field correspond to compressed {{CBOR}}
-messages with the following format:
+A request payload primarily consists of interest groups. An interest group
+is represented by the following {{CDDL}}:
 
 ~~~~~ cddl
 interestGroups = [ * interestGroup ]
@@ -188,21 +150,102 @@ interestGroup = {
     ; the request.
   }
 }
+
 adRenderId = tstr
 json = tstr ; JSON encoded data
 ~~~~~
 
-## Trusted Auction Server To Browser Response Message {#response}
+Each interest group MUST first be represented as {{CBOR}}, and then MUST
+be indiviudally compressed according to the compression algorithm
+specified in the message framing ({{request-framing}}). This compressed
+interest group data MUST then be aggregated into a map in the complete
+request, which MUST be {{CBOR}} represented by the following {{CDDL}}:
+
+~~~~~ cddl
+request = {
+  version: int,
+  generationId: uuid,
+  publisher: origin,
+  interestGroups: {
+    * origin => bstr
+    ; CBOR encoded list of interest groups compressed
+    ; using the method described in `compression`.
+  },
+  ? enableDebugReporting: bool
+}
+
+origin = tstr .regexp "https://([^/:](:[0-9]+)?/"
+uuid = tstr .regexp "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+~~~~~
+
+The complete request MUST also be compressed using the same compression
+algorithm as specified in the message framing ({{request-framing}}).
+
+### Compression {#request-compression}
+
+The payload MAY undergo compression.
+
+The compression method's value in bits 4-0 in {{request-framing}}
+corresponds to the below table:
+
+| Compression | Description    |
+| :---------: | :------------- |
+|      0      | No Compression |
+|      1      | Brotli         |
+|      2      | GZIP           |
+|    3-31     | Reserved       |
+
+
+### Framing and Padding {#request-framing}
+
+The plaintext message has the following framing:
+
+| Byte     | 0         | 0             | 1 to 4   | 5 to Size+4       | Size+5 to end   |
+| -------- | --------- | ------------- | -------- | ----------------- | --------------- |
+| Bits     | 7-5       | 4-0           | *        | *                 | *               |
+| -------- | --------- | ------------- | -------- | ----------------- | --------------- |
+| Contents | Version   | Compression   | Size     | Request Payload   | Padding         |
+
+where the the first 3 bits of the frame header specify the payload version and
+the following 5 bits specify the compression. The format described in this
+document corresponds to version 0.
+
+Messages SHOULD be zero padded up to one of the following bin sizes, where kB is
+understood to mean 1024 bytes: 0kB, 5kB, 10kB, 20kB, 30kB, 40kB, 55kB. Messages
+SHALL NOT be be larger than 55kB. An implementation may need to remove some
+data from the payload to fit inside the largest bucket.
+
+### Encryption
+
+After framing and padding the compressed payload, the entire plaintext message is
+encrypted using HPKE with the encapsulation performed according
+to {{OHTTP}}. Since we are repurposing the OHTTP encapsulation mechanism, we
+define the media type "message/auction request" which is used for encryption.
+
+
+## Trusted Auction Server To Browser {#server-to-browser}
+
+This section describes how the browser MUST interpret response messages from
+the Trusted Auction Server.
+
+### Decryption
 
 The response message is encrypted using HPKE with the encapsulation performed
 according to {{OHTTP}} as the response to the request message. Since we are
 repurposing the OHTTP encapsulation mechanism, we define the media type
-"message/auction response" which is used for encryption.
+"message/auction response" which is used for encryption. The browser SHALL
+decrypt the response by following the standard {{OHTTP}} [Encapsulated Response
+decryption procedure](https://www.rfc-editor.org/rfc/rfc9458#section-4.4-5).
 
-The message framing is as in {{request}}, but the entire response payload is
-compressed with Compression. The Server shall zero pad the response (TODO).
+### Decompression
 
-The response has the following format:
+The message framing is as in {{request-framing}}, but the entire response payload is
+compressed. The Server shall zero pad the response (TODO).
+
+### Response Payload Data
+
+The response has the following data, serialized as {{CBOR}} and matching
+the following shape (described via {{CDDL}}):
 
 ~~~~~cddl
 response = {
@@ -394,7 +437,7 @@ KAnonGhostWinner = {
   }
   ; In case of multiseller auction, the associated data for the
   ; ghost winner will be returned so that the ghost winning bid can
-  ; be scored during top level auction.
+  ; be scored during the top level auction.
 }
 ~~~~~
 
