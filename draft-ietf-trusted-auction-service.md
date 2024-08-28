@@ -33,6 +33,11 @@ normative:
   ORIGIN:
     target: https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin
     title: HTML Living Standard
+    date: 2024
+  URL:
+    target: https://url.spec.whatwg.org/#concept-url
+    title: URL Living Standard
+    date: 2024
 
 informative:
 
@@ -132,6 +137,9 @@ currency = tstr .size 3 .regexp /^[A-Z]{3}$/
 
 ; TODO
 json = tstr ; JSON encoded data
+
+; As defined in [URL].
+adRenderUrl = tstr;
 ~~~~~
 
 ## Browser to Trusted Auction Server {#browser-to-server}
@@ -273,12 +281,12 @@ the following shape (described via {{CDDL}}):
 
 ~~~~~cddl
 response = {
-  ; The ad that will be rendered.
-  adRenderURL: tstr,
+  ; The ad to render.
+  adRenderURL: adRenderUrl,
 
-  ; List of render URLs for component ads displayed as part of this
+  ; List of URLs for component ads displayed as part of this
   ; ad.
-  ? components: [* tstr],
+  ? components: [* adRenderUrl],
 
   ; Name of the InterestGroup to which the ad belongs.
   ? interestGroupName: tstr,
@@ -361,7 +369,9 @@ reportingUrls = {
 ; Join candidates for K-Anonymity
 KAnonJoinCandidate = {
   ; SHA-256 [RFC6234] hash of the tuple: render_url, interest group
-  ; owner, reportWin() UDF endpoint.
+  ; owner, reportWin endpoint.
+  ; TODO rework this so it is obvious what each string represents and
+  ; how to hash them together.
   adRenderUrlHash: tstr,
 
   ; SHA-256 [RFC6234] hash of an ad_component_render_url.
@@ -414,7 +424,7 @@ KAnonGhostWinner = {
   ; winning bid during the top-level auction.
   ? ghostWinnerForTopLevelAuction: {
     ; Ad render URL of the ghost winner.
-    adRenderUrl: tstr,
+    adRenderUrl: adRenderUrl,
 
     ; Render URLs for component ads of the main ghost winning ad.
     ? adComponentRenderUrls: [* tstr],
