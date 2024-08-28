@@ -1030,7 +1030,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Kocoj &amp; Hamilton</td>
-<td class="center">Expires 28 February 2025</td>
+<td class="center">Expires 1 March 2025</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1043,12 +1043,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-ietf-trusted-auction-service-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-08-27" class="published">27 August 2024</time>
+<time datetime="2024-08-28" class="published">28 August 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2025-02-28">28 February 2025</time></dd>
+<dd class="expires"><time datetime="2025-03-01">1 March 2025</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1095,7 +1095,7 @@ remote trusted execution environment while preserving user privacy.<a href="#sec
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 28 February 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 1 March 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1140,6 +1140,11 @@ remote trusted execution environment while preserving user privacy.<a href="#sec
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1">
                 <p id="section-toc.1-1.2.2.1.1"><a href="#section-2.1" class="auto internal xref">2.1</a>.  <a href="#name-overview" class="internal xref">Overview</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.1.2.1">
+                    <p id="section-toc.1-1.2.2.1.2.1.1"><a href="#section-2.1.1" class="auto internal xref">2.1.1</a>.  <a href="#name-common-definitions" class="internal xref">Common Definitions</a></p>
+</li>
+                </ul>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2">
                 <p id="section-toc.1-1.2.2.2.1"><a href="#section-2.2" class="auto internal xref">2.2</a>.  <a href="#name-browser-to-trusted-auction-" class="internal xref">Browser to Trusted Auction Server</a></p>
@@ -1295,6 +1300,34 @@ request-response message exchange pattern. The request will first reach a seller
 the seller will forward parts of the request to buyer servers. It is then up to the
 seller server to gather buyer responses and form a final response for the browser. More detail
 about the seller and buyer servers can be found in the <a href="https://github.com/privacysandbox/protected-auction-services-docs/blob/main/bidding_auction_services_system_design.md">server-side system design documentation</a>.<a href="#section-2.1-1" class="pilcrow">¶</a></p>
+<div id="common-definitions">
+<section id="section-2.1.1">
+          <h4 id="name-common-definitions">
+<a href="#section-2.1.1" class="section-number selfRef">2.1.1. </a><a href="#name-common-definitions" class="section-name selfRef">Common Definitions</a>
+          </h4>
+<p id="section-2.1.1-1"><a href="#format" class="auto internal xref">Section 2</a> makes frequent use of the following definitions, here
+represented as <span>[<a href="#CDDL" class="cite xref">CDDL</a>]</span>.<a href="#section-2.1.1-1" class="pilcrow">¶</a></p>
+<div class="lang-cddl sourcecode" id="section-2.1.1-2">
+<pre>
+; As defined in [ORIGIN].
+origin = tstr .regexp "https://([^/:](:[0-9]+)?/"
+
+; TODO
+uuid = tstr .regexp "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
+
+; TODO
+; Three uppercase letters, ISO 4217 alpha code suggested.
+currency = tstr .size 3 .regexp /^[A-Z]{3}$/
+
+; TODO
+json = tstr ; JSON encoded data
+
+; As defined in [URL].
+adRenderUrl = tstr;
+</pre><a href="#section-2.1.1-2" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
 </section>
 </div>
 <div id="browser-to-server">
@@ -1309,8 +1342,8 @@ order to communicate with the Trusted Auction Server.<a href="#section-2.2-1" cl
           <h4 id="name-request-payload-data">
 <a href="#section-2.2.1" class="section-number selfRef">2.2.1. </a><a href="#name-request-payload-data" class="section-name selfRef">Request Payload Data</a>
           </h4>
-<p id="section-2.2.1-1">A request payload primarily consists of interest groups. An interest group
-is represented by the following <span>[<a href="#CDDL" class="cite xref">CDDL</a>]</span>:<a href="#section-2.2.1-1" class="pilcrow">¶</a></p>
+<p id="section-2.2.1-1">A request payload primarily consists of interest groups. An interest
+group is represented by the following <span>[<a href="#CDDL" class="cite xref">CDDL</a>]</span>:<a href="#section-2.2.1-1" class="pilcrow">¶</a></p>
 <div class="lang-cddl sourcecode" id="section-2.2.1-2">
 <pre>
 interestGroups = [ * interestGroup ]
@@ -1321,22 +1354,19 @@ interestGroup = {
   ? ads: [* adRenderId],
   ? components: [* adRenderId],
   ? browserSignals: {
+    ; Number of times the group was joined in the last 30 days.
     ? joinCount: int,
-    ; Number of times the group was joined in the last 30
+
+    ; Number of times the group bid in an auction in the last 30
     ; days.
-
     ? bidCount: int,
-    ; Number of times the group bid in an auction in the
-    ; last 30 days.
 
+    ; Tuple of time-ad pairs for a previous win for this interest
+    ; group that occurred in the last 30 days.
+    ; The time is specified in seconds before the containing
+    ; auctionBlob was requested.
     ? prevWins: [* [int, adRenderId]],
-    ; Tuple of time-ad pairs for a
-    ; previous win for this interest group that occurred
-    ; in the last 30 days.
-    ; The time is specified in seconds before the
-    ; containing auctionBlob was requested.
 
-    ? recencyMs: int
     ; The most recent join time for this group expressed
     ; in milli seconds before the containing auctionBlob
     ; was requested. This field will be used by newer client
@@ -1345,11 +1375,11 @@ interestGroup = {
     ; higher precision. If not, recency will be used. Only
     ; one of the recency or recencyMs is expected to present in
     ; the request.
+    ? recencyMs: int
   }
 }
 
 adRenderId = tstr
-json = tstr ; JSON encoded data
 </pre><a href="#section-2.2.1-2" class="pilcrow">¶</a>
 </div>
 <p id="section-2.2.1-3">Each interest group MUST first be represented as <span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span>, and then MUST
@@ -1371,8 +1401,6 @@ request = {
   ? enableDebugReporting: bool
 }
 
-origin = tstr .regexp "https://([^/:](:[0-9]+)?/"
-uuid = tstr .regexp "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
 </pre><a href="#section-2.2.1-4" class="pilcrow">¶</a>
 </div>
 <p id="section-2.2.1-5">The complete request MUST also be compressed using the same compression
@@ -1402,11 +1430,13 @@ corresponds to the below table:<a href="#section-2.2.2-2" class="pilcrow">¶</a>
               </tr>
               <tr>
                 <td class="text-center" rowspan="1" colspan="1">1</td>
-                <td class="text-left" rowspan="1" colspan="1">Brotli</td>
+                <td class="text-left" rowspan="1" colspan="1">Brotli <span>[<a href="#RFC7932" class="cite xref">RFC7932</a>]</span>
+</td>
               </tr>
               <tr>
                 <td class="text-center" rowspan="1" colspan="1">2</td>
-                <td class="text-left" rowspan="1" colspan="1">GZIP</td>
+                <td class="text-left" rowspan="1" colspan="1">GZIP <span>[<a href="#RFC1952" class="cite xref">RFC1952</a>]</span>
+</td>
               </tr>
               <tr>
                 <td class="text-center" rowspan="1" colspan="1">3-31</td>
@@ -1453,13 +1483,13 @@ corresponds to the below table:<a href="#section-2.2.2-2" class="pilcrow">¶</a>
               </tr>
             </tbody>
           </table>
-<p id="section-2.2.3-3">where the the first 3 bits of the frame header specify the payload version and
-the following 5 bits specify the compression algorithm. The format described in this<a href="#section-2.2.3-3" class="pilcrow">¶</a></p>
-<p id="section-2.2.3-4">document corresponds to version 0.<a href="#section-2.2.3-4" class="pilcrow">¶</a></p>
-<p id="section-2.2.3-5">Messages SHOULD be zero padded up to one of the following bin sizes:
+<p id="section-2.2.3-3">where the the first 3 bits of the frame header specify the payload
+version and the following 5 bits specify the compression algorithm.
+The format described in this document corresponds to version 0.<a href="#section-2.2.3-3" class="pilcrow">¶</a></p>
+<p id="section-2.2.3-4">Messages SHOULD be zero padded up to one of the following bin sizes:
 0KiB, 5KiB, 10KiB, 20KiB, 30KiB, 40KiB, 55KiB. Messages
 SHALL NOT be be larger than 55KiB. An implementation may need to remove some
-data from the payload to fit inside the largest bucket.<a href="#section-2.2.3-5" class="pilcrow">¶</a></p>
+data from the payload to fit inside the largest bucket.<a href="#section-2.2.3-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="encryption">
@@ -1514,56 +1544,46 @@ the following shape (described via <span>[<a href="#CDDL" class="cite xref">CDDL
 <div class="breakable lang-cddl sourcecode" id="section-2.3.3-2">
 <pre>
 response = {
-  adRenderURL: tstr,
-  ; The ad that will be rendered
+  ; The ad to render.
+  adRenderURL: adRenderUrl,
 
-  ? components: [* tstr],
-  ; List of render URLs for
-  ; component ads to be displayed
-  ; as part of this ad
+  ; List of URLs for component ads displayed as part of this
+  ; ad.
+  ? components: [* adRenderUrl],
 
+  ; Name of the InterestGroup to which the ad belongs.
   ? interestGroupName: tstr,
-  ; Name of the InterestGroup to which
-  ; the ad belongs
 
+  ; Origin of the Buyer who owns the interest group.
   ? interestGroupOwner: origin,
-  ; Origin of the Buyer who owns
-  ; the interest group
 
+  ; Indices of interest groups in the original request for this owner
+  ; that submitted a bid.
   ? biddingGroups: {
     * origin =&gt; [* int]
-    ; Indices of interest groups
-    ; in the original request for
-    ; this owner that submitted a bid
   },
 
+  ; Score of the ad determined during the auction.
+  ; Any value that is zero or negative indicates that the ad cannot
+  ; win the auction.
+  ; The winner of the auction would be the ad that was given the
+  ; highest score.
   ? score: float,
-  ; Score of the ad determined
-  ; during the auction.
-  ; Any value that is zero or negative indicates
-  ; that the ad cannot win the auction.
-  ; The winner of the auction would be the
-  ; ad that was given the highest score.
 
-  ? bid: float,
   ; Bid price corresponding to an ad
+  ? bid: float,
 
-  ? bidCurrency: tstr .size 3 .regexp /^[A-Z]{3}$/,
   ; Optional currency of the bid.
-  ; Three uppercase letters, ISO 4217 alpha code suggested.
+  ? bidCurrency: currency,
 
+  ; Optional BuyerReportingId of the winning Ad
   ? buyerReportingId: tstr,
-  ; Optional BuyerReportingId of
-  ; the winning Ad
 
+  ; Optional BuyerAndSellerReportingId of the winning Ad
   ? buyerAndSellerReportingId: tstr,
-  ; Optional
-  ; BuyerAndSellerReportingId of
-  ; the winning Ad
 
+  ; The auction result may be ignored if set to true.
   ? isChaff: bool,
-  ; The auction result
-  ; may be ignored if set to true.
 
   ? winReportingUrls: {
     ? buyerReportingUrls: reportingUrls,
@@ -1576,41 +1596,34 @@ response = {
     message: tstr
   },
 
+  ; Arbitrary metadata to pass to the top-level seller
   ? adMetadata: json,
-  ; Arbitrary metadata to pass
-  ; to the top-level seller
 
+  ; Optional name/domain for the top-level seller in case this is a
+  ; component auction.
   ? topLevelSeller: origin,
-  ; Optional name/domain for
-  ; top-level seller in case this
-  ; is a component auction
 
   ? kAnonWinnerJoinCandidates: [* KAnonJoinCandidate],
 
+  ; Positional index of the k-anon winner.
+  ; Note: Positional index &gt;= 0.
+  ; If this is equal to 0, the highest scored bid is also K-Anonymous
+  ; and hence a winner.
+  ; If this is greater than 0, the positional index implies the index
+  ; of the first K-Anonymous scored bid in a sorted list in
+  ; decreasing order of scored bids.
+  ; In this case, the highest scored bid that is not K-Anonymous is
+  ; the ghost winner.
+  ; In case all scored bids fail the K-Anonymity constraint, this
+  ; would be set to -1 since there is no winner.
+  ; In case all scored bids &lt;= 0, this would be set to -1 since
+  ; there is no winner.
   ? kAnonWinnerPositionalIndex: int,
-  ; Positional index of the
-  ; k-anon winner.
-  ; Note: Positional index \u003e= 0.
-  ; If this is equal to 0, that would imply the
-  ; highest scored bid is also K-Anonymous and hence a winner.
-  ; If this is greater than 0,
-  ; the positional index would imply the index of
-  ; first K-Anonymous scored bid in a sorted
-  ; list in decreasing order of scored bids.
-  ; In this case, the highest scored bid that
-  ; is not K-Anonymous is the ghost winner.
-  ; In case all scored bids fail the K-Anonymity constraint,
-  ; this would be set to -1 since there is no winner.
-  ; In case all scored bids \u003c= 0,
-  ; this would be set to -1 since there is no winner.
 
   ? kAnonGhostWinners: [* KAnonGhostWinner]
 }
 
-origin = tstr .regexp "https://([^/:](:[0-9]+)?/"
-json = tstr ; JSON encoded data
-
-; Defines the structure for reporting URLs
+; Defines the structure for reporting URLs.
 reportingUrls = {
   ? reportingUrl: tstr,
   ? interactionReportingUrls: { * tstr =&gt; tstr }
@@ -1618,91 +1631,80 @@ reportingUrls = {
 
 ; Join candidates for K-Anonymity
 KAnonJoinCandidate = {
+  ; SHA-256 [RFC6234] hash of the tuple: render_url, interest group
+  ; owner, reportWin endpoint.
+  ; TODO rework this so it is obvious what each string represents and
+  ; how to hash them together.
   adRenderUrlHash: tstr,
-  ; SHA-256 hash
-  ; of the tuple: render_url, interest group
-  ; owner, reportWin() UDF endpoint.
 
+  ; SHA-256 [RFC6234] hash of an ad_component_render_url.
+  ; Note: There is a maximum limit of 40 ad component render urls per
+  ; render url.
   ? adComponentRenderUrlsHash: [* tstr],
-  ; SHA-256 hash
-  ; of an ad_component_render_url
-  ; Note: There is a maximum limit of 40 ad
-  ; component render urls per render url.
 
-  reportingIdHash: tstr
-  ; Protected Audience: SHA-256 hash
-  ; should include IG owner, ad render url,
-  ; reportWin() UDF url and one of the
-  ; following:
+  ; SHA-256 [RFC6234] hash.
+  ; Should include IG owner, ad render url, reportWin() UDF url and
+  ; one of the following:
   ; - If buyerAndSellerReportingId exists
   ; - Else if buyerReportingId exists
   ; - Else IG name should be included
-  ; Note: An adtech can use either
-  ; buyerReportingId or
-  ; buyerAndSellerReportingId
+  ; Note: An adtech can use either buyerReportingId or
+  ; buyerAndSellerReportingId.
+  reportingIdHash: tstr
 }
 
-; Data for the ghost winner sent back to the client
-; This should also include key-hashes corresponding to the
-; ghost winning ad
+; Data for the ghost winner sent back to the client.
+; This should also include key-hashes corresponding to the ghost
+; winning ad.
 ; Refer https://wicg.github.io/turtledove/#k-anonymity
 KAnonGhostWinner = {
+  ; Join candidates for the K-Anon ghost winner.
   kAnonJoinCandidates: [* KAnonJoinCandidate],
-  ; Join candidates for the
-  ; K-Anon ghost winner
 
+  ; Interest group index of the buyer who generated the ghost winning
+  ; bid.
   ? interestGroupIndex: int,
-  ; Interest group index
-  ; corresponding to buyer
-  ; that generated the ghost
-  ; winning bid
 
+  ; Buyer index who generated the ghost winning bid.
+  ? buyerIndex: int,
+
+  ; Origin of the buyer who owns the ghost winner.
   owner: origin,
-  ; Origin (Chrome) of the buyer
-  ; who owns the ghost winner
 
+  ; Private aggregation signals for the ghost winner.
+  ; In single seller auctions, this represents a ghost winner if
+  ; available.
+  ; Note: Event type is "reserved.loss" and bid rejection reason is 8
+  ; when the K-Anonymity threshold is not met.
   ? ghostWinnerPrivateAggregationSignals: {
+    ; 128-bit integer in bytestring format.
     bucket: bytes,
-    ; 128 bit integer in the form
-    ; of bytestring
 
     value: int
   },
-  ; Private aggregation signals for the ghost winner
-  ; Single seller auctions: This would correspond to a ghost
-  ; winner if available
-  ; Note: Event type is "reserved.loss" and bid
-  ; rejection reason is 8 when K-Anonymity threshold is not met.
 
+  ; In multi-seller auctions, this data allows scoring the ghost
+  ; winning bid during the top-level auction.
   ? ghostWinnerForTopLevelAuction: {
-    adRenderUrl: tstr,
-    ; The ad render URL corresponding
-    ; to ghost winner
+    ; Ad render URL of the ghost winner.
+    adRenderUrl: adRenderUrl,
 
+    ; Render URLs for component ads of the main ghost winning ad.
     ? adComponentRenderUrls: [* tstr],
-    ; Render URLs for ads which are
-    ; components of the main ghost winning ad
 
+    ; Modified bid price of the ghost winning bid.
     modifiedBid: float,
-    ; Modified bid price corresponding
-    ; to ghost winning bid
 
-    ? bidCurrency: tstr,
-    ; Optional. Indicates the currency
-    ; used for the bid price
+    ; Optional currency used for the bid price.
+    ? bidCurrency: currency,
 
+    ; Arbitrary metadata associated with the ghost winner, passed to
+    ; the top-level seller.
     ? adMetadata: json,
-    ; Arbitrary metadata associated
-    ; with ghost winner to pass to the
-    ; top-level seller
 
+    ; BuyerAndSellerReportingId of the ghost winning ad.
     buyerAndSellerReportingId: tstr
-    ; BuyerAndSellerReportingId of
-    ; the ghost winning ad
   }
-  ; In case of multiseller auction, the associated data for the
-  ; ghost winner will be returned so that the ghost winning bid can
-  ; be scored during the top level auction.
 }
 </pre><a href="#section-2.3.3-2" class="pilcrow">¶</a>
 </div>
@@ -1746,13 +1748,33 @@ KAnonGhostWinner = {
       <dd>
 <span class="refAuthor">Thomson, M.</span> and <span class="refAuthor">C. A. Wood</span>, <span class="refTitle">"Oblivious HTTP"</span>, <span class="seriesInfo">RFC 9458</span>, <span class="seriesInfo">DOI 10.17487/RFC9458</span>, <time datetime="2024-01" class="refDate">January 2024</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9458">https://www.rfc-editor.org/rfc/rfc9458</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="ORIGIN">[ORIGIN]</dt>
+      <dd>
+<span class="refTitle">"HTML Living Standard"</span>, <time datetime="2024" class="refDate">2024</time>, <span>&lt;<a href="https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin">https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC1952">[RFC1952]</dt>
+      <dd>
+<span class="refAuthor">Deutsch, P.</span>, <span class="refTitle">"GZIP file format specification version 4.3"</span>, <span class="seriesInfo">RFC 1952</span>, <span class="seriesInfo">DOI 10.17487/RFC1952</span>, <time datetime="1996-05" class="refDate">May 1996</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc1952">https://www.rfc-editor.org/rfc/rfc1952</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC2119">[RFC2119]</dt>
       <dd>
 <span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2119">https://www.rfc-editor.org/rfc/rfc2119</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="RFC7932">[RFC7932]</dt>
+      <dd>
+<span class="refAuthor">Alakuijala, J.</span> and <span class="refAuthor">Z. Szabadka</span>, <span class="refTitle">"Brotli Compressed Data Format"</span>, <span class="seriesInfo">RFC 7932</span>, <span class="seriesInfo">DOI 10.17487/RFC7932</span>, <time datetime="2016-07" class="refDate">July 2016</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7932">https://www.rfc-editor.org/rfc/rfc7932</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC8174">[RFC8174]</dt>
-    <dd>
+      <dd>
 <span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8174">https://www.rfc-editor.org/rfc/rfc8174</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="SHA-256">[SHA-256]</dt>
+      <dd>
+<span class="refAuthor">Eastlake 3rd, D.</span> and <span class="refAuthor">T. Hansen</span>, <span class="refTitle">"US Secure Hash Algorithms (SHA and SHA-based HMAC and HKDF)"</span>, <span class="seriesInfo">RFC 6234</span>, <span class="seriesInfo">DOI 10.17487/RFC6234</span>, <time datetime="2011-05" class="refDate">May 2011</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6234">https://www.rfc-editor.org/rfc/rfc6234</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="URL">[URL]</dt>
+    <dd>
+<span class="refTitle">"URL Living Standard"</span>, <time datetime="2024" class="refDate">2024</time>, <span>&lt;<a href="https://url.spec.whatwg.org/#concept-url">https://url.spec.whatwg.org/#concept-url</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
