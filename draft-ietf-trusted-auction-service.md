@@ -29,6 +29,8 @@ normative:
   CBOR: RFC8949
   CDDL: RFC8610
   OHTTP: RFC9458
+  SHA-256: RFC6234
+
 
 informative:
 --- abstract
@@ -188,12 +190,12 @@ The payload MAY undergo compression.
 The compression method's value in bits 4-0 in {{request-framing}}
 corresponds to the below table:
 
-| Compression | Description    |
-| :---------: | :------------- |
-|      0      | No Compression |
-|      1      | Brotli         |
-|      2      | GZIP           |
-|    3-31     | Reserved       |
+| Compression | Description        |
+| :---------: | :-------------     |
+|      0      | No Compression     |
+|      1      | Brotli {{!RFC7932}}|
+|      2      | GZIP {{!RFC1952}}  |
+|    3-31     | Reserved           |
 
 
 ### Framing and Padding {#request-framing}
@@ -355,7 +357,7 @@ reportingUrls = {
 ; Join candidates for K-Anonymity
 KAnonJoinCandidate = {
   adRenderUrlHash: tstr,
-  ; SHA-256 hash
+  ; SHA-256 hash [RFC6234]
   ; of the tuple: render_url, interest group
   ; owner, reportWin() UDF endpoint.
 
@@ -366,7 +368,7 @@ KAnonJoinCandidate = {
   ; component render urls per render url.
 
   reportingIdHash: tstr
-  ; Protected Audience: SHA-256 hash
+  ; Protected Audience: SHA-256 hash [RFC6234]
   ; should include IG owner, ad render url,
   ; reportWin() UDF url and one of the
   ; following:
