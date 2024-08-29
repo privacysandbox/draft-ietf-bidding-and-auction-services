@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-08-27T00:47:01.845588+00:00",
+  "timestamp": "2024-08-29T00:47:44.313464+00:00",
   "repo": "privacysandbox/draft-ietf-protected-audience-auction-service",
   "labels": [
     {
@@ -56,24 +56,26 @@
       "id": "PR_kwDOMnZLVc55dfIv",
       "title": "Update and rename draft-ietf-trusted-auction-services.md to draft-iet\u2026",
       "url": "https://github.com/privacysandbox/draft-ietf-protected-audience-auction-service/pull/1",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "brusshamilton",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "\u2026f-trusted-auction-service.md",
       "createdAt": "2024-08-26T16:21:42Z",
-      "updatedAt": "2024-08-26T17:30:41Z",
+      "updatedAt": "2024-08-27T16:56:26Z",
       "baseRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
       "baseRefName": "main",
       "baseRefOid": "86dd048dd7ed1b6ec054afcfc4318b1e5d9e8587",
       "headRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
       "headRefName": "brusshamilton-patch-1",
       "headRefOid": "3519a0d4d57777955d37fa7746e3a44353c2f333",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2024-08-27T16:56:26Z",
+      "mergedAt": "2024-08-27T16:56:26Z",
+      "mergedBy": "brusshamilton",
+      "mergeCommit": {
+        "oid": "332176193de05a035156166f39c15fab3c737a3e"
+      },
       "comments": [
         {
           "author": "JensenPaul",
@@ -88,9 +90,474 @@
           "body": "> may want to remove the \"trusted\" from the name also, so it matches the repo name, but that's up to you. LGTM otherwise.\r\n\r\nI don't think so. Also, I think \"Auction Service\" is a bit too short. If we're concerned about the repository name not matching the proposal, then maybe we should change the repository name?",
           "createdAt": "2024-08-26T17:30:39Z",
           "updatedAt": "2024-08-26T17:30:39Z"
+        },
+        {
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "body": "Fine with the doc rename. We can change the repo name later right before we publish. ",
+          "createdAt": "2024-08-27T01:35:34Z",
+          "updatedAt": "2024-08-27T01:35:34Z"
         }
       ],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDOMnZLVc6G8BSE",
+          "commit": {
+            "abbreviatedOid": "3519a0d"
+          },
+          "author": "JensenPaul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-08-27T16:06:00Z",
+          "updatedAt": "2024-08-27T16:06:00Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6G8d_M",
+          "commit": {
+            "abbreviatedOid": "3519a0d"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-08-27T16:56:03Z",
+          "updatedAt": "2024-08-27T16:56:03Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "id": "PR_kwDOMnZLVc55mtWX",
+      "title": "Add more section structure and update CDDL",
+      "url": "https://github.com/privacysandbox/draft-ietf-protected-audience-auction-service/pull/2",
+      "state": "OPEN",
+      "author": "dankocoj-google",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-08-27T17:19:58Z",
+      "updatedAt": "2024-08-28T19:47:18Z",
+      "baseRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
+      "baseRefName": "main",
+      "baseRefOid": "332176193de05a035156166f39c15fab3c737a3e",
+      "headRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
+      "headRefName": "dankocoj-draft-setup",
+      "headRefOid": "862814374b6e8b1e0489eab8c7ad4d7615508dfb",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOMnZLVc6G8raw",
+          "commit": {
+            "abbreviatedOid": "ade4554"
+          },
+          "author": "JensenPaul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-08-27T17:24:16Z",
+          "updatedAt": "2024-08-27T17:24:16Z",
+          "comments": [
+            {
+              "originalPosition": 175,
+              "body": "nit: This line looks incorrect in Markdown and appears to be ignored in HTML.\r\n```suggestion\r\n```",
+              "createdAt": "2024-08-27T17:24:16Z",
+              "updatedAt": "2024-08-27T17:24:17Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6G8t4V",
+          "commit": {
+            "abbreviatedOid": "ade4554"
+          },
+          "author": "JensenPaul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-08-27T17:29:45Z",
+          "updatedAt": "2024-08-27T17:29:45Z",
+          "comments": [
+            {
+              "originalPosition": 25,
+              "body": "I'd also be okay eliding the mention of TEEs\r\n```suggestion\r\nThis document provides a specification for the request and response message\r\nformat that a browser can use to communicate with services running in Trusted\r\nExecution Environments (TEEs) that allows the browser to offload much of the\r\nwork involved in running an advertisement selection auction as part of the\r\nbrowser's implementation of the Protected Audience API.\r\n```",
+              "createdAt": "2024-08-27T17:29:45Z",
+              "updatedAt": "2024-08-27T17:29:45Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6G8vyN",
+          "commit": {
+            "abbreviatedOid": "ade4554"
+          },
+          "author": "JensenPaul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-08-27T17:33:53Z",
+          "updatedAt": "2024-08-27T17:33:53Z",
+          "comments": [
+            {
+              "originalPosition": 164,
+              "body": "This should link to:\r\nhttps://www.ietf.org/rfc/rfc7932.txt for Brotli\r\nhttps://www.ietf.org/rfc/rfc1952.txt for GZIP\r\nthough I don't know how you add footnotes/links and I also don't know the right way to reference other RFCs",
+              "createdAt": "2024-08-27T17:33:53Z",
+              "updatedAt": "2024-08-27T17:33:53Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6G8wAQ",
+          "commit": {
+            "abbreviatedOid": "ade4554"
+          },
+          "author": "JensenPaul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-08-27T17:34:23Z",
+          "updatedAt": "2024-08-27T17:34:23Z",
+          "comments": [
+            {
+              "originalPosition": 179,
+              "body": "```suggestion\r\nthe following 5 bits specify the compression algorithm. The format described in this\r\n\r\n```",
+              "createdAt": "2024-08-27T17:34:23Z",
+              "updatedAt": "2024-08-27T17:34:23Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6G8ySq",
+          "commit": {
+            "abbreviatedOid": "ade4554"
+          },
+          "author": "JensenPaul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-08-27T17:39:38Z",
+          "updatedAt": "2024-08-27T17:39:38Z",
+          "comments": [
+            {
+              "originalPosition": 184,
+              "body": "I believe KiB is the standard: https://physics.nist.gov/cuu/Units/binary.html\r\n```suggestion\r\nMessages SHOULD be zero padded up to one of the following bin sizes:\r\n0KiB, 5KiB, 10KiB, 20KiB, 30KiB, 40KiB, 55KiB. Messages\r\nSHALL NOT be be larger than 55KiB. An implementation may need to remove some\r\n```",
+              "createdAt": "2024-08-27T17:39:38Z",
+              "updatedAt": "2024-08-27T17:39:38Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6G8zYu",
+          "commit": {
+            "abbreviatedOid": "ade4554"
+          },
+          "author": "JensenPaul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-08-27T17:42:06Z",
+          "updatedAt": "2024-08-27T17:57:49Z",
+          "comments": [
+            {
+              "originalPosition": 191,
+              "body": "This needs to be updated as per https://github.com/WICG/turtledove/pull/1243",
+              "createdAt": "2024-08-27T17:42:06Z",
+              "updatedAt": "2024-08-27T17:57:49Z"
+            },
+            {
+              "originalPosition": 206,
+              "body": "https://github.com/WICG/turtledove/pull/1243",
+              "createdAt": "2024-08-27T17:42:14Z",
+              "updatedAt": "2024-08-27T17:57:49Z"
+            },
+            {
+              "originalPosition": 360,
+              "body": "I don't know what \"render_url\" is.  We should clarify this with a link to another spec.",
+              "createdAt": "2024-08-27T17:44:48Z",
+              "updatedAt": "2024-08-27T17:57:49Z"
+            },
+            {
+              "originalPosition": 360,
+              "body": "How these items are hashed together should be more concretely defined, e.g. https://wicg.github.io/turtledove/#query-ad-k-anonymity-count",
+              "createdAt": "2024-08-27T17:46:25Z",
+              "updatedAt": "2024-08-27T17:57:49Z"
+            },
+            {
+              "originalPosition": 368,
+              "body": "same comment as above but about \"ad_component_render_url\"",
+              "createdAt": "2024-08-27T17:46:56Z",
+              "updatedAt": "2024-08-27T17:57:49Z"
+            },
+            {
+              "originalPosition": 368,
+              "body": "same comment as above but referencing something like https://wicg.github.io/turtledove/#query-component-ad-k-anonymity-count",
+              "createdAt": "2024-08-27T17:47:56Z",
+              "updatedAt": "2024-08-27T17:57:49Z"
+            },
+            {
+              "originalPosition": 359,
+              "body": "should we footnote/link SHA-256 to https://www.ietf.org/rfc/rfc6234.txt?",
+              "createdAt": "2024-08-27T17:49:11Z",
+              "updatedAt": "2024-08-27T17:57:49Z"
+            },
+            {
+              "originalPosition": 451,
+              "body": "We should probably remove the \"(Chrome)\" but perhaps footnote/link \"Origin\" to https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin or perhaps we don't want to reference web specs here, so perhaps it's better to instead reference the buyer's origin field in the request object defined in this spec",
+              "createdAt": "2024-08-27T17:51:07Z",
+              "updatedAt": "2024-08-27T17:57:49Z"
+            },
+            {
+              "originalPosition": 472,
+              "body": "```suggestion\r\n    ; The ad render URL corresponding\r\n```",
+              "createdAt": "2024-08-27T17:51:43Z",
+              "updatedAt": "2024-08-27T17:57:49Z"
+            },
+            {
+              "originalPosition": 494,
+              "body": "```suggestion\r\n    ; the ghost winning ad\r\n```",
+              "createdAt": "2024-08-27T17:52:09Z",
+              "updatedAt": "2024-08-27T17:57:49Z"
+            },
+            {
+              "originalPosition": 480,
+              "body": "Is there a reason all these are line wrapped to a small number of characters?",
+              "createdAt": "2024-08-27T17:52:29Z",
+              "updatedAt": "2024-08-27T17:57:49Z"
+            },
+            {
+              "originalPosition": 485,
+              "body": "We should probably mention the format of currencies, perhaps with a regular expression.  They're three uppercase letters: https://wicg.github.io/turtledove/#check-whether-a-string-is-a-valid-currency-tag",
+              "createdAt": "2024-08-27T17:54:46Z",
+              "updatedAt": "2024-08-27T17:57:49Z"
+            },
+            {
+              "originalPosition": 227,
+              "body": "Should all these descriptions end in periods?",
+              "createdAt": "2024-08-27T17:55:38Z",
+              "updatedAt": "2024-08-27T17:57:49Z"
+            },
+            {
+              "originalPosition": 237,
+              "body": "Is there a way to link this to the \"Name\" and \"InterestGroup\" types defined elsewhere in this spec?",
+              "createdAt": "2024-08-27T17:56:53Z",
+              "updatedAt": "2024-08-27T17:57:49Z"
+            },
+            {
+              "originalPosition": 243,
+              "body": "Should this instead reference the request field that this should mirror?",
+              "createdAt": "2024-08-27T17:57:35Z",
+              "updatedAt": "2024-08-27T17:57:49Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6G-gDA",
+          "commit": {
+            "abbreviatedOid": "ade4554"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-08-27T21:48:43Z",
+          "updatedAt": "2024-08-27T21:48:43Z",
+          "comments": [
+            {
+              "originalPosition": 25,
+              "body": "Same, I think that falls outside the purpose of this spec. I'll update. ",
+              "createdAt": "2024-08-27T21:48:43Z",
+              "updatedAt": "2024-08-27T21:48:43Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6G-lIg",
+          "commit": {
+            "abbreviatedOid": "ade4554"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-08-27T22:07:25Z",
+          "updatedAt": "2024-08-27T22:07:25Z",
+          "comments": [
+            {
+              "originalPosition": 175,
+              "body": "Sorry, what do you mean exactly? \r\n\r\n![image](https://github.com/user-attachments/assets/dbbe57e9-eb56-4e45-9631-c5cf6cdf106a)\r\n\r\nThis is what I see in the html, what do you think we need to improve on? ",
+              "createdAt": "2024-08-27T22:07:25Z",
+              "updatedAt": "2024-08-27T22:07:25Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6G-olC",
+          "commit": {
+            "abbreviatedOid": "8387c98"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-08-27T22:20:24Z",
+          "updatedAt": "2024-08-27T22:20:24Z",
+          "comments": [
+            {
+              "originalPosition": 164,
+              "body": "![image](https://github.com/user-attachments/assets/e75e6ed9-4fd8-4845-85fe-521e86a84634)\r\nsimple as this I believe (so Brotli becomes Brotli {{!RFC7932}} and the `make` command handles filling out the citation for you)",
+              "createdAt": "2024-08-27T22:20:24Z",
+              "updatedAt": "2024-08-27T22:20:24Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6HE5Vv",
+          "commit": {
+            "abbreviatedOid": "ade4554"
+          },
+          "author": "JensenPaul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-08-28T13:06:56Z",
+          "updatedAt": "2024-08-28T13:06:56Z",
+          "comments": [
+            {
+              "originalPosition": 175,
+              "body": "Take a look at the table here: https://github.com/privacysandbox/draft-ietf-protected-audience-auction-service/blob/main/draft-ietf-trusted-auction-service.md",
+              "createdAt": "2024-08-28T13:06:56Z",
+              "updatedAt": "2024-08-28T13:06:57Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6HGo_I",
+          "commit": {
+            "abbreviatedOid": "8387c98"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-08-28T15:45:31Z",
+          "updatedAt": "2024-08-28T15:45:31Z",
+          "comments": [
+            {
+              "originalPosition": 175,
+              "body": "<img width=\"896\" alt=\"image\" src=\"https://github.com/user-attachments/assets/47cb3846-9213-47fb-b5ab-ef53d2c6f916\">\r\nThis table is rendered using Github's Markdown dialect, which is different from kramdown-rfc. I think we only care how it renders in plaintext and html though. ",
+              "createdAt": "2024-08-28T15:45:31Z",
+              "updatedAt": "2024-08-28T15:45:31Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6HHJpL",
+          "commit": {
+            "abbreviatedOid": "8387c98"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-08-28T16:47:27Z",
+          "updatedAt": "2024-08-28T16:47:27Z",
+          "comments": [
+            {
+              "originalPosition": 191,
+              "body": "@brusshamilton for visibility. Not sure what media type we're going to use -- different than KV? ",
+              "createdAt": "2024-08-28T16:47:27Z",
+              "updatedAt": "2024-08-28T16:47:52Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6HHL5c",
+          "commit": {
+            "abbreviatedOid": "8387c98"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-08-28T16:52:10Z",
+          "updatedAt": "2024-08-28T16:52:10Z",
+          "comments": [
+            {
+              "originalPosition": 164,
+              "body": "I don't think there's a way to link to RFCs inside code blocks (the cddl below). I think we'll just have to break up the code blocks a bit more.",
+              "createdAt": "2024-08-28T16:52:10Z",
+              "updatedAt": "2024-08-28T16:52:10Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6HH-BF",
+          "commit": {
+            "abbreviatedOid": "8387c98"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-08-28T18:41:14Z",
+          "updatedAt": "2024-08-28T18:41:14Z",
+          "comments": [
+            {
+              "originalPosition": 451,
+              "body": "I think it's fine to have informative (versus normative) references to w3c. \r\nexample: https://www.rfc-editor.org/rfc/rfc9458#UWT",
+              "createdAt": "2024-08-28T18:41:14Z",
+              "updatedAt": "2024-08-28T18:41:14Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6HIZIb",
+          "commit": {
+            "abbreviatedOid": "ade4554"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-08-28T19:44:43Z",
+          "updatedAt": "2024-08-28T19:44:43Z",
+          "comments": [
+            {
+              "originalPosition": 480,
+              "body": "Fixed. Linter suggests 72 chars (after transforming to xml), so that's roughly what I've followed here. Some manual tweaking was required because the md -> xml transform may alter the char count by a small amount.",
+              "createdAt": "2024-08-28T19:44:43Z",
+              "updatedAt": "2024-08-28T19:44:43Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6HIaNW",
+          "commit": {
+            "abbreviatedOid": "ade4554"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-08-28T19:47:18Z",
+          "updatedAt": "2024-08-28T19:47:18Z",
+          "comments": [
+            {
+              "originalPosition": 360,
+              "body": "@brusshamilton is this something you can add to the w3c spec? Then I can link to it from here. ",
+              "createdAt": "2024-08-28T19:47:18Z",
+              "updatedAt": "2024-08-28T19:47:18Z"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
