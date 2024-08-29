@@ -5,7 +5,7 @@
 Network Working Group                                           D. Kocoj
 Internet-Draft                                            B. R. Hamilton
 Intended status: Standards Track                                  Google
-Expires: 1 March 2025                                     28 August 2024
+Expires: 2 March 2025                                     29 August 2024
 
 
                         Trusted Auction Service
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 1 March 2025.
+   This Internet-Draft will expire on 2 March 2025.
 
 Copyright Notice
 
@@ -69,10 +69,11 @@ Table of Contents
        2.2.2.  Compression
        2.2.3.  Framing and Padding
        2.2.4.  Encryption
-     2.3.  Trusted Auction Server To Browser
-       2.3.1.  Decryption
-       2.3.2.  Decompression
-       2.3.3.  Response Payload Data
+     2.3.  Auction Server
+     2.4.  Trusted Auction Server To Browser
+       2.4.1.  Decryption
+       2.4.2.  Decompression
+       2.4.3.  Response Payload Data
    3.  Security Considerations
    4.  IANA Considerations
    5.  Normative References
@@ -174,24 +175,34 @@ Table of Contents
 
 2.1.1.  Common Definitions
 
-   Section 2 makes frequent use of the following definitions, here
-   represented as [CDDL].
+   Section 2 makes frequent use of the following definitions.
 
-   ; As defined in [ORIGIN].
-   origin = tstr .regexp "https://([^/:](:[0-9]+)?/"
+        +=========================================+==============+
+        | Term with CDDL Definition               | Detailed     |
+        |                                         | Reference    |
+        +=========================================+==============+
+        | json = tstr                             | TODO         |
+        +-----------------------------------------+--------------+
+        | uuid = tstr .regexp "[a-fA-F0-9]{8}-[a- | TODO         |
+        | fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-       |              |
+        | F0-9]{4}-[a-fA-F0-9]{12}"               |              |
+        +-----------------------------------------+--------------+
+        | origin = tstr .regexp                   | [ORIGIN]     |
+        | "https://([^/:](:[0-9]+)?/"             |              |
+        +-----------------------------------------+--------------+
+        | currency = tstr .size 3 .regexp         | TODO         |
+        | /^[A-Z]{3}$/                            |              |
+        +-----------------------------------------+--------------+
+        | adRenderUrl = tstr                      | [URL]        |
+        +-----------------------------------------+--------------+
+        | adRenderId = tstr                       | [ADRENDERID] |
+        +-----------------------------------------+--------------+
+        | interestGroupName = tstr                | TODO         |
+        +-----------------------------------------+--------------+
+        | interestGroupOwner = origin             | TODO         |
+        +-----------------------------------------+--------------+
 
-   ; TODO
-   uuid = tstr .regexp "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
-
-   ; TODO
-   ; Three uppercase letters, ISO 4217 alpha code suggested.
-   currency = tstr .size 3 .regexp /^[A-Z]{3}$/
-
-   ; TODO
-   json = tstr ; JSON encoded data
-
-   ; As defined in [URL].
-   adRenderUrl = tstr;
+                                 Table 1
 
 2.2.  Browser to Trusted Auction Server
 
@@ -205,7 +216,7 @@ Table of Contents
 
    interestGroups = [ * interestGroup ]
    interestGroup = {
-     name: tstr,
+     name: interestGroupName,
      ? biddingSignalsKeys: [* tstr],
      ? userBiddingSignals: json,
      ? ads: [* adRenderId],
@@ -236,8 +247,6 @@ Table of Contents
      }
    }
 
-   adRenderId = tstr
-
    Each interest group MUST first be represented as [CBOR], and then
    MUST be indiviudally compressed according to the compression
    algorithm specified in the message framing (Section 2.2.3).  This
@@ -250,9 +259,9 @@ Table of Contents
      generationId: uuid,
      publisher: origin,
      interestGroups: {
-       * origin => bstr
-       ; CBOR encoded list of interest groups compressed
-       ; using the method described in `compression`.
+       ; Map of interest group owner to CBOR encoded list of interest
+       ; groups compressed using the method described in § Compression.
+       * interestGroupOwner => bstr
      },
      ? enableDebugReporting: bool
    }
@@ -280,7 +289,7 @@ Table of Contents
                     |     3-31    | Reserved         |
                     +-------------+------------------+
 
-                                 Table 1
+                                 Table 2
 
 2.2.3.  Framing and Padding
 
@@ -296,7 +305,7 @@ Table of Contents
    |          |         |             |        | Payload     |         |
    +----------+---------+-------------+--------+-------------+---------+
 
-                                  Table 2
+                                  Table 3
 
    where the the first 3 bits of the frame header specify the payload
    version and the following 5 bits specify the compression algorithm.
@@ -315,12 +324,16 @@ Table of Contents
    encapsulation mechanism, we define the media type "message/auction
    request" which is used for encryption.
 
-2.3.  Trusted Auction Server To Browser
+2.3.  Auction Server
+
+   TODO
+
+2.4.  Trusted Auction Server To Browser
 
    This section describes how the browser MUST interpret response
    messages from the Trusted Auction Server.
 
-2.3.1.  Decryption
+2.4.1.  Decryption
 
    The response message is encrypted using HPKE with the encapsulation
    performed according to [OHTTP] as the response to the request
@@ -330,13 +343,13 @@ Table of Contents
    standard [OHTTP] Encapsulated Response decryption procedure
    (https://www.rfc-editor.org/rfc/rfc9458#section-4.4-5).
 
-2.3.2.  Decompression
+2.4.2.  Decompression
 
    The message framing is as in Section 2.2.3, but the entire response
    payload is compressed.  The Server shall zero pad the response
    (TODO).
 
-2.3.3.  Response Payload Data
+2.4.3.  Response Payload Data
 
    The response has the following data, serialized as [CBOR] and
    matching the following shape (described via [CDDL]):
@@ -349,16 +362,19 @@ Table of Contents
      ; ad.
      ? components: [* adRenderUrl],
 
-     ; Name of the InterestGroup to which the ad belongs.
-     ? interestGroupName: tstr,
+     ; Name of the interest group to which the ad belongs.
+     ? interestGroupName: interestGroupName,
 
      ; Origin of the Buyer who owns the interest group.
-     ? interestGroupOwner: origin,
+     ; The original request for this response MUST contain this
+     ; interestGroupOwner, which additionally MUST provide an interest
+     ; group with interestGroupName.
+     ? interestGroupOwner: interestGroupOwner,
 
      ; Indices of interest groups in the original request for this owner
      ; that submitted a bid.
      ? biddingGroups: {
-       * origin => [* int]
+       * interestGroupOwner => [* int]
      },
 
      ; Score of the ad determined during the auction.
@@ -467,7 +483,7 @@ Table of Contents
      ? buyerIndex: int,
 
      ; Origin of the buyer who owns the ghost winner.
-     owner: origin,
+     owner: interestGroupOwner,
 
      ; Private aggregation signals for the ghost winner.
      ; In single seller auctions, this represents a ghost winner if
@@ -514,6 +530,10 @@ Table of Contents
    TODO
 
 5.  Normative References
+
+   [ADRENDERID]
+              "Protected Audience", 2024, <https://wicg.github.io/
+              turtledove/#server-auction-previous-win-ad-render-id>.
 
    [CBOR]     Bormann, C. and P. Hoffman, "Concise Binary Object
               Representation (CBOR)", STD 94, RFC 8949,

@@ -1030,7 +1030,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Kocoj &amp; Hamilton</td>
-<td class="center">Expires 1 March 2025</td>
+<td class="center">Expires 2 March 2025</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1043,12 +1043,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-ietf-trusted-auction-service-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-08-28" class="published">28 August 2024</time>
+<time datetime="2024-08-29" class="published">29 August 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2025-03-01">1 March 2025</time></dd>
+<dd class="expires"><time datetime="2025-03-02">2 March 2025</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1095,7 +1095,7 @@ remote trusted execution environment while preserving user privacy.<a href="#sec
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 1 March 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 2 March 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1164,16 +1164,19 @@ remote trusted execution environment while preserving user privacy.<a href="#sec
                 </ul>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.3">
-                <p id="section-toc.1-1.2.2.3.1"><a href="#section-2.3" class="auto internal xref">2.3</a>.  <a href="#name-trusted-auction-server-to-b" class="internal xref">Trusted Auction Server To Browser</a></p>
+                <p id="section-toc.1-1.2.2.3.1"><a href="#section-2.3" class="auto internal xref">2.3</a>.  <a href="#name-auction-server" class="internal xref">Auction Server</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.4">
+                <p id="section-toc.1-1.2.2.4.1"><a href="#section-2.4" class="auto internal xref">2.4</a>.  <a href="#name-trusted-auction-server-to-b" class="internal xref">Trusted Auction Server To Browser</a></p>
 <ul class="compact toc ulBare ulEmpty">
-<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.3.2.1">
-                    <p id="section-toc.1-1.2.2.3.2.1.1"><a href="#section-2.3.1" class="auto internal xref">2.3.1</a>.  <a href="#name-decryption" class="internal xref">Decryption</a></p>
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.4.2.1">
+                    <p id="section-toc.1-1.2.2.4.2.1.1"><a href="#section-2.4.1" class="auto internal xref">2.4.1</a>.  <a href="#name-decryption" class="internal xref">Decryption</a></p>
 </li>
-                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.3.2.2">
-                    <p id="section-toc.1-1.2.2.3.2.2.1"><a href="#section-2.3.2" class="auto internal xref">2.3.2</a>.  <a href="#name-decompression" class="internal xref">Decompression</a></p>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.4.2.2">
+                    <p id="section-toc.1-1.2.2.4.2.2.1"><a href="#section-2.4.2" class="auto internal xref">2.4.2</a>.  <a href="#name-decompression" class="internal xref">Decompression</a></p>
 </li>
-                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.3.2.3">
-                    <p id="section-toc.1-1.2.2.3.2.3.1"><a href="#section-2.3.3" class="auto internal xref">2.3.3</a>.  <a href="#name-response-payload-data" class="internal xref">Response Payload Data</a></p>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.4.2.3">
+                    <p id="section-toc.1-1.2.2.4.2.3.1"><a href="#section-2.4.3" class="auto internal xref">2.4.3</a>.  <a href="#name-response-payload-data" class="internal xref">Response Payload Data</a></p>
 </li>
                 </ul>
 </li>
@@ -1305,27 +1308,72 @@ about the seller and buyer servers can be found in the <a href="https://github.c
           <h4 id="name-common-definitions">
 <a href="#section-2.1.1" class="section-number selfRef">2.1.1. </a><a href="#name-common-definitions" class="section-name selfRef">Common Definitions</a>
           </h4>
-<p id="section-2.1.1-1"><a href="#format" class="auto internal xref">Section 2</a> makes frequent use of the following definitions, here
-represented as <span>[<a href="#CDDL" class="cite xref">CDDL</a>]</span>.<a href="#section-2.1.1-1" class="pilcrow">¶</a></p>
-<div class="lang-cddl sourcecode" id="section-2.1.1-2">
-<pre>
-; As defined in [ORIGIN].
-origin = tstr .regexp "https://([^/:](:[0-9]+)?/"
-
-; TODO
-uuid = tstr .regexp "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
-
-; TODO
-; Three uppercase letters, ISO 4217 alpha code suggested.
-currency = tstr .size 3 .regexp /^[A-Z]{3}$/
-
-; TODO
-json = tstr ; JSON encoded data
-
-; As defined in [URL].
-adRenderUrl = tstr;
-</pre><a href="#section-2.1.1-2" class="pilcrow">¶</a>
-</div>
+<p id="section-2.1.1-1"><a href="#format" class="auto internal xref">Section 2</a> makes frequent use of the following definitions.<a href="#section-2.1.1-1" class="pilcrow">¶</a></p>
+<table class="center" id="table-1">
+            <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
+<thead>
+              <tr>
+                <th class="text-left" rowspan="1" colspan="1">Term with CDDL Definition</th>
+                <th class="text-left" rowspan="1" colspan="1">Detailed Reference</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="text-left" rowspan="1" colspan="1">
+                  <code>json = tstr</code>
+</td>
+                <td class="text-left" rowspan="1" colspan="1">TODO</td>
+              </tr>
+              <tr>
+                <td class="text-left" rowspan="1" colspan="1">
+                  <code>uuid = tstr .regexp "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"</code>
+</td>
+                <td class="text-left" rowspan="1" colspan="1">TODO</td>
+              </tr>
+              <tr>
+                <td class="text-left" rowspan="1" colspan="1">
+                  <code>origin = tstr .regexp "https://([^/:](:[0-9]+)?/"</code>
+</td>
+                <td class="text-left" rowspan="1" colspan="1">
+                  <span>[<a href="#ORIGIN" class="cite xref">ORIGIN</a>]</span>
+</td>
+              </tr>
+              <tr>
+                <td class="text-left" rowspan="1" colspan="1">
+                  <code>currency = tstr .size 3 .regexp /^[A-Z]{3}$/</code>
+</td>
+                <td class="text-left" rowspan="1" colspan="1">TODO</td>
+              </tr>
+              <tr>
+                <td class="text-left" rowspan="1" colspan="1">
+                  <code>adRenderUrl = tstr</code>
+</td>
+                <td class="text-left" rowspan="1" colspan="1">
+                  <span>[<a href="#URL" class="cite xref">URL</a>]</span>
+</td>
+              </tr>
+              <tr>
+                <td class="text-left" rowspan="1" colspan="1">
+                  <code>adRenderId = tstr</code>
+</td>
+                <td class="text-left" rowspan="1" colspan="1">
+                  <span>[<a href="#ADRENDERID" class="cite xref">ADRENDERID</a>]</span>
+</td>
+              </tr>
+              <tr>
+                <td class="text-left" rowspan="1" colspan="1">
+                  <code>interestGroupName = tstr</code>
+</td>
+                <td class="text-left" rowspan="1" colspan="1">TODO</td>
+              </tr>
+              <tr>
+                <td class="text-left" rowspan="1" colspan="1">
+                  <code>interestGroupOwner = origin</code>
+</td>
+                <td class="text-left" rowspan="1" colspan="1">TODO</td>
+              </tr>
+            </tbody>
+          </table>
 </section>
 </div>
 </section>
@@ -1348,7 +1396,7 @@ group is represented by the following <span>[<a href="#CDDL" class="cite xref">C
 <pre>
 interestGroups = [ * interestGroup ]
 interestGroup = {
-  name: tstr,
+  name: interestGroupName,
   ? biddingSignalsKeys: [* tstr],
   ? userBiddingSignals: json,
   ? ads: [* adRenderId],
@@ -1378,8 +1426,6 @@ interestGroup = {
     ? recencyMs: int
   }
 }
-
-adRenderId = tstr
 </pre><a href="#section-2.2.1-2" class="pilcrow">¶</a>
 </div>
 <p id="section-2.2.1-3">Each interest group MUST first be represented as <span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span>, and then MUST
@@ -1394,13 +1440,12 @@ request = {
   generationId: uuid,
   publisher: origin,
   interestGroups: {
-    * origin =&gt; bstr
-    ; CBOR encoded list of interest groups compressed
-    ; using the method described in `compression`.
+    ; Map of interest group owner to CBOR encoded list of interest
+    ; groups compressed using the method described in § Compression.
+    * interestGroupOwner =&gt; bstr
   },
   ? enableDebugReporting: bool
 }
-
 </pre><a href="#section-2.2.1-4" class="pilcrow">¶</a>
 </div>
 <p id="section-2.2.1-5">The complete request MUST also be compressed using the same compression
@@ -1415,8 +1460,8 @@ algorithm as specified in the message framing (<a href="#request-framing" class=
 <p id="section-2.2.2-1">The payload MAY undergo compression.<a href="#section-2.2.2-1" class="pilcrow">¶</a></p>
 <p id="section-2.2.2-2">The compression method's value in bits 4-0 in <a href="#request-framing" class="auto internal xref">Section 2.2.3</a>
 corresponds to the below table:<a href="#section-2.2.2-2" class="pilcrow">¶</a></p>
-<table class="center" id="table-1">
-            <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
+<table class="center" id="table-2">
+            <caption><a href="#table-2" class="selfRef">Table 2</a></caption>
 <thead>
               <tr>
                 <th class="text-center" rowspan="1" colspan="1">Compression</th>
@@ -1452,8 +1497,8 @@ corresponds to the below table:<a href="#section-2.2.2-2" class="pilcrow">¶</a>
 <a href="#section-2.2.3" class="section-number selfRef">2.2.3. </a><a href="#name-framing-and-padding" class="section-name selfRef">Framing and Padding</a>
           </h4>
 <p id="section-2.2.3-1">The plaintext message has the following framing:<a href="#section-2.2.3-1" class="pilcrow">¶</a></p>
-<table class="center" id="table-2">
-            <caption><a href="#table-2" class="selfRef">Table 2</a></caption>
+<table class="center" id="table-3">
+            <caption><a href="#table-3" class="selfRef">Table 3</a></caption>
 <thead>
               <tr>
                 <th class="text-left" rowspan="1" colspan="1">Byte</th>
@@ -1505,43 +1550,51 @@ define the media type "message/auction request" which is used for encryption.<a 
 </div>
 </section>
 </div>
-<div id="server-to-browser">
+<div id="auction-server">
 <section id="section-2.3">
-        <h3 id="name-trusted-auction-server-to-b">
-<a href="#section-2.3" class="section-number selfRef">2.3. </a><a href="#name-trusted-auction-server-to-b" class="section-name selfRef">Trusted Auction Server To Browser</a>
+        <h3 id="name-auction-server">
+<a href="#section-2.3" class="section-number selfRef">2.3. </a><a href="#name-auction-server" class="section-name selfRef">Auction Server</a>
         </h3>
-<p id="section-2.3-1">This section describes how the browser MUST interpret response messages from
-the Trusted Auction Server.<a href="#section-2.3-1" class="pilcrow">¶</a></p>
+<p id="section-2.3-1">TODO<a href="#section-2.3-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="server-to-browser">
+<section id="section-2.4">
+        <h3 id="name-trusted-auction-server-to-b">
+<a href="#section-2.4" class="section-number selfRef">2.4. </a><a href="#name-trusted-auction-server-to-b" class="section-name selfRef">Trusted Auction Server To Browser</a>
+        </h3>
+<p id="section-2.4-1">This section describes how the browser MUST interpret response messages from
+the Trusted Auction Server.<a href="#section-2.4-1" class="pilcrow">¶</a></p>
 <div id="decryption">
-<section id="section-2.3.1">
+<section id="section-2.4.1">
           <h4 id="name-decryption">
-<a href="#section-2.3.1" class="section-number selfRef">2.3.1. </a><a href="#name-decryption" class="section-name selfRef">Decryption</a>
+<a href="#section-2.4.1" class="section-number selfRef">2.4.1. </a><a href="#name-decryption" class="section-name selfRef">Decryption</a>
           </h4>
-<p id="section-2.3.1-1">The response message is encrypted using HPKE with the encapsulation performed
+<p id="section-2.4.1-1">The response message is encrypted using HPKE with the encapsulation performed
 according to <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span> as the response to the request message. Since we are
 repurposing the OHTTP encapsulation mechanism, we define the media type
 "message/auction response" which is used for encryption. The browser SHALL
 decrypt the response by following the standard <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span> <a href="https://www.rfc-editor.org/rfc/rfc9458#section-4.4-5">Encapsulated Response
-decryption procedure</a>.<a href="#section-2.3.1-1" class="pilcrow">¶</a></p>
+decryption procedure</a>.<a href="#section-2.4.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="decompression">
-<section id="section-2.3.2">
+<section id="section-2.4.2">
           <h4 id="name-decompression">
-<a href="#section-2.3.2" class="section-number selfRef">2.3.2. </a><a href="#name-decompression" class="section-name selfRef">Decompression</a>
+<a href="#section-2.4.2" class="section-number selfRef">2.4.2. </a><a href="#name-decompression" class="section-name selfRef">Decompression</a>
           </h4>
-<p id="section-2.3.2-1">The message framing is as in <a href="#request-framing" class="auto internal xref">Section 2.2.3</a>, but the entire response payload is
-compressed. The Server shall zero pad the response (TODO).<a href="#section-2.3.2-1" class="pilcrow">¶</a></p>
+<p id="section-2.4.2-1">The message framing is as in <a href="#request-framing" class="auto internal xref">Section 2.2.3</a>, but the entire response payload is
+compressed. The Server shall zero pad the response (TODO).<a href="#section-2.4.2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="response-payload-data">
-<section id="section-2.3.3">
+<section id="section-2.4.3">
           <h4 id="name-response-payload-data">
-<a href="#section-2.3.3" class="section-number selfRef">2.3.3. </a><a href="#name-response-payload-data" class="section-name selfRef">Response Payload Data</a>
+<a href="#section-2.4.3" class="section-number selfRef">2.4.3. </a><a href="#name-response-payload-data" class="section-name selfRef">Response Payload Data</a>
           </h4>
-<p id="section-2.3.3-1">The response has the following data, serialized as <span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span> and matching
-the following shape (described via <span>[<a href="#CDDL" class="cite xref">CDDL</a>]</span>):<a href="#section-2.3.3-1" class="pilcrow">¶</a></p>
-<div class="breakable lang-cddl sourcecode" id="section-2.3.3-2">
+<p id="section-2.4.3-1">The response has the following data, serialized as <span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span> and matching
+the following shape (described via <span>[<a href="#CDDL" class="cite xref">CDDL</a>]</span>):<a href="#section-2.4.3-1" class="pilcrow">¶</a></p>
+<div class="breakable lang-cddl sourcecode" id="section-2.4.3-2">
 <pre>
 response = {
   ; The ad to render.
@@ -1551,16 +1604,19 @@ response = {
   ; ad.
   ? components: [* adRenderUrl],
 
-  ; Name of the InterestGroup to which the ad belongs.
-  ? interestGroupName: tstr,
+  ; Name of the interest group to which the ad belongs.
+  ? interestGroupName: interestGroupName,
 
   ; Origin of the Buyer who owns the interest group.
-  ? interestGroupOwner: origin,
+  ; The original request for this response MUST contain this
+  ; interestGroupOwner, which additionally MUST provide an interest
+  ; group with interestGroupName.
+  ? interestGroupOwner: interestGroupOwner,
 
   ; Indices of interest groups in the original request for this owner
   ; that submitted a bid.
   ? biddingGroups: {
-    * origin =&gt; [* int]
+    * interestGroupOwner =&gt; [* int]
   },
 
   ; Score of the ad determined during the auction.
@@ -1669,7 +1725,7 @@ KAnonGhostWinner = {
   ? buyerIndex: int,
 
   ; Origin of the buyer who owns the ghost winner.
-  owner: origin,
+  owner: interestGroupOwner,
 
   ; Private aggregation signals for the ghost winner.
   ; In single seller auctions, this represents a ghost winner if
@@ -1706,7 +1762,7 @@ KAnonGhostWinner = {
     buyerAndSellerReportingId: tstr
   }
 }
-</pre><a href="#section-2.3.3-2" class="pilcrow">¶</a>
+</pre><a href="#section-2.4.3-2" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
@@ -1736,6 +1792,10 @@ KAnonGhostWinner = {
 <a href="#section-5" class="section-number selfRef">5. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
       </h2>
 <dl class="references">
+<dt id="ADRENDERID">[ADRENDERID]</dt>
+      <dd>
+<span class="refTitle">"Protected Audience"</span>, <time datetime="2024" class="refDate">2024</time>, <span>&lt;<a href="https://wicg.github.io/turtledove/#server-auction-previous-win-ad-render-id">https://wicg.github.io/turtledove/#server-auction-previous-win-ad-render-id</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="CBOR">[CBOR]</dt>
       <dd>
 <span class="refAuthor">Bormann, C.</span> and <span class="refAuthor">P. Hoffman</span>, <span class="refTitle">"Concise Binary Object Representation (CBOR)"</span>, <span class="seriesInfo">STD 94</span>, <span class="seriesInfo">RFC 8949</span>, <span class="seriesInfo">DOI 10.17487/RFC8949</span>, <time datetime="2020-12" class="refDate">December 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8949">https://www.rfc-editor.org/rfc/rfc8949</a>&gt;</span>. </dd>
