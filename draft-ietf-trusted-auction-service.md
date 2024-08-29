@@ -38,6 +38,10 @@ normative:
     target: https://url.spec.whatwg.org/#concept-url
     title: URL Living Standard
     date: 2024
+  ADRENDERID:
+    target: https://wicg.github.io/turtledove/#server-auction-previous-win-ad-render-id
+    title: Protected Audience
+    date: 2024
 
 informative:
 
@@ -105,8 +109,6 @@ NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED",
 described in BCP 14 {{!RFC2119}} {{!RFC8174}} when, and only when, they
 appear in all capitals, as shown here.
 
-
-
 # Message Format Specifications {#format}
 
 ## Overview
@@ -120,27 +122,18 @@ about the seller and buyer servers can be found in the [server-side system desig
 
 ### Common Definitions
 
-{{format}} makes frequent use of the following definitions, here
-represented as {{!CDDL}}.
+{{format}} makes frequent use of the following definitions.
 
-
-~~~~~ cddl
-; As defined in [ORIGIN].
-origin = tstr .regexp "https://([^/:](:[0-9]+)?/"
-
-; TODO
-uuid = tstr .regexp "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
-
-; TODO
-; Three uppercase letters, ISO 4217 alpha code suggested.
-currency = tstr .size 3 .regexp /^[A-Z]{3}$/
-
-; TODO
-json = tstr ; JSON encoded data
-
-; As defined in [URL].
-adRenderUrl = tstr;
-~~~~~
+| Term with CDDL Definition | Detailed Reference |
+| :--- | :--- |
+| `json = tstr` | TODO |
+| `uuid = tstr .regexp "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"` | TODO |
+| `origin = tstr .regexp "https://([^/:](:[0-9]+)?/"` | [ORIGIN] |
+| `currency = tstr .size 3 .regexp /^[A-Z]{3}$/` | TODO |
+| `adRenderUrl = tstr` | [URL] |
+| `adRenderId = tstr` | [ADRENDERID] |
+| `interestGroupName = tstr` | TODO |
+| `interestGroupOwner = origin` | TODO |
 
 ## Browser to Trusted Auction Server {#browser-to-server}
 
@@ -155,7 +148,7 @@ group is represented by the following {{!CDDL}}:
 ~~~~~ cddl
 interestGroups = [ * interestGroup ]
 interestGroup = {
-  name: tstr,
+  name: interestGroupName,
   ? biddingSignalsKeys: [* tstr],
   ? userBiddingSignals: json,
   ? ads: [* adRenderId],
@@ -185,8 +178,6 @@ interestGroup = {
     ? recencyMs: int
   }
 }
-
-adRenderId = tstr
 ~~~~~
 
 Each interest group MUST first be represented as {{CBOR}}, and then MUST
@@ -201,13 +192,12 @@ request = {
   generationId: uuid,
   publisher: origin,
   interestGroups: {
-    * origin => bstr
-    ; CBOR encoded list of interest groups compressed
-    ; using the method described in `compression`.
+    ; Map of interest group owner to CBOR encoded list of interest
+    ; groups compressed using the method described in § Compression.
+    * interestGroupOwner => bstr
   },
   ? enableDebugReporting: bool
 }
-
 ~~~~~
 
 The complete request MUST also be compressed using the same compression
@@ -254,6 +244,9 @@ encrypted using HPKE with the encapsulation performed according
 to {{OHTTP}}. Since we are repurposing the OHTTP encapsulation mechanism, we
 define the media type "message/auction request" which is used for encryption.
 
+## Auction Server
+
+TODO
 
 ## Trusted Auction Server To Browser {#server-to-browser}
 
@@ -288,16 +281,19 @@ response = {
   ; ad.
   ? components: [* adRenderUrl],
 
-  ; Name of the InterestGroup to which the ad belongs.
-  ? interestGroupName: tstr,
+  ; Name of the interest group to which the ad belongs.
+  ? interestGroupName: interestGroupName,
 
   ; Origin of the Buyer who owns the interest group.
-  ? interestGroupOwner: origin,
+  ; The original request for this response MUST contain this
+  ; interestGroupOwner, which additionally MUST provide an interest
+  ; group with interestGroupName.
+  ? interestGroupOwner: interestGroupOwner,
 
   ; Indices of interest groups in the original request for this owner
   ; that submitted a bid.
   ? biddingGroups: {
-    * origin => [* int]
+    * interestGroupOwner => [* int]
   },
 
   ; Score of the ad determined during the auction.
@@ -406,7 +402,7 @@ KAnonGhostWinner = {
   ? buyerIndex: int,
 
   ; Origin of the buyer who owns the ghost winner.
-  owner: origin,
+  owner: interestGroupOwner,
 
   ; Private aggregation signals for the ghost winner.
   ; In single seller auctions, this represents a ghost winner if
