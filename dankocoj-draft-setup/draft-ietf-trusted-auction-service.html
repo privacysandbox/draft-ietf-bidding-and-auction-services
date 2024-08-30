@@ -9,7 +9,7 @@
 <meta content='Benjamin "Russ" Hamilton' name="author">
 <meta content="
        The Trusted Auction Service provides a way for advertising auctions to execute in a
-remote trusted execution environment while preserving user privacy. 
+remote environment while preserving user privacy. 
     " name="description">
 <meta content="xml2rfc 3.23.0" name="generator">
 <meta content="Internet-Draft" name="keyword">
@@ -1030,7 +1030,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Kocoj &amp; Hamilton</td>
-<td class="center">Expires 2 March 2025</td>
+<td class="center">Expires 3 March 2025</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1043,12 +1043,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-ietf-trusted-auction-service-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-08-29" class="published">29 August 2024</time>
+<time datetime="2024-08-30" class="published">30 August 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2025-03-02">2 March 2025</time></dd>
+<dd class="expires"><time datetime="2025-03-03">3 March 2025</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1066,7 +1066,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
 <p id="section-abstract-1">The Trusted Auction Service provides a way for advertising auctions to execute in a
-remote trusted execution environment while preserving user privacy.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+remote environment while preserving user privacy.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-discussion-venues">
@@ -1095,7 +1095,7 @@ remote trusted execution environment while preserving user privacy.<a href="#sec
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 2 March 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 3 March 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1220,10 +1220,9 @@ can demand computation requirements that may be impractical to execute on
 devices with limited processing power, or may be too slow to render ads due to
 network latency.<a href="#section-1-2" class="pilcrow">¶</a></p>
 <p id="section-1-3">This Trusted Auction Service proposal outlines a way to allow Protected Audience
-computation to take place on cloud servers in a trusted execution environment,
-rather than running locally on a user's device. Moving computations to cloud in
-a <a href="https://github.com/privacysandbox/fledge-docs/blob/main/trusted_services_overview.md#trusted-execution-environment">Trusted Execution Environment (TEE)</a>
-have the following benefits:<a href="#section-1-3" class="pilcrow">¶</a></p>
+computation to take place on cloud servers,
+rather than running locally on a user's device. Moving computations to
+the cloud has the following benefits:<a href="#section-1-3" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-1-4.1">
           <p id="section-1-4.1.1">Scalable auctions.<a href="#section-1-4.1.1" class="pilcrow">¶</a></p>
@@ -1254,10 +1253,6 @@ computational cycles and network bandwidth.<a href="#section-1-4.4.1" class="pil
         <li class="normal" id="section-1-4.9">
           <p id="section-1-4.9.1">Adtechs can run more compute intensive workloads on a server compared to a device for better utility.<a href="#section-1-4.9.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-1-4.10">
-          <p id="section-1-4.10.1"><a href="https://github.com/privacysandbox/fledge-docs/blob/main/trusted_services_overview.md#trusted-execution-environment">trusted execution environment</a>
-can protect confidentiality of adtech code and signals.<a href="#section-1-4.10.1" class="pilcrow">¶</a></p>
-</li>
       </ul>
 <p id="section-1-5">Standardized protocols for interacting with Bidding and Auction Services are
 essential to creating a diverse and healthy ecosystem for such services.<a href="#section-1-5" class="pilcrow">¶</a></p>
@@ -1266,9 +1261,11 @@ essential to creating a diverse and healthy ecosystem for such services.<a href=
         <h3 id="name-scope">
 <a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-scope" class="section-name selfRef">Scope</a>
         </h3>
-<p id="section-1.1-1">This document provides a specification for the request-response message
-architecture that is required to implement the Protected Audience API for executing
-a remote, TEE-based ad auction.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
+<p id="section-1.1-1">This document provides a specification for the request and response message
+format that a browser can use to communicate with trusted remote services
+that allows the browser to offload much of the work involved in running an advertisement
+selection auction as part of the browser's implementation of the
+Protected Audience API.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
 <p id="section-1.1-2">This document does not describe distribution of private keys to trusted auction
 services.<a href="#section-1.1-2" class="pilcrow">¶</a></p>
 </section>
@@ -1544,8 +1541,20 @@ data from the payload to fit inside the largest bucket.<a href="#section-2.2.3-4
           </h4>
 <p id="section-2.2.4-1">After framing and padding the compressed payload, the entire plaintext message is
 encrypted using HPKE with the encapsulation performed according
-to <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span>. Since we are repurposing the OHTTP encapsulation mechanism, we
-define the media type "message/auction request" which is used for encryption.<a href="#section-2.2.4-1" class="pilcrow">¶</a></p>
+to <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span>.<a href="#section-2.2.4-1" class="pilcrow">¶</a></p>
+<p id="section-2.2.4-2">Since we are <a href="https://www.rfc-editor.org/rfc/rfc9458.html#name-repurposing-the-encapsulati">repurposing the OHTTP encapsulation mechanism, we are
+required to define new media types</a>:<a href="#section-2.2.4-2" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-2.2.4-3.1">
+              <p id="section-2.2.4-3.1.1">The OHTTP request media type is “message/auction request”<a href="#section-2.2.4-3.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="section-2.2.4-3.2">
+              <p id="section-2.2.4-3.2.1">The OHTTP response media type is “message/auction response”<a href="#section-2.2.4-3.2.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+<p id="section-2.2.4-4">Note that these media types are <a href="https://www.rfc-editor.org/rfc/rfc9458.html#name-encapsulation-of-requests">concatenated with other fields when
+creating the HPKE encryption context</a>,
+and are not HTTP content or media types.<a href="#section-2.2.4-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1571,10 +1580,8 @@ the Trusted Auction Server.<a href="#section-2.4-1" class="pilcrow">¶</a></p>
 <a href="#section-2.4.1" class="section-number selfRef">2.4.1. </a><a href="#name-decryption" class="section-name selfRef">Decryption</a>
           </h4>
 <p id="section-2.4.1-1">The response message is encrypted using HPKE with the encapsulation performed
-according to <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span> as the response to the request message. Since we are
-repurposing the OHTTP encapsulation mechanism, we define the media type
-"message/auction response" which is used for encryption. The browser SHALL
-decrypt the response by following the standard <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span> <a href="https://www.rfc-editor.org/rfc/rfc9458#section-4.4-5">Encapsulated Response
+according to <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span> as the response to the request message. See <a href="#encryption" class="auto internal xref">Section 2.2.4</a> for more details.
+The browser MUST decrypt the response by following the standard <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span> <a href="https://www.rfc-editor.org/rfc/rfc9458#section-4.4-5">Encapsulated Response
 decryption procedure</a>.<a href="#section-2.4.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1687,25 +1694,21 @@ reportingUrls = {
 
 ; Join candidates for K-Anonymity
 KAnonJoinCandidate = {
-  ; SHA-256 [RFC6234] hash of the tuple: render_url, interest group
-  ; owner, reportWin endpoint.
-  ; TODO rework this so it is obvious what each string represents and
-  ; how to hash them together.
+  ; SHA-256 [RFC6234] hash.
+  ; Must be computed according to:
+  ; https://wicg.github.io/turtledove/#compute-the-key-hash-of-ad
   adRenderUrlHash: tstr,
 
-  ; SHA-256 [RFC6234] hash of an ad_component_render_url.
+  ; SHA-256 [RFC6234] hash.
+  ; MUST be computed according to:
+  ; https://wicg.github.io/turtledove/#compute-the-key-hash-of-component-ad
   ; Note: There is a maximum limit of 40 ad component render urls per
   ; render url.
   ? adComponentRenderUrlsHash: [* tstr],
 
   ; SHA-256 [RFC6234] hash.
-  ; Should include IG owner, ad render url, reportWin() UDF url and
-  ; one of the following:
-  ; - If buyerAndSellerReportingId exists
-  ; - Else if buyerReportingId exists
-  ; - Else IG name should be included
-  ; Note: An adtech can use either buyerReportingId or
-  ; buyerAndSellerReportingId.
+  ; MUST be computed according to:
+  ; https://wicg.github.io/turtledove/#compute-the-key-hash-of-reporting-id
   reportingIdHash: tstr
 }
 
@@ -1783,7 +1786,7 @@ KAnonGhostWinner = {
       <h2 id="name-iana-considerations">
 <a href="#section-4" class="section-number selfRef">4. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
       </h2>
-<p id="section-4-1">TODO<a href="#section-4-1" class="pilcrow">¶</a></p>
+<p id="section-4-1">This document introduces no additional considerations for IANA.<a href="#section-4-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="sec-normative-references">

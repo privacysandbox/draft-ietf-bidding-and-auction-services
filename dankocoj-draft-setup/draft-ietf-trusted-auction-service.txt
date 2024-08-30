@@ -5,7 +5,7 @@
 Network Working Group                                           D. Kocoj
 Internet-Draft                                            B. R. Hamilton
 Intended status: Standards Track                                  Google
-Expires: 2 March 2025                                     29 August 2024
+Expires: 3 March 2025                                     30 August 2024
 
 
                         Trusted Auction Service
@@ -14,8 +14,7 @@ Expires: 2 March 2025                                     29 August 2024
 Abstract
 
    The Trusted Auction Service provides a way for advertising auctions
-   to execute in a remote trusted execution environment while preserving
-   user privacy.
+   to execute in a remote environment while preserving user privacy.
 
 Discussion Venues
 
@@ -40,7 +39,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 2 March 2025.
+   This Internet-Draft will expire on 3 March 2025.
 
 Copyright Notice
 
@@ -102,12 +101,9 @@ Table of Contents
    to render ads due to network latency.
 
    This Trusted Auction Service proposal outlines a way to allow
-   Protected Audience computation to take place on cloud servers in a
-   trusted execution environment, rather than running locally on a
-   user's device.  Moving computations to cloud in a Trusted Execution
-   Environment (TEE) (https://github.com/privacysandbox/fledge-
-   docs/blob/main/trusted_services_overview.md#trusted-execution-
-   environment) have the following benefits:
+   Protected Audience computation to take place on cloud servers, rather
+   than running locally on a user's device.  Moving computations to the
+   cloud has the following benefits:
 
    *  Scalable auctions.
 
@@ -132,20 +128,17 @@ Table of Contents
    *  Adtechs can run more compute intensive workloads on a server
       compared to a device for better utility.
 
-   *  trusted execution environment (https://github.com/privacysandbox/
-      fledge-docs/blob/main/trusted_services_overview.md#trusted-
-      execution-environment) can protect confidentiality of adtech code
-      and signals.
-
    Standardized protocols for interacting with Bidding and Auction
    Services are essential to creating a diverse and healthy ecosystem
    for such services.
 
 1.1.  Scope
 
-   This document provides a specification for the request-response
-   message architecture that is required to implement the Protected
-   Audience API for executing a remote, TEE-based ad auction.
+   This document provides a specification for the request and response
+   message format that a browser can use to communicate with trusted
+   remote services that allows the browser to offload much of the work
+   involved in running an advertisement selection auction as part of the
+   browser's implementation of the Protected Audience API.
 
    This document does not describe distribution of private keys to
    trusted auction services.
@@ -320,9 +313,20 @@ Table of Contents
 
    After framing and padding the compressed payload, the entire
    plaintext message is encrypted using HPKE with the encapsulation
-   performed according to [OHTTP].  Since we are repurposing the OHTTP
-   encapsulation mechanism, we define the media type "message/auction
-   request" which is used for encryption.
+   performed according to [OHTTP].
+
+   Since we are repurposing the OHTTP encapsulation mechanism, we are
+   required to define new media types (https://www.rfc-editor.org/rfc/
+   rfc9458.html#name-repurposing-the-encapsulati):
+
+   *  The OHTTP request media type is “message/auction request”
+
+   *  The OHTTP response media type is “message/auction response”
+
+   Note that these media types are concatenated with other fields when
+   creating the HPKE encryption context (https://www.rfc-editor.org/rfc/
+   rfc9458.html#name-encapsulation-of-requests), and are not HTTP
+   content or media types.
 
 2.3.  Auction Server
 
@@ -337,11 +341,10 @@ Table of Contents
 
    The response message is encrypted using HPKE with the encapsulation
    performed according to [OHTTP] as the response to the request
-   message.  Since we are repurposing the OHTTP encapsulation mechanism,
-   we define the media type "message/auction response" which is used for
-   encryption.  The browser SHALL decrypt the response by following the
-   standard [OHTTP] Encapsulated Response decryption procedure
-   (https://www.rfc-editor.org/rfc/rfc9458#section-4.4-5).
+   message.  See Section 2.2.4 for more details.  The browser MUST
+   decrypt the response by following the standard [OHTTP] Encapsulated
+   Response decryption procedure (https://www.rfc-editor.org/rfc/
+   rfc9458#section-4.4-5).
 
 2.4.2.  Decompression
 
@@ -445,25 +448,21 @@ Table of Contents
 
    ; Join candidates for K-Anonymity
    KAnonJoinCandidate = {
-     ; SHA-256 [RFC6234] hash of the tuple: render_url, interest group
-     ; owner, reportWin endpoint.
-     ; TODO rework this so it is obvious what each string represents and
-     ; how to hash them together.
+     ; SHA-256 [RFC6234] hash.
+     ; Must be computed according to:
+     ; https://wicg.github.io/turtledove/#compute-the-key-hash-of-ad
      adRenderUrlHash: tstr,
 
-     ; SHA-256 [RFC6234] hash of an ad_component_render_url.
+     ; SHA-256 [RFC6234] hash.
+     ; MUST be computed according to:
+     ; https://wicg.github.io/turtledove/#compute-the-key-hash-of-component-ad
      ; Note: There is a maximum limit of 40 ad component render urls per
      ; render url.
      ? adComponentRenderUrlsHash: [* tstr],
 
      ; SHA-256 [RFC6234] hash.
-     ; Should include IG owner, ad render url, reportWin() UDF url and
-     ; one of the following:
-     ; - If buyerAndSellerReportingId exists
-     ; - Else if buyerReportingId exists
-     ; - Else IG name should be included
-     ; Note: An adtech can use either buyerReportingId or
-     ; buyerAndSellerReportingId.
+     ; MUST be computed according to:
+     ; https://wicg.github.io/turtledove/#compute-the-key-hash-of-reporting-id
      reportingIdHash: tstr
    }
 
@@ -527,7 +526,7 @@ Table of Contents
 
 4.  IANA Considerations
 
-   TODO
+   This document introduces no additional considerations for IANA.
 
 5.  Normative References
 
