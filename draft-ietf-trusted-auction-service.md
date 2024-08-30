@@ -72,7 +72,7 @@ network latency.
 
 This Trusted Auction Service proposal outlines a way to allow Protected Audience
 computation to take place on cloud servers,
-rather than running locally on a user's device. Moving computations to 
+rather than running locally on a user's device. Moving computations to
 the cloud has the following benefits:
 
 *   Scalable auctions.
@@ -236,12 +236,21 @@ Messages SHOULD be zero padded up to one of the following bin sizes:
 SHALL NOT be be larger than 55KiB. An implementation may need to remove some
 data from the payload to fit inside the largest bucket.
 
-### Encryption
+### Encryption {#encryption}
 
 After framing and padding the compressed payload, the entire plaintext message is
 encrypted using HPKE with the encapsulation performed according
-to {{OHTTP}}. Since we are repurposing the OHTTP encapsulation mechanism, we
-define the media type "message/auction request" which is used for encryption.
+to {{OHTTP}}.
+
+Since we are [repurposing the OHTTP encapsulation mechanism, we are
+required to define new media types](https://www.rfc-editor.org/rfc/rfc9458.html#name-repurposing-the-encapsulati):
+
+* The OHTTP request media type is “message/auction request”
+* The OHTTP response media type is “message/auction response”
+
+Note that these media types are [concatenated with other fields when
+creating the HPKE encryption context](https://www.rfc-editor.org/rfc/rfc9458.html#name-encapsulation-of-requests),
+and are not HTTP content or media types.
 
 ## Auction Server
 
@@ -255,10 +264,8 @@ the Trusted Auction Server.
 ### Decryption
 
 The response message is encrypted using HPKE with the encapsulation performed
-according to {{OHTTP}} as the response to the request message. Since we are
-repurposing the OHTTP encapsulation mechanism, we define the media type
-"message/auction response" which is used for encryption. The browser SHALL
-decrypt the response by following the standard {{OHTTP}} [Encapsulated Response
+according to {{OHTTP}} as the response to the request message. See {{encryption}} for more details.
+The browser MUST decrypt the response by following the standard {{OHTTP}} [Encapsulated Response
 decryption procedure](https://www.rfc-editor.org/rfc/rfc9458#section-4.4-5).
 
 ### Decompression
