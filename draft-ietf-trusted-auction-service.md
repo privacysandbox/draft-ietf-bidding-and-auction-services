@@ -449,7 +449,7 @@ TODO
 
 # IANA Considerations
 
-TODO
+This document introduces no additional considerations for IANA.
 
 --- back
 
