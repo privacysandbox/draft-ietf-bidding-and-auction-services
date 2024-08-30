@@ -370,25 +370,21 @@ reportingUrls = {
 
 ; Join candidates for K-Anonymity
 KAnonJoinCandidate = {
-  ; SHA-256 [RFC6234] hash of the tuple: render_url, interest group
-  ; owner, reportWin endpoint.
-  ; TODO rework this so it is obvious what each string represents and
-  ; how to hash them together.
+  ; SHA-256 [RFC6234] hash.
+  ; Must be computed according to:
+  ; https://wicg.github.io/turtledove/#compute-the-key-hash-of-ad
   adRenderUrlHash: tstr,
 
-  ; SHA-256 [RFC6234] hash of an ad_component_render_url.
+  ; SHA-256 [RFC6234] hash.
+  ; MUST be computed according to:
+  ; https://wicg.github.io/turtledove/#compute-the-key-hash-of-component-ad
   ; Note: There is a maximum limit of 40 ad component render urls per
   ; render url.
   ? adComponentRenderUrlsHash: [* tstr],
 
   ; SHA-256 [RFC6234] hash.
-  ; Should include IG owner, ad render url, reportWin() UDF url and
-  ; one of the following:
-  ; - If buyerAndSellerReportingId exists
-  ; - Else if buyerReportingId exists
-  ; - Else IG name should be included
-  ; Note: An adtech can use either buyerReportingId or
-  ; buyerAndSellerReportingId.
+  ; MUST be computed according to:
+  ; https://wicg.github.io/turtledove/#compute-the-key-hash-of-reporting-id
   reportingIdHash: tstr
 }
 
