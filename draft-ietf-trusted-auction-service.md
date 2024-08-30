@@ -49,7 +49,7 @@ informative:
 --- abstract
 
 The Trusted Auction Service provides a way for advertising auctions to execute in a
-remote trusted execution environment while preserving user privacy.
+remote environment while preserving user privacy.
 
 --- middle
 
@@ -71,10 +71,9 @@ devices with limited processing power, or may be too slow to render ads due to
 network latency.
 
 This Trusted Auction Service proposal outlines a way to allow Protected Audience
-computation to take place on cloud servers in a trusted execution environment,
-rather than running locally on a user's device. Moving computations to cloud in
-a [Trusted Execution Environment (TEE)](https://github.com/privacysandbox/fledge-docs/blob/main/trusted_services_overview.md#trusted-execution-environment)
-have the following benefits:
+computation to take place on cloud servers,
+rather than running locally on a user's device. Moving computations to 
+the cloud has the following benefits:
 
 *   Scalable auctions.
   *   A scalable ad auction may include several buyers and sellers and that
@@ -87,16 +86,16 @@ have the following benefits:
   *   Adtech code can execute faster on servers with higher computing power compared to a device.
 *   Servers have better processing power.
   *   Adtechs can run more compute intensive workloads on a server compared to a device for better utility.
-*   [trusted execution environment](https://github.com/privacysandbox/fledge-docs/blob/main/trusted_services_overview.md#trusted-execution-environment)
-    can protect confidentiality of adtech code and signals.
 
 Standardized protocols for interacting with Bidding and Auction Services are
 essential to creating a diverse and healthy ecosystem for such services.
 
 ## Scope {#Scope}
-This document provides a specification for the request-response message
-architecture that is required to implement the Protected Audience API for executing
-a remote, TEE-based ad auction.
+This document provides a specification for the request and response message
+format that a browser can use to communicate with trusted remote services
+that allows the browser to offload much of the work involved in running an advertisement
+selection auction as part of the browser's implementation of the
+Protected Audience API.
 
 This document does not describe distribution of private keys to trusted auction
 services.
