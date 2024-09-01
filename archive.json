@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-08-29T00:47:44.313464+00:00",
+  "timestamp": "2024-09-01T00:57:07.536389+00:00",
   "repo": "privacysandbox/draft-ietf-protected-audience-auction-service",
   "labels": [
     {
@@ -63,7 +63,7 @@
       "labels": [],
       "body": "\u2026f-trusted-auction-service.md",
       "createdAt": "2024-08-26T16:21:42Z",
-      "updatedAt": "2024-08-27T16:56:26Z",
+      "updatedAt": "2024-08-29T18:56:11Z",
       "baseRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
       "baseRefName": "main",
       "baseRefOid": "86dd048dd7ed1b6ec054afcfc4318b1e5d9e8587",
@@ -140,13 +140,13 @@
       "labels": [],
       "body": "",
       "createdAt": "2024-08-27T17:19:58Z",
-      "updatedAt": "2024-08-28T19:47:18Z",
+      "updatedAt": "2024-08-30T20:53:34Z",
       "baseRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
       "baseRefName": "main",
       "baseRefOid": "332176193de05a035156166f39c15fab3c737a3e",
       "headRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
       "headRefName": "dankocoj-draft-setup",
-      "headRefOid": "862814374b6e8b1e0489eab8c7ad4d7615508dfb",
+      "headRefOid": "dd1080d894a736bb665973753e9a8392334369d5",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -554,6 +554,106 @@
               "body": "@brusshamilton is this something you can add to the w3c spec? Then I can link to it from here. ",
               "createdAt": "2024-08-28T19:47:18Z",
               "updatedAt": "2024-08-28T19:47:18Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6HRzK4",
+          "commit": {
+            "abbreviatedOid": "ade4554"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-08-29T17:20:13Z",
+          "updatedAt": "2024-08-29T17:20:13Z",
+          "comments": [
+            {
+              "originalPosition": 237,
+              "body": "Not possible to link in a cddl code block, but I added a 'common definitions' section with a table that has rows with both cddl spans and reference / citation links. ",
+              "createdAt": "2024-08-29T17:20:13Z",
+              "updatedAt": "2024-08-29T17:20:13Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6HRzMZ",
+          "commit": {
+            "abbreviatedOid": "ade4554"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-08-29T17:20:15Z",
+          "updatedAt": "2024-08-29T17:20:15Z",
+          "comments": [
+            {
+              "originalPosition": 243,
+              "body": "updated as best as I could think of (but fenced code blocks don't allow linking, at least in a way I could figure out).",
+              "createdAt": "2024-08-29T17:20:15Z",
+              "updatedAt": "2024-08-29T17:20:15Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6HS1HC",
+          "commit": {
+            "abbreviatedOid": "ade4554"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-08-29T19:00:30Z",
+          "updatedAt": "2024-08-29T19:00:30Z",
+          "comments": [
+            {
+              "originalPosition": 191,
+              "body": "Something like this should be fine:\r\n```\r\nSince we are [repurposing the OHTTP encapsulation mechanism, we are required to define new media types](https://www.rfc-editor.org/rfc/rfc9458.html#name-repurposing-the-encapsulati):\r\n* The OHTTP request media type is \u201cmessage/auction request\u201d\r\n* The OHTTP response media type is \u201cmessage/auction response\u201d\r\n\r\nNote that these media types are [concatenated with other fields when creating the HPKE encryption context](https://www.rfc-editor.org/rfc/rfc9458.html#name-encapsulation-of-requests), and are not HTTP content or media types.\r\n```\r\nThough we need to work it in.",
+              "createdAt": "2024-08-29T19:00:30Z",
+              "updatedAt": "2024-08-29T19:00:30Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6HTvMK",
+          "commit": {
+            "abbreviatedOid": "ade4554"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-08-29T20:14:16Z",
+          "updatedAt": "2024-08-29T20:14:16Z",
+          "comments": [
+            {
+              "originalPosition": 360,
+              "body": "It exists in the W3C spec:\r\nhttps://wicg.github.io/turtledove/#compute-the-key-hash-of-ad\r\nhttps://wicg.github.io/turtledove/#compute-the-key-hash-of-reporting-id",
+              "createdAt": "2024-08-29T20:14:16Z",
+              "updatedAt": "2024-08-29T20:14:16Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6HTvXN",
+          "commit": {
+            "abbreviatedOid": "ade4554"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-08-29T20:14:32Z",
+          "updatedAt": "2024-08-29T20:14:32Z",
+          "comments": [
+            {
+              "originalPosition": 368,
+              "body": "https://wicg.github.io/turtledove/#compute-the-key-hash-of-component-ad",
+              "createdAt": "2024-08-29T20:14:32Z",
+              "updatedAt": "2024-08-29T20:14:32Z"
             }
           ]
         }
