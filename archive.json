@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-09-03T00:47:27.995649+00:00",
+  "timestamp": "2024-09-05T00:48:31.942791+00:00",
   "repo": "privacysandbox/draft-ietf-protected-audience-auction-service",
   "labels": [
     {
@@ -140,7 +140,7 @@
       "labels": [],
       "body": "",
       "createdAt": "2024-08-27T17:19:58Z",
-      "updatedAt": "2024-08-30T20:53:34Z",
+      "updatedAt": "2024-09-04T20:38:42Z",
       "baseRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
       "baseRefName": "main",
       "baseRefOid": "332176193de05a035156166f39c15fab3c737a3e",
@@ -654,6 +654,64 @@
               "body": "https://wicg.github.io/turtledove/#compute-the-key-hash-of-component-ad",
               "createdAt": "2024-08-29T20:14:32Z",
               "updatedAt": "2024-08-29T20:14:32Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6H6pX_",
+          "commit": {
+            "abbreviatedOid": "dd1080d"
+          },
+          "author": "JensenPaul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-04T13:50:51Z",
+          "updatedAt": "2024-09-04T13:56:09Z",
+          "comments": [
+            {
+              "originalPosition": 170,
+              "body": "This needs a description, e.g.:\r\nThis interest group's name, see https://wicg.github.io/turtledove/#interest-group-name",
+              "createdAt": "2024-09-04T13:50:52Z",
+              "updatedAt": "2024-09-04T13:56:09Z"
+            },
+            {
+              "originalPosition": 171,
+              "body": "This needs a description, e.g.:\r\nKeys used to look up real-time bidding signals, see https://wicg.github.io/turtledove/#interest-group-trusted-bidding-signals-keys",
+              "createdAt": "2024-09-04T13:52:37Z",
+              "updatedAt": "2024-09-04T13:56:09Z"
+            },
+            {
+              "originalPosition": 172,
+              "body": "This needs a description, e.g.:\r\nData about the user that the bidder can use during bid calculation, see https://wicg.github.io/turtledove/#interest-group-user-bidding-signals",
+              "createdAt": "2024-09-04T13:54:00Z",
+              "updatedAt": "2024-09-04T13:56:09Z"
+            },
+            {
+              "originalPosition": 174,
+              "body": "Ads and components need descriptions too.  Hmm, @brusshamilton, is `adRenderId` missing from the PA spec?",
+              "createdAt": "2024-09-04T13:56:04Z",
+              "updatedAt": "2024-09-04T13:56:09Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6H-EIQ",
+          "commit": {
+            "abbreviatedOid": "dd1080d"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-04T20:38:42Z",
+          "updatedAt": "2024-09-04T20:38:42Z",
+          "comments": [
+            {
+              "originalPosition": 174,
+              "body": "As of https://github.com/WICG/turtledove/pull/1258, it's not missing.",
+              "createdAt": "2024-09-04T20:38:42Z",
+              "updatedAt": "2024-09-04T20:38:42Z"
             }
           ]
         }
