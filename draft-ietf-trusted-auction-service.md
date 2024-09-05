@@ -28,8 +28,13 @@ author:
 normative:
   CBOR: RFC8949
   CDDL: RFC8610
+  JSON: RFC8259
   OHTTP: RFC9458
   SHA-256: RFC6234
+  ISO4217:
+    target: https://www.iso.org/iso-4217-currency-codes.html
+    title: ISO 4217 Currency codes
+    date: 2024
   ORIGIN:
     target: https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin
     title: HTML Living Standard
@@ -125,10 +130,10 @@ about the seller and buyer servers can be found in the [server-side system desig
 
 | Term with CDDL Definition | Detailed Reference |
 | :--- | :--- |
-| `json = tstr` | TODO |
-| `uuid = tstr .regexp "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"` | TODO |
+| `json = tstr` | [JSON] |
+| `uuid = tstr .regexp "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"` | {{!RFC9562}} |
 | `origin = tstr .regexp "https://([^/:](:[0-9]+)?/"` | [ORIGIN] |
-| `currency = tstr .size 3 .regexp /^[A-Z]{3}$/` | TODO |
+| `currency = tstr .size 3 .regexp /^[A-Z]{3}$/` | [ISO4217] |
 | `adRenderUrl = tstr` | [URL] |
 | `adRenderId = tstr` | [ADRENDERID] |
 | `interestGroupName = tstr` | TODO |
@@ -141,8 +146,8 @@ order to communicate with the Trusted Auction Server.
 
 ### Request Payload Data
 
-A request payload primarily consists of interest groups. An interest
-group is represented by the following {{!CDDL}}:
+A request payload primarily consists of interest groups. A list of interest
+group is represented by the following [CDDL]:
 
 ~~~~~ cddl
 interestGroups = [ * interestGroup ]
@@ -179,8 +184,8 @@ interestGroup = {
 }
 ~~~~~
 
-Each interest group MUST first be represented as {{CBOR}}, and then MUST
-be indiviudally compressed according to the compression algorithm
+A list of interest groups for each owner MUST first be represented as {{CBOR}},
+and then MUST be indiviudally compressed according to the compression algorithm
 specified in the message framing ({{request-framing}}). This compressed
 interest group data MUST then be aggregated into a map in the complete
 request, which MUST be {{CBOR}} represented by the following {{CDDL}}:
@@ -231,10 +236,13 @@ where the the first 3 bits of the frame header specify the payload
 version and the following 5 bits specify the compression algorithm.
 The format described in this document corresponds to version 0.
 
-Messages SHOULD be zero padded up to one of the following bin sizes:
-0KiB, 5KiB, 10KiB, 20KiB, 30KiB, 40KiB, 55KiB. Messages
-SHALL NOT be be larger than 55KiB. An implementation may need to remove some
-data from the payload to fit inside the largest bucket.
+Messages MAY be zero padded so that the encrypted request is one of the
+following bin sizes: 0KiB, 5KiB, 10KiB, 20KiB, 30KiB, 40KiB, 55KiB. An
+implementation MAY need to remove some data from the payload to fit inside the
+largest bucket.
+
+A compatible implementation processing requests SHOULD NOT rely on a specific
+padding scheme for requests.
 
 ### Encryption {#encryption}
 
@@ -251,6 +259,79 @@ required to define new media types](https://www.rfc-editor.org/rfc/rfc9458.html#
 Note that these media types are [concatenated with other fields when
 creating the HPKE encryption context](https://www.rfc-editor.org/rfc/rfc9458.html#name-encapsulation-of-requests),
 and are not HTTP content or media types.
+
+### Payload Optimization {#request-optimization}
+
+A compatible implementation MAY support control over how interest groups are
+serialized into a request and the size of the request. An example implementation
+for this feature is as follows:
+
+This algorithm takes as input all of the `relevant interest groups`, an optional
+`desired total size`, and an optional list of `interest group owners` to include
+each with an optional `desired size`.
+
+1. If `desired total size` is not specified, but the list of `interest group owners`
+   includes at least one entry with a specified `desired size`:
+   1. Set `desired total size` to the sum of all specified `desired size` in the
+      list of `interest group owners`.
+1. Group the list of `relevant interest groups` by owner into a map of from
+   interest group owner to a list of interest groups sorted by decreasing
+   priority, `interest group map`.
+1. If the list of `interest group owners` is specified, remove interest groups
+   whose owner is not on the list.
+1. Construct a request, `request`, as normal only with the value of the
+   `interestGroups` field for each interest group owner as
+   zero length.
+1. Set `current_size` to be the serialized size of the encrypted request
+   created from `request` without padding.
+1. Set `remaining_allocated_size` to 0.
+1. Set `remaining_unsized_owners` to 0.
+1. For each `interest group owner`, `interest group list` in
+   `interest group map`:
+   1. If there is a `desired size` for `interest group owner`:
+      1. Increment `remaining_allocated_size` by `desired size`.
+   1. Otherwise
+      1. Increment `remaining_unsized_owners` by 1.
+1. For each `interest group owner`, `interest group list` in
+   `interest group map` where there is a `desired size` specified for
+   `interest group owner`:
+   1. If the number of `unsized_owners` is not 0:
+      1. Set the `allowed_interest_group_size` to the `desired size` for this
+         `interest group owner`. This is a fixed size allocation.
+   1. Otherwise:
+      1. Let `remaining_size` be equal to the `desired total size`-`current_size`.
+      1. Set the `allowed_interest_group_size` to
+         `remaining_size`*`desired_size`/`remaining_allocated_size`. This is a
+         proportional allocation.
+   1. Set `remaining_allocated_size` = `remaining_allocated_size`-`current_size`.
+   1. Serialize the `interest group list` into `serialized_group`.
+   1. If adding the `serialized_group` to `request` would make it more than
+      `allowed_interest_group_size` larger than the current size, then remove
+      the lowest priority interest group and repeat from the previous step.
+   1. Set `request["interestGroups"][interest group owner]` to
+      `serialized_group`.
+   1. Set `current_size` to be the serialized size of the encrypted request
+      created from `request` without padding.
+1. For each `interest group owner`, `interest group list` in
+   `interest group map` where there is not `desired size` specified for
+   `interest group owner`:
+   1. Let `remaining_size` be equal to the `desired total size`-`current_size`.
+   1. Set the `allowed_interest_group_size` to
+      `remaining_size`*/`remaining_unsized_owners`. This is a
+      equal size allocation.
+   1. Decrement `remaining_unsized_owners` by 1.
+   1. Serialize the `interest group list` into `serialized_group`.
+   1. If adding the `serialized_group` to `request` would make it more than
+      `allowed_interest_group_size` larger than the current size, then remove
+      the lowest priority interest group and repeat from the previous step.
+   1. Set `request["interestGroups"][interest group owner]` to
+      `serialized_group`.
+   1. Set `current_size` to be the serialized size of the encrypted request
+      created from `request` without padding.
+1. If there are no interest groups in the request, discard the `request` and
+   return an empty byte array.
+1. Frame `request` as in {{request-framing}} and zero pad up to `desired total size`.
+1. Return the encrypted result (as in {{encryption}}).
 
 ## Auction Server
 
