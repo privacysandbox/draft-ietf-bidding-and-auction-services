@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-09-05T00:48:31.942791+00:00",
+  "timestamp": "2024-09-08T00:53:32.619700+00:00",
   "repo": "privacysandbox/draft-ietf-protected-audience-auction-service",
   "labels": [
     {
@@ -716,6 +716,32 @@
           ]
         }
       ]
+    },
+    {
+      "number": 3,
+      "id": "PR_kwDOMnZLVc56saUL",
+      "title": "Add description of basic payload optimization",
+      "url": "https://github.com/privacysandbox/draft-ietf-protected-audience-auction-service/pull/3",
+      "state": "OPEN",
+      "author": "brusshamilton",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-09-06T17:59:25Z",
+      "updatedAt": "2024-09-06T17:59:25Z",
+      "baseRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
+      "baseRefName": "dankocoj-draft-setup",
+      "baseRefOid": "dd1080d894a736bb665973753e9a8392334369d5",
+      "headRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
+      "headRefName": "payload-optimization",
+      "headRefOid": "846c6109946bca203b8e2e20568bcdc5faa8b760",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
