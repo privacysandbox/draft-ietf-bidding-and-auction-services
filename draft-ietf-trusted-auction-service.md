@@ -147,10 +147,25 @@ group is represented by the following {{!CDDL}}:
 ~~~~~ cddl
 interestGroups = [ * interestGroup ]
 interestGroup = {
+  ; This interest group's name, see
+  ; https://wicg.github.io/turtledove/#interest-group-name.
   name: interestGroupName,
+
+  ; Keys used to look up real-time bidding signals, see
+  ; https://wicg.github.io/turtledove/#interest-group-trusted-bidding-signals-keys.
   ? biddingSignalsKeys: [* tstr],
+  ; Data about the user that the bidder can use during bid calculation, see
+  ; https://wicg.github.io/turtledove/#interest-group-user-bidding-signals.
   ? userBiddingSignals: json,
+  ; Contains various ads that the interest group might show. See
+  ; https://wicg.github.io/turtledove/#interest-group-ads.
   ? ads: [* adRenderId],
+
+  ; Contains various ad components (or "products") that can be used to
+  ; construct ads composed of multiple pieces — a top-level ad template
+  ; "container" which includes some slots that can be filled in with
+  ; specific "products". See
+  ; https://wicg.github.io/turtledove/#interest-group-ad-components.
   ? components: [* adRenderId],
   ? browserSignals: {
     ; Number of times the group was joined in the last 30 days.
