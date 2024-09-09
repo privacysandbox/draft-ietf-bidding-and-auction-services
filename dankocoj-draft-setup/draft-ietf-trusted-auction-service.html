@@ -1026,11 +1026,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">Trusted Auction Service</td>
-<td class="right">August 2024</td>
+<td class="right">September 2024</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Kocoj &amp; Hamilton</td>
-<td class="center">Expires 3 March 2025</td>
+<td class="center">Expires 13 March 2025</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1043,12 +1043,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-ietf-trusted-auction-service-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-08-30" class="published">30 August 2024</time>
+<time datetime="2024-09-09" class="published">9 September 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2025-03-03">3 March 2025</time></dd>
+<dd class="expires"><time datetime="2025-03-13">13 March 2025</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1095,7 +1095,7 @@ remote environment while preserving user privacy.<a href="#section-abstract-1" c
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 3 March 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 13 March 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1393,10 +1393,25 @@ group is represented by the following <span>[<a href="#CDDL" class="cite xref">C
 <pre>
 interestGroups = [ * interestGroup ]
 interestGroup = {
+  ; This interest group's name, see
+  ; https://wicg.github.io/turtledove/#interest-group-name.
   name: interestGroupName,
+
+  ; Keys used to look up real-time bidding signals, see
+  ; https://wicg.github.io/turtledove/#interest-group-trusted-bidding-signals-keys.
   ? biddingSignalsKeys: [* tstr],
+  ; Data about the user that the bidder can use during bid calculation, see
+  ; https://wicg.github.io/turtledove/#interest-group-user-bidding-signals.
   ? userBiddingSignals: json,
+  ; Contains various ads that the interest group might show. See
+  ; https://wicg.github.io/turtledove/#interest-group-ads.
   ? ads: [* adRenderId],
+
+  ; Contains various ad components (or "products") that can be used to
+  ; construct ads composed of multiple pieces — a top-level ad template
+  ; "container" which includes some slots that can be filled in with
+  ; specific "products". See
+  ; https://wicg.github.io/turtledove/#interest-group-ad-components.
   ? components: [* adRenderId],
   ? browserSignals: {
     ; Number of times the group was joined in the last 30 days.
