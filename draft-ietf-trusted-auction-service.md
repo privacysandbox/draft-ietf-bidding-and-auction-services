@@ -29,18 +29,31 @@ normative:
   CBOR: RFC8949
   CDDL: RFC8610
   OHTTP: RFC9458
+  SHA-256: RFC6234
+  ORIGIN:
+    target: https://html.spec.whatwg.org/multipage/webappapis.html#concept-settings-object-origin
+    title: HTML Living Standard
+    date: 2024
+  URL:
+    target: https://url.spec.whatwg.org/#concept-url
+    title: URL Living Standard
+    date: 2024
+  ADRENDERID:
+    target: https://wicg.github.io/turtledove/#server-auction-previous-win-ad-render-id
+    title: Protected Audience
+    date: 2024
 
 informative:
+
 
 --- abstract
 
 The Trusted Auction Service provides a way for advertising auctions to execute in a
-remote trusted execution environment while preserving user privacy.
+remote environment while preserving user privacy.
 
 --- middle
 
-Introduction        {#problems}
-============
+# Introduction        {#problems}
 
 Today, real-time bidding and ad auctions are executed on servers that may not
 provide technical guarantees of security. Some users have concerns about how
@@ -58,10 +71,9 @@ devices with limited processing power, or may be too slow to render ads due to
 network latency.
 
 This Trusted Auction Service proposal outlines a way to allow Protected Audience
-computation to take place on cloud servers in a trusted execution environment,
-rather than running locally on a user's device. Moving computations to cloud in
-a [Trusted Execution Environment (TEE)](https://github.com/privacysandbox/fledge-docs/blob/main/trusted_services_overview.md#trusted-execution-environment)
-have the following benefits:
+computation to take place on cloud servers,
+rather than running locally on a user's device. Moving computations to
+the cloud has the following benefits:
 
 *   Scalable auctions.
   *   A scalable ad auction may include several buyers and sellers and that
@@ -74,20 +86,21 @@ have the following benefits:
   *   Adtech code can execute faster on servers with higher computing power compared to a device.
 *   Servers have better processing power.
   *   Adtechs can run more compute intensive workloads on a server compared to a device for better utility.
-*   [trusted execution environment](https://github.com/privacysandbox/fledge-docs/blob/main/trusted_services_overview.md#trusted-execution-environment)
-    can protect confidentiality of adtech code and signals.
 
 Standardized protocols for interacting with Bidding and Auction Services are
 essential to creating a diverse and healthy ecosystem for such services.
 
+## Scope {#Scope}
+This document provides a specification for the request and response message
+format that a browser can use to communicate with trusted remote services
+that allows the browser to offload much of the work involved in running an advertisement
+selection auction as part of the browser's implementation of the
+Protected Audience API.
+
 This document does not describe distribution of private keys to trusted auction
 services.
 
-Use Cases    {#use-cases}
----------
-
-Terminology          {#Terminology}
------------
+## Terminology {#Terminology}
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
 NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED",
@@ -95,89 +108,79 @@ NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED",
 described in BCP 14 {{!RFC2119}} {{!RFC8174}} when, and only when, they
 appear in all capitals, as shown here.
 
-# Formats   {#format}
+# Message Format Specifications {#format}
 
-## Browser to Trusted Auction Server Request Message {#request}
-The message is encrypted using HPKE with the encapsulation performed according
-to {{OHTTP}}. Since we are repurposing the OHTTP encapsulation mechanism, we
-define the media type "message/auction request" which is used for encryption.
+## Overview
 
-The plaintext message has the following framing:
+To understand this document, it is important to know that the
+communication between the browser and the remote servers uses a
+request-response message exchange pattern. The request will first reach a seller server, after which
+the seller will forward parts of the request to buyer servers. It is then up to the
+seller server to gather buyer responses and form a final response for the browser. More detail
+about the seller and buyer servers can be found in the [server-side system design documentation](https://github.com/privacysandbox/protected-auction-services-docs/blob/main/bidding_auction_services_system_design.md).
 
-|Byte    | 0       | 0           | 1 to 4 | 5 to Size+4     | Size+5 to end |
-|--------|---------|-------------|--------|-----------------|---------------|
-|Bits    | 7-5     | 4-0         | *      | *               |      *        |
-|--------|---------|-------------|--------|-----------------|---------------|
-|Contents| Version | Compression | Size   | Request Payload | Padding       |
+### Common Definitions
 
-where the the first 3 bits of the frame header specify the payload version and
-the following 5 bits specify the compression. The format described in this
-document corresponds to version 0.
+{{format}} makes frequent use of the following definitions.
 
-Messages SHOULD be zero padded up to one of the following bin sizes, where kB is
-understood to mean 1024 bytes: 0kB, 5kB, 10kB, 20kB, 30kB, 40kB, 55kB. Messages
-SHALL NOT be be larger than 55kB. An implementation may need to remove some
-data from the payload to fit inside the largest bucket.
+| Term with CDDL Definition | Detailed Reference |
+| :--- | :--- |
+| `json = tstr` | TODO |
+| `uuid = tstr .regexp "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"` | TODO |
+| `origin = tstr .regexp "https://([^/:](:[0-9]+)?/"` | [ORIGIN] |
+| `currency = tstr .size 3 .regexp /^[A-Z]{3}$/` | TODO |
+| `adRenderUrl = tstr` | [URL] |
+| `adRenderId = tstr` | [ADRENDERID] |
+| `interestGroupName = tstr` | TODO |
+| `interestGroupOwner = origin` | TODO |
 
-The compression method is defined as:
+## Browser to Trusted Auction Server {#browser-to-server}
 
-| Compression | Description   |
-|:-----------:|:--------------|
-|      0      | No Compression|
-|      1      | Brotli        |
-|      2      | GZIP          |
-|    3-31     | Reserved      |
+This section describes how the browser MUST form request messages in
+order to communicate with the Trusted Auction Server.
 
-The request payload contains {{CBOR}} with the following format (described in {{CDDL}}):
+### Request Payload Data
 
-~~~~~ cddl
-request = {
-  version: int,
-
-  publisher: origin,
-
-  interestGroups: {
-    * origin => bstr
-    ; CBOR encoded list of interest groups compressed
-    ; using the method described in `compression`.
-  },
-
-  generationId: uuid,
-
-  ? enableDebugReporting: bool
-}
-origin = tstr .regexp "https://([^/:](:[0-9]+)?/"
-uuid = tstr .regexp "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"
-~~~~~
-
-Where the values in the `interestGroups` field correspond to compressed {{CBOR}}
-messages with the following format:
+A request payload primarily consists of interest groups. An interest
+group is represented by the following {{!CDDL}}:
 
 ~~~~~ cddl
 interestGroups = [ * interestGroup ]
 interestGroup = {
-  name: tstr,
+  ; This interest group's name, see
+  ; https://wicg.github.io/turtledove/#interest-group-name.
+  name: interestGroupName,
+
+  ; Keys used to look up real-time bidding signals, see
+  ; https://wicg.github.io/turtledove/#interest-group-trusted-bidding-signals-keys.
   ? biddingSignalsKeys: [* tstr],
+  ; Data about the user that the bidder can use during bid calculation, see
+  ; https://wicg.github.io/turtledove/#interest-group-user-bidding-signals.
   ? userBiddingSignals: json,
+  ; Contains various ads that the interest group might show. See
+  ; https://wicg.github.io/turtledove/#interest-group-ads.
   ? ads: [* adRenderId],
+
+  ; Contains various ad components (or "products") that can be used to
+  ; construct ads composed of multiple pieces — a top-level ad template
+  ; "container" which includes some slots that can be filled in with
+  ; specific "products". See
+  ; https://wicg.github.io/turtledove/#interest-group-ad-components.
   ? components: [* adRenderId],
   ? browserSignals: {
+    ; Number of times the group was joined in the last 30 days.
     ? joinCount: int,
-    ; Number of times the group was joined in the last 30
+
+    ; Number of times the group bid in an auction in the last 30
     ; days.
-
     ? bidCount: int,
-    ; Number of times the group bid in an auction in the
-    ; last 30 days.
 
+    ; Tuple of time-ad pairs for a previous win for this interest
+    ; group that occurred in the last 30 days.
+    ; The time is specified in seconds before the containing
+    ; auctionBlob was requested.
     ? prevWins: [* [int, adRenderId]],
-    ; Tuple of time-ad pairs for a
-    ; previous win for this interest group that occurred
-    ; in the last 30 days.
-    ; The time is specified in seconds before the
-    ; containing auctionBlob was requested.
 
-    ? recencyMs: int
     ; The most recent join time for this group expressed
     ; in milli seconds before the containing auctionBlob
     ; was requested. This field will be used by newer client
@@ -186,229 +189,272 @@ interestGroup = {
     ; higher precision. If not, recency will be used. Only
     ; one of the recency or recencyMs is expected to present in
     ; the request.
+    ? recencyMs: int
   }
 }
-adRenderId = tstr
-json = tstr ; JSON encoded data
 ~~~~~
 
-## Trusted Auction Server To Browser Response Message {#response}
+Each interest group MUST first be represented as {{CBOR}}, and then MUST
+be indiviudally compressed according to the compression algorithm
+specified in the message framing ({{request-framing}}). This compressed
+interest group data MUST then be aggregated into a map in the complete
+request, which MUST be {{CBOR}} represented by the following {{CDDL}}:
+
+~~~~~ cddl
+request = {
+  version: int,
+  generationId: uuid,
+  publisher: origin,
+  interestGroups: {
+    ; Map of interest group owner to CBOR encoded list of interest
+    ; groups compressed using the method described in § Compression.
+    * interestGroupOwner => bstr
+  },
+  ? enableDebugReporting: bool
+}
+~~~~~
+
+The complete request MUST also be compressed using the same compression
+algorithm as specified in the message framing ({{request-framing}}).
+
+### Compression {#request-compression}
+
+The payload MAY undergo compression.
+
+The compression method's value in bits 4-0 in {{request-framing}}
+corresponds to the below table:
+
+| Compression | Description        |
+| :---------: | :-------------     |
+|      0      | No Compression     |
+|      1      | Brotli {{!RFC7932}}|
+|      2      | GZIP {{!RFC1952}}  |
+|    3-31     | Reserved           |
+
+
+### Framing and Padding {#request-framing}
+
+The plaintext message has the following framing:
+
+| Byte     | 0         | 0             | 1 to 4   | 5 to Size+4       | Size+5 to end   |
+| -------- | --------- | ------------- | -------- | ----------------- | --------------- |
+| Bits     | 7-5       | 4-0           | *        | *                 | *               |
+| -------- | --------- | ------------- | -------- | ----------------- | --------------- |
+| Contents | Version   | Compression   | Size     | Request Payload   | Padding         |
+
+where the the first 3 bits of the frame header specify the payload
+version and the following 5 bits specify the compression algorithm.
+The format described in this document corresponds to version 0.
+
+Messages SHOULD be zero padded up to one of the following bin sizes:
+0KiB, 5KiB, 10KiB, 20KiB, 30KiB, 40KiB, 55KiB. Messages
+SHALL NOT be be larger than 55KiB. An implementation may need to remove some
+data from the payload to fit inside the largest bucket.
+
+### Encryption {#encryption}
+
+After framing and padding the compressed payload, the entire plaintext message is
+encrypted using HPKE with the encapsulation performed according
+to {{OHTTP}}.
+
+Since we are [repurposing the OHTTP encapsulation mechanism, we are
+required to define new media types](https://www.rfc-editor.org/rfc/rfc9458.html#name-repurposing-the-encapsulati):
+
+* The OHTTP request media type is “message/auction request”
+* The OHTTP response media type is “message/auction response”
+
+Note that these media types are [concatenated with other fields when
+creating the HPKE encryption context](https://www.rfc-editor.org/rfc/rfc9458.html#name-encapsulation-of-requests),
+and are not HTTP content or media types.
+
+## Auction Server
+
+TODO
+
+## Trusted Auction Server To Browser {#server-to-browser}
+
+This section describes how the browser MUST interpret response messages from
+the Trusted Auction Server.
+
+### Decryption
 
 The response message is encrypted using HPKE with the encapsulation performed
-according to {{OHTTP}} as the response to the request message. Since we are
-repurposing the OHTTP encapsulation mechanism, we define the media type
-"message/auction response" which is used for encryption.
+according to {{OHTTP}} as the response to the request message. See {{encryption}} for more details.
+The browser MUST decrypt the response by following the standard {{OHTTP}} [Encapsulated Response
+decryption procedure](https://www.rfc-editor.org/rfc/rfc9458#section-4.4-5).
 
-The message framing is as in {{request}}, but the entire response payload is
-compressed with Compression. The Server shall zero pad the response (TODO).
+### Decompression
 
-The response has the following format:
+The message framing is as in {{request-framing}}, but the entire response payload is
+compressed. The Server shall zero pad the response (TODO).
+
+### Response Payload Data
+
+The response has the following data, serialized as {{CBOR}} and matching
+the following shape (described via {{CDDL}}):
 
 ~~~~~cddl
-AuctionResponse = {
-  adRenderURL: tstr,
-  ; The ad that will be rendered
+response = {
+  ; The ad to render.
+  adRenderURL: adRenderUrl,
 
-  ? components: [* tstr],
-  ; List of render URLs for
-  ; component ads
+  ; List of URLs for component ads displayed as part of this
+  ; ad.
+  ? components: [* adRenderUrl],
 
-  ? interestGroupName: tstr,
-  ; Name of the InterestGroup
+  ; Name of the interest group to which the ad belongs.
+  ? interestGroupName: interestGroupName,
 
-  ? interestGroupOwner: tstr,
-  ; Origin of the Buyer who owns
-  ; the interest group
+  ; Origin of the Buyer who owns the interest group.
+  ; The original request for this response MUST contain this
+  ; interestGroupOwner, which additionally MUST provide an interest
+  ; group with interestGroupName.
+  ? interestGroupOwner: interestGroupOwner,
 
+  ; Indices of interest groups in the original request for this owner
+  ; that submitted a bid.
   ? biddingGroups: {
-    * origin => [* int]
-    ; Indices of interest groups
-    ; in the original request for
-    ; this owner that submitted a bid
+    * interestGroupOwner => [* int]
   },
 
+  ; Score of the ad determined during the auction.
+  ; Any value that is zero or negative indicates that the ad cannot
+  ; win the auction.
+  ; The winner of the auction would be the ad that was given the
+  ; highest score.
   ? score: float,
-  ; Score of the ad determined
-  ; during the auction
 
-  ? bid: float,
   ; Bid price corresponding to an ad
+  ? bid: float,
 
-  ? bidCurrency: tstr,
-  ; Optional currency of the bid
+  ; Optional currency of the bid.
+  ? bidCurrency: currency,
 
+  ; Optional BuyerReportingId of the winning Ad
   ? buyerReportingId: tstr,
-  ; Optional BuyerReportingId of
-  ; the winning Ad
 
+  ; Optional BuyerAndSellerReportingId of the winning Ad
   ? buyerAndSellerReportingId: tstr,
-  ; Optional
-  ; BuyerAndSellerReportingId of
-  ; the winning Ad
 
+  ; The auction result may be ignored if set to true.
   ? isChaff: bool,
-  ; Boolean to indicate that there
-  ; is no remarketing winner
 
-  ? winReportingUrls: winReportingUrlsDef,
+  ? winReportingUrls: {
+    ? buyerReportingUrls: reportingUrls,
+    ? componentSellerReportingUrls: reportingUrls,
+    ? topLevelSellerReportingUrls: reportingUrls
+  },
 
-  ? error: errorDef,
+  ? error: {
+    code: int,
+    message: tstr
+  },
 
+  ; Arbitrary metadata to pass to the top-level seller
   ? adMetadata: json,
-  ; Arbitrary metadata to pass
-  ; to the top-level seller
 
+  ; Optional name/domain for the top-level seller in case this is a
+  ; component auction.
   ? topLevelSeller: origin,
-  ; Optional name/domain for
-  ; top-level seller in case this
-  ; is a component auction
 
-  ? kAnonWinnerJoinCandidates: KAnonJoinCandidate,
+  ? kAnonWinnerJoinCandidates: [* KAnonJoinCandidate],
 
+  ; Positional index of the k-anon winner.
+  ; Note: Positional index >= 0.
+  ; If this is equal to 0, the highest scored bid is also K-Anonymous
+  ; and hence a winner.
+  ; If this is greater than 0, the positional index implies the index
+  ; of the first K-Anonymous scored bid in a sorted list in
+  ; decreasing order of scored bids.
+  ; In this case, the highest scored bid that is not K-Anonymous is
+  ; the ghost winner.
+  ; In case all scored bids fail the K-Anonymity constraint, this
+  ; would be set to -1 since there is no winner.
+  ; In case all scored bids <= 0, this would be set to -1 since
+  ; there is no winner.
   ? kAnonWinnerPositionalIndex: int,
-  ; Positional index of the
-  ; k-anon winner
 
   ? kAnonGhostWinners: [* KAnonGhostWinner]
 }
 
-origin = tstr .regexp "https://([^/:](:[0-9]+)?/"
-json = tstr ; JSON encoded data
-; Defines the structure of an error object
-errorDef = {
-  code: int,
-
-  ;
-  message: tstr
-
-  ;
-}
-
-; Defines the structure for reporting URLs
-reportingUrlsDef = {
+; Defines the structure for reporting URLs.
+reportingUrls = {
   ? reportingUrl: tstr,
-
-  ;
   ? interactionReportingUrls: { * tstr => tstr }
-
-  ;
-}
-
-; Defines the structure for win reporting URLs
-winReportingUrlsDef = {
-  ? buyerReportingUrls: reportingUrlsDef,
-
-  ;
-  ? componentSellerReportingUrls: reportingUrlsDef,
-
-  ;
-  ? topLevelSellerReportingUrls: reportingUrlsDef
-
-  ;
 }
 
 ; Join candidates for K-Anonymity
 KAnonJoinCandidate = {
+  ; SHA-256 [RFC6234] hash.
+  ; Must be computed according to:
+  ; https://wicg.github.io/turtledove/#compute-the-key-hash-of-ad
   adRenderUrlHash: tstr,
-  ; Protected Audience: SHA-256 hash
-  ; of the tuple: render_url, interest group
-  ; owner, reportWin() UDF endpoint.
-  ; Protected App Signals: SHA-256 hash
-  ; of render_url, reportWin UDF endpoint
 
+  ; SHA-256 [RFC6234] hash.
+  ; MUST be computed according to:
+  ; https://wicg.github.io/turtledove/#compute-the-key-hash-of-component-ad
+  ; Note: There is a maximum limit of 40 ad component render urls per
+  ; render url.
   ? adComponentRenderUrlsHash: [* tstr],
-  ; Protected Audience: SHA-256 hash
-  ; of an ad_component_render_url
-  ; Note: There is a maximum limit of 40 ad
-  ; component render urls per render url.
-  ; Note: Currently component ads are not in
-  ; scope of Protected App Signals for Android
 
+  ; SHA-256 [RFC6234] hash.
+  ; MUST be computed according to:
+  ; https://wicg.github.io/turtledove/#compute-the-key-hash-of-reporting-id
   reportingIdHash: tstr
-  ; Protected Audience: SHA-256 hash
-  ; should include IG owner, ad render url,
-  ; reportWin() UDF url and one of the
-  ; following:
-  ; - If buyerAndSellerReportingId exists
-  ; - Else if buyerReportingId exists
-  ; - Else IG name should be included
-  ; Note: An adtech can use either
-  ; buyerReportingId or
-  ; buyerAndSellerReportingId
-  ; Note: Currently reporting Ids are not in
-  ; scope of Protected Audience for Android
-  ; and Protected App Signal for Android.
 }
 
-; In case of multiseller auction, the associated data for the
-; ghost winner will be returned so that the ghost winning bid can
-; be scored during top level auction
-GhostWinnerForTopLevelAuction = {
-  adRenderUrl: tstr,
-  ; The ad render url corresponding
-  ; to ghost winner
-
-  ? adComponentRenderUrls: [* tstr],
-  ; Render URLs for ads which are
-  ; components of the main ghost winning ad
-
-  modifiedBid: float,
-  ; Modified bid price corresponding
-  ; to ghost winning bid
-
-  ? bidCurrency: tstr,
-  ; Optional. Indicates the currency
-  ; used for the bid price
-
-  ? adMetadata: json,
-  ; Arbitrary metadata associated
-  ; with ghost winner to pass to the
-  ; top-level seller
-
-  buyerAndSellerReportingId: tstr
-  ; BuyerAndSellerReportingId of
-  ; the ghost winning Ad
-}
-
-; Private aggregation signals for the ghost winner
-; Single seller auctions: This would correspond to a ghost
-; winner if available
-GhostWinnerPrivateAggregationSignals = {
-  bucket: bytes,
-  ; 128 bit integer in the form
-  ; of bytestring
-
-  value: int
-  ; Note: Event type is "reserved.loss" and bid rejection
-  ; reason is 8 when K-Anonymity threshold is not met
-}
-
-; Data for the ghost winner sent back to the client
-; This should also include key-hashes corresponding to the
-; ghost winning ad
+; Data for the ghost winner sent back to the client.
+; This should also include key-hashes corresponding to the ghost
+; winning ad.
 ; Refer https://wicg.github.io/turtledove/#k-anonymity
 KAnonGhostWinner = {
-  kAnonJoinCandidates: KAnonJoinCandidate,
-  ; Join candidates for the
-  ; K-Anon ghost winner
+  ; Join candidates for the K-Anon ghost winner.
+  kAnonJoinCandidates: [* KAnonJoinCandidate],
 
+  ; Interest group index of the buyer who generated the ghost winning
+  ; bid.
   ? interestGroupIndex: int,
-  ; Interest group index
-  ; corresponding to buyer / DSP
-  ; that generated the ghost
-  ; winning bid
-  ; Note: This is only relevant in
-  ; case of Protected Audience
 
-  owner: tstr,
-  ; Origin (Chrome) and domain
-  ; (Android) of the buyer / DSP
-  ; who owns the ghost winner
+  ; Buyer index who generated the ghost winning bid.
+  ? buyerIndex: int,
 
- ? ghostWinnerPrivateAggregationSignals:
- GhostWinnerPrivateAggregationSignals,
+  ; Origin of the buyer who owns the ghost winner.
+  owner: interestGroupOwner,
 
-  ? ghostWinnerForTopLevelAuction: GhostWinnerForTopLevelAuction
+  ; Private aggregation signals for the ghost winner.
+  ; In single seller auctions, this represents a ghost winner if
+  ; available.
+  ; Note: Event type is "reserved.loss" and bid rejection reason is 8
+  ; when the K-Anonymity threshold is not met.
+  ? ghostWinnerPrivateAggregationSignals: {
+    ; 128-bit integer in bytestring format.
+    bucket: bytes,
+
+    value: int
+  },
+
+  ; In multi-seller auctions, this data allows scoring the ghost
+  ; winning bid during the top-level auction.
+  ? ghostWinnerForTopLevelAuction: {
+    ; Ad render URL of the ghost winner.
+    adRenderUrl: adRenderUrl,
+
+    ; Render URLs for component ads of the main ghost winning ad.
+    ? adComponentRenderUrls: [* tstr],
+
+    ; Modified bid price of the ghost winning bid.
+    modifiedBid: float,
+
+    ; Optional currency used for the bid price.
+    ? bidCurrency: currency,
+
+    ; Arbitrary metadata associated with the ghost winner, passed to
+    ; the top-level seller.
+    ? adMetadata: json,
+
+    ; BuyerAndSellerReportingId of the ghost winning ad.
+    buyerAndSellerReportingId: tstr
+  }
 }
 ~~~~~
 
@@ -418,7 +464,7 @@ TODO
 
 # IANA Considerations
 
-TODO
+This document introduces no additional considerations for IANA.
 
 --- back
 
