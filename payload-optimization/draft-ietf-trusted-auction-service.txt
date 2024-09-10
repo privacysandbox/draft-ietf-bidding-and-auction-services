@@ -5,7 +5,7 @@
 Network Working Group                                           D. Kocoj
 Internet-Draft                                            B. R. Hamilton
 Intended status: Standards Track                                  Google
-Expires: 9 March 2025                                   5 September 2024
+Expires: 14 March 2025                                 10 September 2024
 
 
                         Trusted Auction Service
@@ -39,7 +39,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 9 March 2025.
+   This Internet-Draft will expire on 14 March 2025.
 
 Copyright Notice
 
@@ -242,11 +242,11 @@ Table of Contents
    }
 
    A list of interest groups for each owner MUST first be represented as
-   [CBOR], and then MUST be indiviudally compressed according to the
-   compression algorithm specified in the message framing
-   (Section 2.2.3).  This compressed interest group data MUST then be
-   aggregated into a map in the complete request, which MUST be [CBOR]
-   represented by the following [CDDL]:
+   [CBOR], and then the serialized list MUST be indiviudally compressed
+   according to the compression algorithm specified in the message
+   framing (Section 2.2.3).  This compressed interest group data MUST
+   then be aggregated into a map in the complete request, which MUST be
+   [CBOR] represented by the following [CDDL]:
 
    request = {
      version: int,
