@@ -185,10 +185,10 @@ interestGroup = {
 ~~~~~
 
 A list of interest groups for each owner MUST first be represented as {{CBOR}},
-and then MUST be indiviudally compressed according to the compression algorithm
-specified in the message framing ({{request-framing}}). This compressed
-interest group data MUST then be aggregated into a map in the complete
-request, which MUST be {{CBOR}} represented by the following {{CDDL}}:
+and then the serialized list MUST be indiviudally compressed according to the
+compression algorithm specified in the message framing ({{request-framing}}).
+This compressed interest group data MUST then be aggregated into a map in the
+complete request, which MUST be {{CBOR}} represented by the following {{CDDL}}:
 
 ~~~~~ cddl
 request = {
