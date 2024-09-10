@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-09-08T00:53:32.619700+00:00",
+  "timestamp": "2024-09-10T00:49:25.693917+00:00",
   "repo": "privacysandbox/draft-ietf-protected-audience-auction-service",
   "labels": [
     {
@@ -140,13 +140,13 @@
       "labels": [],
       "body": "",
       "createdAt": "2024-08-27T17:19:58Z",
-      "updatedAt": "2024-09-04T20:38:42Z",
+      "updatedAt": "2024-09-09T23:47:42Z",
       "baseRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
       "baseRefName": "main",
       "baseRefOid": "332176193de05a035156166f39c15fab3c737a3e",
       "headRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
       "headRefName": "dankocoj-draft-setup",
-      "headRefOid": "dd1080d894a736bb665973753e9a8392334369d5",
+      "headRefOid": "86cf49feb239f901373cfca07123e92abcf18627",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -712,6 +712,26 @@
               "body": "As of https://github.com/WICG/turtledove/pull/1258, it's not missing.",
               "createdAt": "2024-09-04T20:38:42Z",
               "updatedAt": "2024-09-04T20:38:42Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6Ij8dl",
+          "commit": {
+            "abbreviatedOid": "dd1080d"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-09T23:47:42Z",
+          "updatedAt": "2024-09-09T23:47:42Z",
+          "comments": [
+            {
+              "originalPosition": 174,
+              "body": "adRenderId is defined in the `Common Definitions` section of this PR",
+              "createdAt": "2024-09-09T23:47:42Z",
+              "updatedAt": "2024-09-09T23:47:42Z"
             }
           ]
         }
