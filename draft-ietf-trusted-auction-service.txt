@@ -5,7 +5,7 @@
 Network Working Group                                           D. Kocoj
 Internet-Draft                                            B. R. Hamilton
 Intended status: Standards Track                                  Google
-Expires: 14 March 2025                                 10 September 2024
+Expires: 15 March 2025                                 11 September 2024
 
 
                         Trusted Auction Service
@@ -39,7 +39,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 14 March 2025.
+   This Internet-Draft will expire on 15 March 2025.
 
 Copyright Notice
 
@@ -68,6 +68,7 @@ Table of Contents
        2.2.2.  Compression
        2.2.3.  Framing and Padding
        2.2.4.  Encryption
+       2.2.5.  Payload Optimization
      2.3.  Auction Server
      2.4.  Trusted Auction Server To Browser
        2.4.1.  Decryption
@@ -174,16 +175,16 @@ Table of Contents
         | Term with CDDL Definition               | Detailed     |
         |                                         | Reference    |
         +=========================================+==============+
-        | json = tstr                             | TODO         |
+        | json = tstr                             | [JSON]       |
         +-----------------------------------------+--------------+
-        | uuid = tstr .regexp "[a-fA-F0-9]{8}-[a- | TODO         |
+        | uuid = tstr .regexp "[a-fA-F0-9]{8}-[a- | [RFC9562]    |
         | fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-       |              |
         | F0-9]{4}-[a-fA-F0-9]{12}"               |              |
         +-----------------------------------------+--------------+
         | origin = tstr .regexp                   | [ORIGIN]     |
         | "https://([^/:](:[0-9]+)?/"             |              |
         +-----------------------------------------+--------------+
-        | currency = tstr .size 3 .regexp         | TODO         |
+        | currency = tstr .size 3 .regexp         | [ISO4217]    |
         | /^[A-Z]{3}$/                            |              |
         +-----------------------------------------+--------------+
         | adRenderUrl = tstr                      | [URL]        |
@@ -204,8 +205,8 @@ Table of Contents
 
 2.2.1.  Request Payload Data
 
-   A request payload primarily consists of interest groups.  An interest
-   group is represented by the following [CDDL]:
+   A request payload primarily consists of interest groups.  A list of
+   interest group is represented by the following [CDDL]:
 
    interestGroups = [ * interestGroup ]
    interestGroup = {
@@ -255,12 +256,12 @@ Table of Contents
      }
    }
 
-   Each interest group MUST first be represented as [CBOR], and then
-   MUST be indiviudally compressed according to the compression
-   algorithm specified in the message framing (Section 2.2.3).  This
-   compressed interest group data MUST then be aggregated into a map in
-   the complete request, which MUST be [CBOR] represented by the
-   following [CDDL]:
+   A list of interest groups for each owner MUST first be represented as
+   [CBOR], and then the serialized list MUST be indiviudally compressed
+   according to the compression algorithm specified in the message
+   framing (Section 2.2.3).  This compressed interest group data MUST
+   then be aggregated into a map in the complete request, which MUST be
+   [CBOR] represented by the following [CDDL]:
 
    request = {
      version: int,
@@ -319,10 +320,13 @@ Table of Contents
    version and the following 5 bits specify the compression algorithm.
    The format described in this document corresponds to version 0.
 
-   Messages SHOULD be zero padded up to one of the following bin sizes:
-   0KiB, 5KiB, 10KiB, 20KiB, 30KiB, 40KiB, 55KiB.  Messages SHALL NOT be
-   be larger than 55KiB.  An implementation may need to remove some data
-   from the payload to fit inside the largest bucket.
+   Messages MAY be zero padded so that the encrypted request is one of
+   the following bin sizes: 0KiB, 5KiB, 10KiB, 20KiB, 30KiB, 40KiB,
+   55KiB.  An implementation MAY need to remove some data from the
+   payload to fit inside the largest bucket.
+
+   A compatible implementation processing requests SHOULD NOT rely on a
+   specific padding scheme for requests.
 
 2.2.4.  Encryption
 
@@ -342,6 +346,121 @@ Table of Contents
    creating the HPKE encryption context (https://www.rfc-editor.org/rfc/
    rfc9458.html#name-encapsulation-of-requests), and are not HTTP
    content or media types.
+
+2.2.5.  Payload Optimization
+
+   A compatible implementation MAY support control over how interest
+   groups are serialized into a request and the size of the request.  An
+   example implementation for this feature is as follows:
+
+   This algorithm takes as input all of the relevant interest groups, an
+   optional desired total size, and an optional list of interest group
+   owners to include each with an optional desired size.
+
+   1.   If desired total size is not specified, but the list of interest
+        group owners includes at least one entry with a specified
+        desired size:
+
+        1.  Set desired total size to the sum of all specified desired
+            size in the list of interest group owners.
+
+   2.   Group the list of relevant interest groups by owner into a map
+        of from interest group owner to a list of interest groups sorted
+        by decreasing priority, interest group map.
+
+   3.   If the list of interest group owners is specified, remove
+        interest groups whose owner is not on the list.
+
+   4.   Construct a request, request, as normal only with the value of
+        the interestGroups field for each interest group owner as zero
+        length.
+
+   5.   Set current_size to be the serialized size of the encrypted
+        request created from request without padding.
+
+   6.   Set remaining_allocated_size to 0.
+
+   7.   Set remaining_unsized_owners to 0.
+
+   8.   For each interest group owner, interest group list in interest
+        group map:
+
+        1.  If there is a desired size for interest group owner:
+
+            1.  Increment remaining_allocated_size by desired size.
+
+        2.  Otherwise
+
+            1.  Increment remaining_unsized_owners by 1.
+
+   9.   For each interest group owner, interest group list in interest
+        group map where there is a desired size specified for interest
+        group owner:
+
+        1.  If the number of unsized_owners is not 0:
+
+            1.  Set the allowed_interest_group_size to the desired size
+                for this interest group owner.  This is a fixed size
+                allocation.
+
+        2.  Otherwise:
+
+            1.  Let remaining_size be equal to the desired total size-
+                current_size.
+
+            2.  Set the allowed_interest_group_size to
+                remaining_size*desired_size/remaining_allocated_size.
+                This is a proportional allocation.
+
+        3.  Set remaining_allocated_size = remaining_allocated_size-
+            current_size.
+
+        4.  Serialize the interest group list into serialized_group.
+
+        5.  If adding the serialized_group to request would make it more
+            than allowed_interest_group_size larger than the current
+            size, then remove the lowest priority interest group and
+            repeat from the previous step.
+
+        6.  Set request["interestGroups"][interest group owner] to
+            serialized_group.
+
+        7.  Set current_size to be the serialized size of the encrypted
+            request created from request without padding.
+
+   10.  For each interest group owner, interest group list in interest
+        group map where there is not desired size specified for interest
+        group owner:
+
+        1.  Let remaining_size be equal to the desired total size-
+            current_size.
+
+        2.  Set the allowed_interest_group_size to
+            remaining_size*/remaining_unsized_owners.  This is a equal
+            size allocation.
+
+        3.  Decrement remaining_unsized_owners by 1.
+
+        4.  Serialize the interest group list into serialized_group.
+
+        5.  If adding the serialized_group to request would make it more
+            than allowed_interest_group_size larger than the current
+            size, then remove the lowest priority interest group and
+            repeat from the previous step.
+
+        6.  Set request["interestGroups"][interest group owner] to
+            serialized_group.
+
+        7.  Set current_size to be the serialized size of the encrypted
+            request created from request without padding.
+
+   11.  If there are no interest groups in the request, discard the
+        request and return an empty byte array.
+
+   12.  Frame request as in Section 2.2.3 and zero pad up to desired
+        total size.
+
+   13.  Return the encrypted result (as in Section 2.2.4).
 
 2.3.  Auction Server
 
@@ -560,6 +679,14 @@ Table of Contents
               JSON Data Structures", RFC 8610, DOI 10.17487/RFC8610,
               June 2019, <https://www.rfc-editor.org/rfc/rfc8610>.
 
+   [ISO4217]  "ISO 4217 Currency codes", 2024,
+              <https://www.iso.org/iso-4217-currency-codes.html>.
+
+   [JSON]     Bray, T., Ed., "The JavaScript Object Notation (JSON) Data
+              Interchange Format", STD 90, RFC 8259,
+              DOI 10.17487/RFC8259, December 2017,
+              <https://www.rfc-editor.org/rfc/rfc8259>.
+
    [OHTTP]    Thomson, M. and C. A. Wood, "Oblivious HTTP", RFC 9458,
               DOI 10.17487/RFC9458, January 2024,
               <https://www.rfc-editor.org/rfc/rfc9458>.
@@ -584,6 +711,10 @@ Table of Contents
    [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
               May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
+
+   [RFC9562]  Davis, K., Peabody, B., and P. Leach, "Universally Unique
+              IDentifiers (UUIDs)", RFC 9562, DOI 10.17487/RFC9562, May
+              2024, <https://www.rfc-editor.org/rfc/rfc9562>.
 
    [SHA-256]  Eastlake 3rd, D. and T. Hansen, "US Secure Hash Algorithms
               (SHA and SHA-based HMAC and HKDF)", RFC 6234,
