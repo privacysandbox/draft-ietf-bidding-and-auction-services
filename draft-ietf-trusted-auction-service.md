@@ -31,6 +31,8 @@ normative:
   JSON: RFC8259
   OHTTP: RFC9458
   SHA-256: RFC6234
+  HPKE: RFC9180
+  BINARY: RFC9292
   ISO4217:
     target: https://www.iso.org/iso-4217-currency-codes.html
     title: ISO 4217 Currency codes
@@ -136,7 +138,6 @@ about the seller and buyer servers can be found in the [server-side system desig
 | `currency = tstr .size 3 .regexp /^[A-Z]{3}$/` | [ISO4217] |
 | `adRenderUrl = tstr` | [URL] |
 | `adRenderId = tstr` | [ADRENDERID] |
-| `interestGroupName = tstr` | TODO |
 | `interestGroupOwner = origin` | TODO |
 
 ## Browser to Trusted Auction Server {#browser-to-server}
@@ -154,7 +155,7 @@ interestGroups = [ * interestGroup ]
 interestGroup = {
   ; This interest group's name, see
   ; https://wicg.github.io/turtledove/#interest-group-name.
-  name: interestGroupName,
+  name: tstr,
 
   ; Keys used to look up real-time bidding signals, see
   ; https://wicg.github.io/turtledove/#interest-group-trusted-bidding-signals-keys.
@@ -262,18 +263,22 @@ padding scheme for requests.
 ### Encryption {#encryption}
 
 After framing and padding the compressed payload, the entire plaintext message is
-encrypted using HPKE with the encapsulation performed according
-to {{OHTTP}}.
+encrypted using [HPKE] with the encapsulation performed similarly
+to [Section 4.3](https://www.rfc-editor.org/rfc/rfc9458#section-4.3) of {{OHTTP}}.
+Details on how to acquire [HPKE] keys are out of scope for this document.
 
-Since we are [repurposing the OHTTP encapsulation mechanism, we are
-required to define new media types](https://www.rfc-editor.org/rfc/rfc9458.html#name-repurposing-the-encapsulati):
+However, instead of encapsulating Binary HTTP [BINARY] as per [Step 1 in OHTTP](https://www.rfc-editor.org/rfc/rfc9458#section-4.3-4.1.1), the output from {{request-framing}} MUST be used as-is. This means that
+we are repurposing the [OHTTP] encapsulation mechanism, so [we are required to
+define new media types](https://www.rfc-editor.org/rfc/rfc9458.html#name-repurposing-the-encapsulati):
 
 * The OHTTP request media type is “message/auction request”
 * The OHTTP response media type is “message/auction response”
 
 Note that these media types are [concatenated with other fields when
 creating the HPKE encryption context](https://www.rfc-editor.org/rfc/rfc9458.html#name-encapsulation-of-requests),
-and are not HTTP content or media types.
+and are not HTTP content or media types. In order to perform the encapsulation,
+follow precisely the same steps as in [the OHTTP encapsulation](https://www.rfc-editor.org/rfc/rfc9458#section-4.3-3),
+except use an `info` equivalent to `message/auction request`.
 
 ### Payload Optimization {#request-optimization}
 
@@ -348,10 +353,6 @@ each with an optional `desired size`.
 1. Frame `request` as in {{request-framing}} and zero pad up to `desired total size`.
 1. Return the encrypted result (as in {{encryption}}).
 
-## Auction Server
-
-TODO
-
 ## Trusted Auction Server To Browser {#server-to-browser}
 
 This section describes how the browser MUST interpret response messages from
@@ -366,8 +367,10 @@ decryption procedure](https://www.rfc-editor.org/rfc/rfc9458#section-4.4-5).
 
 ### Decompression
 
-The message framing is as in {{request-framing}}, but the entire response payload is
-compressed. The Server shall zero pad the response (TODO).
+The message framing is exactly as in {{request-framing}}, but the entire
+response payload is compressed. Starting with Byte 0, read bits 4-0 and use
+the chart in {{request-compression}} to decode which decompression algorithm 
+MUST be applied to the response payload.
 
 ### Response Payload Data
 
@@ -384,7 +387,8 @@ response = {
   ? components: [* adRenderUrl],
 
   ; Name of the interest group to which the ad belongs.
-  ? interestGroupName: interestGroupName,
+  ; See https://wicg.github.io/turtledove/#interest-group-name.
+  ? interestGroupName: tstr,
 
   ; Origin of the Buyer who owns the interest group.
   ; The original request for this response MUST contain this
