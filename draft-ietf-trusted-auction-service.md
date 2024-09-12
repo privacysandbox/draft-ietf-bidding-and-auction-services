@@ -402,6 +402,18 @@ response = {
     * interestGroupOwner => [* int]
   },
 
+  ; Specifies which interest groups are eligible for an update on the
+  ; client.
+  ? updateGroups: {
+    * interestGroupOwner => [* {
+      ; Index of interest group in the original request for interestGroupOwner.
+      index: int
+      ; Browser should update the interest group represented by 'index'
+      ; if its on-device last updated time is gerather than this.
+      updateIfOlderThanMs: int
+    }]
+  },
+
   ; Score of the ad determined during the auction.
   ; Any value that is zero or negative indicates that the ad cannot
   ; win the auction.
