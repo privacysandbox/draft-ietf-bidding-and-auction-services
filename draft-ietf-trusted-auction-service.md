@@ -442,24 +442,6 @@ response = {
   ; component auction.
   ? topLevelSeller: origin,
 
-  ? kAnonWinnerJoinCandidates: [* KAnonJoinCandidate],
-
-  ; Positional index of the k-anon winner.
-  ; Note: Positional index >= 0.
-  ; If this is equal to 0, the highest scored bid is also K-Anonymous
-  ; and hence a winner.
-  ; If this is greater than 0, the positional index implies the index
-  ; of the first K-Anonymous scored bid in a sorted list in
-  ; decreasing order of scored bids.
-  ; In this case, the highest scored bid that is not K-Anonymous is
-  ; the ghost winner.
-  ; In case all scored bids fail the K-Anonymity constraint, this
-  ; would be set to -1 since there is no winner.
-  ; In case all scored bids <= 0, this would be set to -1 since
-  ; there is no winner.
-  ? kAnonWinnerPositionalIndex: int,
-
-  ? kAnonGhostWinners: [* KAnonGhostWinner]
 }
 
 ; Defines the structure for reporting URLs.
@@ -468,79 +450,6 @@ reportingUrls = {
   ? interactionReportingUrls: { * tstr => tstr }
 }
 
-; Join candidates for K-Anonymity
-KAnonJoinCandidate = {
-  ; SHA-256 [RFC6234] hash.
-  ; Must be computed according to:
-  ; https://wicg.github.io/turtledove/#compute-the-key-hash-of-ad
-  adRenderUrlHash: tstr,
-
-  ; SHA-256 [RFC6234] hash.
-  ; MUST be computed according to:
-  ; https://wicg.github.io/turtledove/#compute-the-key-hash-of-component-ad
-  ; Note: There is a maximum limit of 40 ad component render urls per
-  ; render url.
-  ? adComponentRenderUrlsHash: [* tstr],
-
-  ; SHA-256 [RFC6234] hash.
-  ; MUST be computed according to:
-  ; https://wicg.github.io/turtledove/#compute-the-key-hash-of-reporting-id
-  reportingIdHash: tstr
-}
-
-; Data for the ghost winner sent back to the client.
-; This should also include key-hashes corresponding to the ghost
-; winning ad.
-; Refer https://wicg.github.io/turtledove/#k-anonymity
-KAnonGhostWinner = {
-  ; Join candidates for the K-Anon ghost winner.
-  kAnonJoinCandidates: [* KAnonJoinCandidate],
-
-  ; Interest group index of the buyer who generated the ghost winning
-  ; bid.
-  ? interestGroupIndex: int,
-
-  ; Buyer index who generated the ghost winning bid.
-  ? buyerIndex: int,
-
-  ; Origin of the buyer who owns the ghost winner.
-  owner: interestGroupOwner,
-
-  ; Private aggregation signals for the ghost winner.
-  ; In single seller auctions, this represents a ghost winner if
-  ; available.
-  ; Note: Event type is "reserved.loss" and bid rejection reason is 8
-  ; when the K-Anonymity threshold is not met.
-  ? ghostWinnerPrivateAggregationSignals: {
-    ; 128-bit integer in bytestring format.
-    bucket: bytes,
-
-    value: int
-  },
-
-  ; In multi-seller auctions, this data allows scoring the ghost
-  ; winning bid during the top-level auction.
-  ? ghostWinnerForTopLevelAuction: {
-    ; Ad render URL of the ghost winner.
-    adRenderUrl: adRenderUrl,
-
-    ; Render URLs for component ads of the main ghost winning ad.
-    ? adComponentRenderUrls: [* tstr],
-
-    ; Modified bid price of the ghost winning bid.
-    modifiedBid: float,
-
-    ; Optional currency used for the bid price.
-    ? bidCurrency: currency,
-
-    ; Arbitrary metadata associated with the ghost winner, passed to
-    ; the top-level seller.
-    ? adMetadata: json,
-
-    ; BuyerAndSellerReportingId of the ghost winning ad.
-    buyerAndSellerReportingId: tstr
-  }
-}
 ~~~~~
 
 # Security Considerations
