@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-09-10T00:49:25.693917+00:00",
+  "timestamp": "2024-09-12T00:49:13.341603+00:00",
   "repo": "privacysandbox/draft-ietf-protected-audience-auction-service",
   "labels": [
     {
@@ -133,24 +133,26 @@
       "id": "PR_kwDOMnZLVc55mtWX",
       "title": "Add more section structure and update CDDL",
       "url": "https://github.com/privacysandbox/draft-ietf-protected-audience-auction-service/pull/2",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "dankocoj-google",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "",
       "createdAt": "2024-08-27T17:19:58Z",
-      "updatedAt": "2024-09-09T23:47:42Z",
+      "updatedAt": "2024-09-10T12:05:22Z",
       "baseRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
       "baseRefName": "main",
       "baseRefOid": "332176193de05a035156166f39c15fab3c737a3e",
       "headRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
       "headRefName": "dankocoj-draft-setup",
       "headRefOid": "86cf49feb239f901373cfca07123e92abcf18627",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2024-09-10T12:05:20Z",
+      "mergedAt": "2024-09-10T12:05:20Z",
+      "mergedBy": "JensenPaul",
+      "mergeCommit": {
+        "oid": "4e5b5f0f4081f3b6e4718d5a8f2c14430de9e0bf"
+      },
       "comments": [],
       "reviews": [
         {
@@ -742,26 +744,82 @@
       "id": "PR_kwDOMnZLVc56saUL",
       "title": "Add description of basic payload optimization",
       "url": "https://github.com/privacysandbox/draft-ietf-protected-audience-auction-service/pull/3",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "brusshamilton",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "",
       "createdAt": "2024-09-06T17:59:25Z",
-      "updatedAt": "2024-09-06T17:59:25Z",
+      "updatedAt": "2024-09-11T18:24:17Z",
       "baseRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
-      "baseRefName": "dankocoj-draft-setup",
-      "baseRefOid": "dd1080d894a736bb665973753e9a8392334369d5",
+      "baseRefName": "main",
+      "baseRefOid": "4e5b5f0f4081f3b6e4718d5a8f2c14430de9e0bf",
       "headRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
       "headRefName": "payload-optimization",
-      "headRefOid": "846c6109946bca203b8e2e20568bcdc5faa8b760",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "7734be16cdb08a1e972b39e7820bee4dff26443b",
+      "closedAt": "2024-09-11T18:24:16Z",
+      "mergedAt": "2024-09-11T18:24:16Z",
+      "mergedBy": "dankocoj-google",
+      "mergeCommit": {
+        "oid": "9e068afd23bc5c9cabaa1aa6097d23cf72399388"
+      },
       "comments": [],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDOMnZLVc6ItWss",
+          "commit": {
+            "abbreviatedOid": "846c610"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-10T19:25:43Z",
+          "updatedAt": "2024-09-10T19:25:44Z",
+          "comments": [
+            {
+              "originalPosition": 46,
+              "body": "when you say 'individually compressed' does that mean each list of interest groups, or each interest group in the list? can you tweak the phrasing here to clarify",
+              "createdAt": "2024-09-10T19:25:44Z",
+              "updatedAt": "2024-09-10T19:25:44Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6ItWz0",
+          "commit": {
+            "abbreviatedOid": "846c610"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-09-10T19:25:58Z",
+          "updatedAt": "2024-09-10T19:25:58Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6Itz7u",
+          "commit": {
+            "abbreviatedOid": "846c610"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-10T20:30:32Z",
+          "updatedAt": "2024-09-10T20:30:32Z",
+          "comments": [
+            {
+              "originalPosition": 46,
+              "body": "Fixed.",
+              "createdAt": "2024-09-10T20:30:32Z",
+              "updatedAt": "2024-09-10T20:30:33Z"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
