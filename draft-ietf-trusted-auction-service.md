@@ -277,8 +277,8 @@ define new media types](https://www.rfc-editor.org/rfc/rfc9458.html#name-repurpo
 Note that these media types are [concatenated with other fields when
 creating the HPKE encryption context](https://www.rfc-editor.org/rfc/rfc9458.html#name-encapsulation-of-requests),
 and are not HTTP content or media types. In order to perform the encapsulation,
-follow precisely the same steps as in [the OHTTP encapsulation](https://www.rfc-editor.org/rfc/rfc9458#section-4.3-3),
-except use an `info` equivalent to `message/auction request`.
+the steps in [the OHTTP encapsulation process](https://www.rfc-editor.org/rfc/rfc9458#section-4.3-3)
+MUST be followed precisely, except with an `info` equivalent to `message/auction request`.
 
 ### Payload Optimization {#request-optimization}
 
@@ -372,7 +372,11 @@ response payload is compressed. Starting with Byte 0, read bits 4-0 and use
 the chart in {{request-compression}} to decode which decompression algorithm 
 MUST be applied to the response payload.
 
-### Response Payload Data
+The output of the decompression process will be a payload equivalent to the
+[auction server response struct](https://wicg.github.io/turtledove/#server-auction-response),
+as further described in {{response-payload}}. 
+
+### Response Payload Data {#response-payload}
 
 The response has the following data, serialized as {{CBOR}} and matching
 the following shape (described via {{CDDL}}):
