@@ -369,12 +369,12 @@ decryption procedure](https://www.rfc-editor.org/rfc/rfc9458#section-4.4-5).
 
 The message framing is exactly as in {{request-framing}}, but the entire
 response payload is compressed. Starting with Byte 0, read bits 4-0 and use
-the chart in {{request-compression}} to decode which decompression algorithm 
+the chart in {{request-compression}} to decode which decompression algorithm
 MUST be applied to the response payload.
 
 The output of the decompression process will be a payload equivalent to the
 [auction server response struct](https://wicg.github.io/turtledove/#server-auction-response),
-as further described in {{response-payload}}. 
+as further described in {{response-payload}}.
 
 ### Response Payload Data {#response-payload}
 
