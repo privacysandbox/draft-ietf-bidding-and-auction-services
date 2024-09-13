@@ -1,8 +1,8 @@
 ---
 coding: utf-8
 
-title: Trusted Auction Service
-docname: draft-ietf-trusted-auction-service-latest
+title: Bidding and Auction Services
+docname: draft-ietf-bidding-and-auction-services-latest
 category: std
 
 # area: TODO
@@ -55,8 +55,8 @@ informative:
 
 --- abstract
 
-The Trusted Auction Service provides a way for advertising auctions to execute in a
-remote environment while preserving user privacy.
+The Bidding and Auction Services provide a way for advertising auctions to execute in
+remote environments while preserving user privacy.
 
 --- middle
 
@@ -77,7 +77,7 @@ can demand computation requirements that may be impractical to execute on
 devices with limited processing power, or may be too slow to render ads due to
 network latency.
 
-This Trusted Auction Service proposal outlines a way to allow Protected Audience
+This Bidding and Auction Services proposal outlines a way to allow Protected Audience
 computation to take place on cloud servers,
 rather than running locally on a user's device. Moving computations to
 the cloud has the following benefits:
@@ -99,13 +99,13 @@ essential to creating a diverse and healthy ecosystem for such services.
 
 ## Scope {#Scope}
 This document provides a specification for the request and response message
-format that a browser can use to communicate with trusted remote services
+format that a browser can use to communicate with remote services
 that allows the browser to offload much of the work involved in running an advertisement
 selection auction as part of the browser's implementation of the
 Protected Audience API.
 
-This document does not describe distribution of private keys to trusted auction
-services.
+This document does not describe distribution of private keys to the bidding
+and auction services.
 
 ## Terminology {#Terminology}
 
@@ -140,10 +140,11 @@ about the seller and buyer servers can be found in the [server-side system desig
 | `adRenderId = tstr` | [ADRENDERID] |
 | `interestGroupOwner = origin` | TODO |
 
-## Browser to Trusted Auction Server {#browser-to-server}
+## Browser to Server {#browser-to-server}
 
 This section describes how the browser MUST form request messages in
-order to communicate with the Trusted Auction Server.
+order to communicate with the Bidding and Auction services. Note that for
+a single auction, the browser will send a single request.
 
 ### Request Payload Data
 
@@ -353,10 +354,10 @@ each with an optional `desired size`.
 1. Frame `request` as in {{request-framing}} and zero pad up to `desired total size`.
 1. Return the encrypted result (as in {{encryption}}).
 
-## Trusted Auction Server To Browser {#server-to-browser}
+## Bidding and Auction Services To Browser {#server-to-browser}
 
 This section describes how the browser MUST interpret response messages from
-the Trusted Auction Server.
+the Bidding and Auction Services.
 
 ### Decryption
 
