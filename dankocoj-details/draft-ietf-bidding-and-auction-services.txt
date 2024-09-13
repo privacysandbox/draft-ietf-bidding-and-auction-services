@@ -8,13 +8,14 @@ Intended status: Standards Track                                  Google
 Expires: 17 March 2025                                 13 September 2024
 
 
-                        Trusted Auction Service
-               draft-ietf-trusted-auction-service-latest
+                      Bidding and Auction Services
+             draft-ietf-bidding-and-auction-services-latest
 
 Abstract
 
-   The Trusted Auction Service provides a way for advertising auctions
-   to execute in a remote environment while preserving user privacy.
+   The Bidding and Auction Services provide a way for advertising
+   auctions to execute in remote environments while preserving user
+   privacy.
 
 Discussion Venues
 
@@ -63,13 +64,13 @@ Table of Contents
    2.  Message Format Specifications
      2.1.  Overview
        2.1.1.  Common Definitions
-     2.2.  Browser to Trusted Auction Server
+     2.2.  Browser to Server
        2.2.1.  Request Payload Data
        2.2.2.  Compression
        2.2.3.  Framing and Padding
        2.2.4.  Encryption
        2.2.5.  Payload Optimization
-     2.3.  Trusted Auction Server To Browser
+     2.3.  Bidding and Auction Services To Browser
        2.3.1.  Decryption
        2.3.2.  Decompression
        2.3.3.  Response Payload Data
@@ -100,7 +101,7 @@ Table of Contents
    execute on devices with limited processing power, or may be too slow
    to render ads due to network latency.
 
-   This Trusted Auction Service proposal outlines a way to allow
+   This Bidding and Auction Services proposal outlines a way to allow
    Protected Audience computation to take place on cloud servers, rather
    than running locally on a user's device.  Moving computations to the
    cloud has the following benefits:
@@ -135,13 +136,13 @@ Table of Contents
 1.1.  Scope
 
    This document provides a specification for the request and response
-   message format that a browser can use to communicate with trusted
-   remote services that allows the browser to offload much of the work
-   involved in running an advertisement selection auction as part of the
+   message format that a browser can use to communicate with remote
+   services that allows the browser to offload much of the work involved
+   in running an advertisement selection auction as part of the
    browser's implementation of the Protected Audience API.
 
-   This document does not describe distribution of private keys to
-   trusted auction services.
+   This document does not describe distribution of private keys to the
+   bidding and auction services.
 
 1.2.  Terminology
 
@@ -195,10 +196,11 @@ Table of Contents
 
                                  Table 1
 
-2.2.  Browser to Trusted Auction Server
+2.2.  Browser to Server
 
    This section describes how the browser MUST form request messages in
-   order to communicate with the Trusted Auction Server.
+   order to communicate with the Bidding and Auction services.  Note
+   that for a single auction, the browser will send a single request.
 
 2.2.1.  Request Payload Data
 
@@ -467,10 +469,10 @@ Table of Contents
 
    13.  Return the encrypted result (as in Section 2.2.4).
 
-2.3.  Trusted Auction Server To Browser
+2.3.  Bidding and Auction Services To Browser
 
    This section describes how the browser MUST interpret response
-   messages from the Trusted Auction Server.
+   messages from the Bidding and Auction Services.
 
 2.3.1.  Decryption
 

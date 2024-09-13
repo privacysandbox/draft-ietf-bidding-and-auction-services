@@ -4,16 +4,16 @@
 <meta charset="utf-8">
 <meta content="Common,Latin" name="scripts">
 <meta content="initial-scale=1.0" name="viewport">
-<title>Trusted Auction Service</title>
+<title>Bidding and Auction Services</title>
 <meta content="Daniel Kocoj" name="author">
 <meta content='Benjamin "Russ" Hamilton' name="author">
 <meta content="
-       The Trusted Auction Service provides a way for advertising auctions to execute in a
-remote environment while preserving user privacy. 
+       The Bidding and Auction Services provide a way for advertising auctions to execute in
+remote environments while preserving user privacy. 
     " name="description">
 <meta content="xml2rfc 3.23.0" name="generator">
 <meta content="Internet-Draft" name="keyword">
-<meta content="draft-ietf-trusted-auction-service-latest" name="ietf.draft">
+<meta content="draft-ietf-bidding-and-auction-services-latest" name="ietf.draft">
 <!-- Generator version information:
   xml2rfc 3.23.0
     Python 3.12.3
@@ -29,7 +29,7 @@ remote environment while preserving user privacy.
     setuptools 70.3.0
     wcwidth 0.2.13
 -->
-<link href="draft-ietf-trusted-auction-service.xml" rel="alternate" type="application/rfc+xml">
+<link href="draft-ietf-bidding-and-auction-services.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
 <style type="text/css">@font-face {
   font-family: 'Lora';
@@ -1025,7 +1025,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <table class="ears">
 <thead><tr>
 <td class="left">Internet-Draft</td>
-<td class="center">Trusted Auction Service</td>
+<td class="center">Bidding and Auction Services</td>
 <td class="right">September 2024</td>
 </tr></thead>
 <tfoot><tr>
@@ -1040,7 +1040,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dt class="label-workgroup">Workgroup:</dt>
 <dd class="workgroup">Network Working Group</dd>
 <dt class="label-internet-draft">Internet-Draft:</dt>
-<dd class="internet-draft">draft-ietf-trusted-auction-service-latest</dd>
+<dd class="internet-draft">draft-ietf-bidding-and-auction-services-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
 <time datetime="2024-09-13" class="published">13 September 2024</time>
@@ -1062,11 +1062,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </dd>
 </dl>
 </div>
-<h1 id="title">Trusted Auction Service</h1>
+<h1 id="title">Bidding and Auction Services</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
-<p id="section-abstract-1">The Trusted Auction Service provides a way for advertising auctions to execute in a
-remote environment while preserving user privacy.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-1">The Bidding and Auction Services provide a way for advertising auctions to execute in
+remote environments while preserving user privacy.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-discussion-venues">
@@ -1147,7 +1147,7 @@ remote environment while preserving user privacy.<a href="#section-abstract-1" c
                 </ul>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2">
-                <p id="section-toc.1-1.2.2.2.1"><a href="#section-2.2" class="auto internal xref">2.2</a>.  <a href="#name-browser-to-trusted-auction-" class="internal xref">Browser to Trusted Auction Server</a></p>
+                <p id="section-toc.1-1.2.2.2.1"><a href="#section-2.2" class="auto internal xref">2.2</a>.  <a href="#name-browser-to-server" class="internal xref">Browser to Server</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2.2.1">
                     <p id="section-toc.1-1.2.2.2.2.1.1"><a href="#section-2.2.1" class="auto internal xref">2.2.1</a>.  <a href="#name-request-payload-data" class="internal xref">Request Payload Data</a></p>
@@ -1167,7 +1167,7 @@ remote environment while preserving user privacy.<a href="#section-abstract-1" c
                 </ul>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.3">
-                <p id="section-toc.1-1.2.2.3.1"><a href="#section-2.3" class="auto internal xref">2.3</a>.  <a href="#name-trusted-auction-server-to-b" class="internal xref">Trusted Auction Server To Browser</a></p>
+                <p id="section-toc.1-1.2.2.3.1"><a href="#section-2.3" class="auto internal xref">2.3</a>.  <a href="#name-bidding-and-auction-service" class="internal xref">Bidding and Auction Services To Browser</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.3.2.1">
                     <p id="section-toc.1-1.2.2.3.2.1.1"><a href="#section-2.3.1" class="auto internal xref">2.3.1</a>.  <a href="#name-decryption" class="internal xref">Decryption</a></p>
@@ -1219,7 +1219,7 @@ bidding and auction for Protected Audience ad demand is executed locally. This
 can demand computation requirements that may be impractical to execute on
 devices with limited processing power, or may be too slow to render ads due to
 network latency.<a href="#section-1-2" class="pilcrow">¶</a></p>
-<p id="section-1-3">This Trusted Auction Service proposal outlines a way to allow Protected Audience
+<p id="section-1-3">This Bidding and Auction Services proposal outlines a way to allow Protected Audience
 computation to take place on cloud servers,
 rather than running locally on a user's device. Moving computations to
 the cloud has the following benefits:<a href="#section-1-3" class="pilcrow">¶</a></p>
@@ -1262,12 +1262,12 @@ essential to creating a diverse and healthy ecosystem for such services.<a href=
 <a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-scope" class="section-name selfRef">Scope</a>
         </h3>
 <p id="section-1.1-1">This document provides a specification for the request and response message
-format that a browser can use to communicate with trusted remote services
+format that a browser can use to communicate with remote services
 that allows the browser to offload much of the work involved in running an advertisement
 selection auction as part of the browser's implementation of the
 Protected Audience API.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
-<p id="section-1.1-2">This document does not describe distribution of private keys to trusted auction
-services.<a href="#section-1.1-2" class="pilcrow">¶</a></p>
+<p id="section-1.1-2">This document does not describe distribution of private keys to the bidding
+and auction services.<a href="#section-1.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="Terminology">
@@ -1377,11 +1377,12 @@ about the seller and buyer servers can be found in the <a href="https://github.c
 </div>
 <div id="browser-to-server">
 <section id="section-2.2">
-        <h3 id="name-browser-to-trusted-auction-">
-<a href="#section-2.2" class="section-number selfRef">2.2. </a><a href="#name-browser-to-trusted-auction-" class="section-name selfRef">Browser to Trusted Auction Server</a>
+        <h3 id="name-browser-to-server">
+<a href="#section-2.2" class="section-number selfRef">2.2. </a><a href="#name-browser-to-server" class="section-name selfRef">Browser to Server</a>
         </h3>
 <p id="section-2.2-1">This section describes how the browser MUST form request messages in
-order to communicate with the Trusted Auction Server.<a href="#section-2.2-1" class="pilcrow">¶</a></p>
+order to communicate with the Bidding and Auction services. Note that for
+a single auction, the browser will send a single request.<a href="#section-2.2-1" class="pilcrow">¶</a></p>
 <div id="request-payload-data">
 <section id="section-2.2.1">
           <h4 id="name-request-payload-data">
@@ -1745,11 +1746,11 @@ return an empty byte array.<a href="#section-2.2.5-3.11.1" class="pilcrow">¶</a
 </div>
 <div id="server-to-browser">
 <section id="section-2.3">
-        <h3 id="name-trusted-auction-server-to-b">
-<a href="#section-2.3" class="section-number selfRef">2.3. </a><a href="#name-trusted-auction-server-to-b" class="section-name selfRef">Trusted Auction Server To Browser</a>
+        <h3 id="name-bidding-and-auction-service">
+<a href="#section-2.3" class="section-number selfRef">2.3. </a><a href="#name-bidding-and-auction-service" class="section-name selfRef">Bidding and Auction Services To Browser</a>
         </h3>
 <p id="section-2.3-1">This section describes how the browser MUST interpret response messages from
-the Trusted Auction Server.<a href="#section-2.3-1" class="pilcrow">¶</a></p>
+the Bidding and Auction Services.<a href="#section-2.3-1" class="pilcrow">¶</a></p>
 <div id="decryption">
 <section id="section-2.3.1">
           <h4 id="name-decryption">
