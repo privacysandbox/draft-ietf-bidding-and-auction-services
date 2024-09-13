@@ -268,7 +268,8 @@ encrypted using [HPKE] with the encapsulation performed similarly
 to [Section 4.3](https://www.rfc-editor.org/rfc/rfc9458#section-4.3) of {{OHTTP}}.
 Details on how to acquire [HPKE] keys are out of scope for this document.
 
-However, instead of encapsulating Binary HTTP [BINARY] as per [Step 1 in OHTTP](https://www.rfc-editor.org/rfc/rfc9458#section-4.3-4.1.1), the output from {{request-framing}} MUST be used as-is. This means that
+However, instead of encapsulating Binary HTTP [BINARY] as per [Step 1 in OHTTP](https://www.rfc-editor.org/rfc/rfc9458#section-4.3-4.1.1),
+the output from {{request-framing}} MUST be used as-is. This means that
 we are repurposing the [OHTTP] encapsulation mechanism, so [we are required to
 define new media types](https://www.rfc-editor.org/rfc/rfc9458.html#name-repurposing-the-encapsulati):
 
