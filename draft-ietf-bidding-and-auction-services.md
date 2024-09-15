@@ -142,8 +142,8 @@ about the seller and buyer servers can be found in the [server-side system desig
 
 ## Browser to Server {#browser-to-server}
 
-This section describes how the browser MUST form request messages in
-order to communicate with the Bidding and Auction services. Note that for
+This section describes how the browser MUST form and serialize request messages
+in order to communicate with the Bidding and Auction services. Note that for
 a single auction, the browser will send a single request.
 
 ### Request Payload Data
@@ -268,7 +268,16 @@ encrypted using [HPKE] with the encapsulation performed similarly
 to [Section 4.3](https://www.rfc-editor.org/rfc/rfc9458#section-4.3) of {{OHTTP}}.
 Details on how to acquire [HPKE] keys are out of scope for this document.
 
-However, instead of encapsulating Binary HTTP [BINARY] as per [Step 1 in OHTTP](https://www.rfc-editor.org/rfc/rfc9458#section-4.3-4.1.1),
+#### HPKE Context {#hpke-context}
+
+[Section 5.1](https://www.rfc-editor.org/rfc/rfc9180.html#name-creating-the-encryption-con) of [HPKE] describes how to create the Context required for encryption. This is
+considered the 'sending' HPKE context, and browser must store it for later
+use when decrypting the response, as described in {{decryption}}.
+
+TODO describe the specifics of the context struct.
+
+#### Encapsulation {#encapsulation}
+Instead of encapsulating Binary HTTP [BINARY] as per [Step 1 in OHTTP](https://www.rfc-editor.org/rfc/rfc9458#section-4.3-4.1.1),
 the output from {{request-framing}} MUST be used as-is. This means that
 we are repurposing the [OHTTP] encapsulation mechanism, so [we are required to
 define new media types](https://www.rfc-editor.org/rfc/rfc9458.html#name-repurposing-the-encapsulati):
@@ -357,15 +366,18 @@ each with an optional `desired size`.
 
 ## Bidding and Auction Services To Browser {#server-to-browser}
 
-This section describes how the browser MUST interpret response messages from
+This section describes how the browser MUST deserialize response messages from
 the Bidding and Auction Services.
 
 ### Decryption
 
 The response message is encrypted using HPKE with the encapsulation performed
-according to {{OHTTP}} as the response to the request message. See {{encryption}} for more details.
+according to [Section 4.4](https://www.rfc-editor.org/rfc/rfc9458.html#name-encapsulation-of-responses) of {{OHTTP}} as the response to the request message.
+
 The browser MUST decrypt the response by following the standard {{OHTTP}} [Encapsulated Response
-decryption procedure](https://www.rfc-editor.org/rfc/rfc9458#section-4.4-5).
+decryption procedure](https://www.rfc-editor.org/rfc/rfc9458#section-4.4-5). The
+HPKE context used for decryption should be precisely the same context that was
+created in {{hpke-context}}.
 
 ### Decompression
 
