@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-09-12T00:49:13.341603+00:00",
+  "timestamp": "2024-09-15T00:55:16.545278+00:00",
   "repo": "privacysandbox/draft-ietf-protected-audience-auction-service",
   "labels": [
     {
@@ -820,6 +820,32 @@
           ]
         }
       ]
+    },
+    {
+      "number": 4,
+      "id": "PR_kwDOMnZLVc57YbFI",
+      "title": "Update response payload and misc serialization details",
+      "url": "https://github.com/privacysandbox/draft-ietf-protected-audience-auction-service/pull/4",
+      "state": "OPEN",
+      "author": "dankocoj-google",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "The major work items left:\r\n1. Work through all of the TODOs in the W3C spec that mention this document and make sure that the W3C spec has clear sections that it can reference.\r\n2. Verify that the request and response message structures are in-sync with the W3C spec.\r\n3. Resolve remaining TODOs in this spec.\r\n4. Solicit feedback for any other sections that may be missing from the spec.\r\n5. Increase the amount of detail in the compression and decompression sections to resolve any ambiguity.\r\n6. Increase the amount of detail in the encryption and decryption sections to resolve any ambiguity.\r\n",
+      "createdAt": "2024-09-13T04:12:42Z",
+      "updatedAt": "2024-09-13T16:11:41Z",
+      "baseRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
+      "baseRefName": "main",
+      "baseRefOid": "9e068afd23bc5c9cabaa1aa6097d23cf72399388",
+      "headRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
+      "headRefName": "dankocoj-details",
+      "headRefOid": "49b93bd55e343738efb9978b55162e4b085a155f",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
