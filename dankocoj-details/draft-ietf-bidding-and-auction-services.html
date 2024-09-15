@@ -1030,7 +1030,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Kocoj &amp; Hamilton</td>
-<td class="center">Expires 17 March 2025</td>
+<td class="center">Expires 19 March 2025</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1043,12 +1043,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-ietf-bidding-and-auction-services-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-09-13" class="published">13 September 2024</time>
+<time datetime="2024-09-15" class="published">15 September 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2025-03-17">17 March 2025</time></dd>
+<dd class="expires"><time datetime="2025-03-19">19 March 2025</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1095,7 +1095,7 @@ remote environments while preserving user privacy.<a href="#section-abstract-1" 
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 17 March 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 19 March 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1380,8 +1380,8 @@ about the seller and buyer servers can be found in the <a href="https://github.c
         <h3 id="name-browser-to-server">
 <a href="#section-2.2" class="section-number selfRef">2.2. </a><a href="#name-browser-to-server" class="section-name selfRef">Browser to Server</a>
         </h3>
-<p id="section-2.2-1">This section describes how the browser MUST form request messages in
-order to communicate with the Bidding and Auction services. Note that for
+<p id="section-2.2-1">This section describes how the browser MUST form and serialize request messages
+in order to communicate with the Bidding and Auction services. Note that for
 a single auction, the browser will send a single request.<a href="#section-2.2-1" class="pilcrow">¶</a></p>
 <div id="request-payload-data">
 <section id="section-2.2.1">
@@ -1561,22 +1561,41 @@ padding scheme for requests.<a href="#section-2.2.3-5" class="pilcrow">¶</a></p
 encrypted using <span>[<a href="#HPKE" class="cite xref">HPKE</a>]</span> with the encapsulation performed similarly
 to <a href="https://www.rfc-editor.org/rfc/rfc9458#section-4.3">Section 4.3</a> of <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span>.
 Details on how to acquire <span>[<a href="#HPKE" class="cite xref">HPKE</a>]</span> keys are out of scope for this document.<a href="#section-2.2.4-1" class="pilcrow">¶</a></p>
-<p id="section-2.2.4-2">However, instead of encapsulating Binary HTTP <span>[<a href="#BINARY" class="cite xref">BINARY</a>]</span> as per <a href="https://www.rfc-editor.org/rfc/rfc9458#section-4.3-4.1.1">Step 1 in OHTTP</a>, the output from <a href="#request-framing" class="auto internal xref">Section 2.2.3</a> MUST be used as-is. This means that
+<div id="hpke-context">
+<section id="section-2.2.4.1">
+            <h5 id="name-hpke-context">
+<a href="#section-2.2.4.1" class="section-number selfRef">2.2.4.1. </a><a href="#name-hpke-context" class="section-name selfRef">HPKE Context</a>
+            </h5>
+<p id="section-2.2.4.1-1"><a href="https://www.rfc-editor.org/rfc/rfc9180.html#name-creating-the-encryption-con">Section 5.1</a> of <span>[<a href="#HPKE" class="cite xref">HPKE</a>]</span> describes how to create the Context required for encryption. This is
+considered the 'sending' HPKE context, and browser must store it for later
+use when decrypting the response, as described in <a href="#decryption" class="auto internal xref">Section 2.3.1</a>.<a href="#section-2.2.4.1-1" class="pilcrow">¶</a></p>
+<p id="section-2.2.4.1-2">TODO describe the specifics of the context struct.<a href="#section-2.2.4.1-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="encapsulation">
+<section id="section-2.2.4.2">
+            <h5 id="name-encapsulation">
+<a href="#section-2.2.4.2" class="section-number selfRef">2.2.4.2. </a><a href="#name-encapsulation" class="section-name selfRef">Encapsulation</a>
+            </h5>
+<p id="section-2.2.4.2-1">Instead of encapsulating Binary HTTP <span>[<a href="#BINARY" class="cite xref">BINARY</a>]</span> as per <a href="https://www.rfc-editor.org/rfc/rfc9458#section-4.3-4.1.1">Step 1 in OHTTP</a>,
+the output from <a href="#request-framing" class="auto internal xref">Section 2.2.3</a> MUST be used as-is. This means that
 we are repurposing the <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span> encapsulation mechanism, so <a href="https://www.rfc-editor.org/rfc/rfc9458.html#name-repurposing-the-encapsulati">we are required to
-define new media types</a>:<a href="#section-2.2.4-2" class="pilcrow">¶</a></p>
+define new media types</a>:<a href="#section-2.2.4.2-1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-2.2.4-3.1">
-              <p id="section-2.2.4-3.1.1">The OHTTP request media type is “message/auction request”<a href="#section-2.2.4-3.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-2.2.4.2-2.1">
+                <p id="section-2.2.4.2-2.1.1">The OHTTP request media type is “message/auction request”<a href="#section-2.2.4.2-2.1.1" class="pilcrow">¶</a></p>
 </li>
-            <li class="normal" id="section-2.2.4-3.2">
-              <p id="section-2.2.4-3.2.1">The OHTTP response media type is “message/auction response”<a href="#section-2.2.4-3.2.1" class="pilcrow">¶</a></p>
+              <li class="normal" id="section-2.2.4.2-2.2">
+                <p id="section-2.2.4.2-2.2.1">The OHTTP response media type is “message/auction response”<a href="#section-2.2.4.2-2.2.1" class="pilcrow">¶</a></p>
 </li>
-          </ul>
-<p id="section-2.2.4-4">Note that these media types are <a href="https://www.rfc-editor.org/rfc/rfc9458.html#name-encapsulation-of-requests">concatenated with other fields when
+            </ul>
+<p id="section-2.2.4.2-3">Note that these media types are <a href="https://www.rfc-editor.org/rfc/rfc9458.html#name-encapsulation-of-requests">concatenated with other fields when
 creating the HPKE encryption context</a>,
 and are not HTTP content or media types. In order to perform the encapsulation,
 the steps in <a href="https://www.rfc-editor.org/rfc/rfc9458#section-4.3-3">the OHTTP encapsulation process</a>
-MUST be followed precisely, except with an <code>info</code> equivalent to <code>message/auction request</code>.<a href="#section-2.2.4-4" class="pilcrow">¶</a></p>
+MUST be followed precisely, except with an <code>info</code> equivalent to <code>message/auction request</code>.<a href="#section-2.2.4.2-3" class="pilcrow">¶</a></p>
+</section>
+</div>
 </section>
 </div>
 <div id="request-optimization">
@@ -1749,7 +1768,7 @@ return an empty byte array.<a href="#section-2.2.5-3.11.1" class="pilcrow">¶</a
         <h3 id="name-bidding-and-auction-service">
 <a href="#section-2.3" class="section-number selfRef">2.3. </a><a href="#name-bidding-and-auction-service" class="section-name selfRef">Bidding and Auction Services To Browser</a>
         </h3>
-<p id="section-2.3-1">This section describes how the browser MUST interpret response messages from
+<p id="section-2.3-1">This section describes how the browser MUST deserialize response messages from
 the Bidding and Auction Services.<a href="#section-2.3-1" class="pilcrow">¶</a></p>
 <div id="decryption">
 <section id="section-2.3.1">
@@ -1757,9 +1776,11 @@ the Bidding and Auction Services.<a href="#section-2.3-1" class="pilcrow">¶</a>
 <a href="#section-2.3.1" class="section-number selfRef">2.3.1. </a><a href="#name-decryption" class="section-name selfRef">Decryption</a>
           </h4>
 <p id="section-2.3.1-1">The response message is encrypted using HPKE with the encapsulation performed
-according to <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span> as the response to the request message. See <a href="#encryption" class="auto internal xref">Section 2.2.4</a> for more details.
-The browser MUST decrypt the response by following the standard <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span> <a href="https://www.rfc-editor.org/rfc/rfc9458#section-4.4-5">Encapsulated Response
-decryption procedure</a>.<a href="#section-2.3.1-1" class="pilcrow">¶</a></p>
+according to <a href="https://www.rfc-editor.org/rfc/rfc9458.html#name-encapsulation-of-responses">Section 4.4</a> of <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span> as the response to the request message.<a href="#section-2.3.1-1" class="pilcrow">¶</a></p>
+<p id="section-2.3.1-2">The browser MUST decrypt the response by following the standard <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span> <a href="https://www.rfc-editor.org/rfc/rfc9458#section-4.4-5">Encapsulated Response
+decryption procedure</a>. The
+HPKE context used for decryption should be precisely the same context that was
+created in <a href="#hpke-context" class="auto internal xref">Section 2.2.4.1</a>.<a href="#section-2.3.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="decompression">
