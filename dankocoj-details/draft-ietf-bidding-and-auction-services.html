@@ -1382,16 +1382,30 @@ about the seller and buyer servers can be found in the <a href="https://github.c
         </h3>
 <p id="section-2.2-1">This section describes how the browser MUST form and serialize request messages
 in order to communicate with the Bidding and Auction services.<a href="#section-2.2-1" class="pilcrow">¶</a></p>
-<div id="request-payload-data">
+<p id="section-2.2-2">The required inputs to the steps in <a href="#browser-to-services" class="auto internal xref">Section 2.2</a> are:<a href="#section-2.2-2" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2-3">
+<li id="section-2.2-3.1">
+            <p id="section-2.2-3.1.1">A data struct, as defined in <a href="#request-payload" class="auto internal xref">Section 2.2.1</a>.<a href="#section-2.2-3.1.1" class="pilcrow">¶</a></p>
+</li>
+        </ol>
+<p id="section-2.2-4">The outputs of the steps in <a href="#browser-to-services" class="auto internal xref">Section 2.2</a> will result in:<a href="#section-2.2-4" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2-5">
+<li id="section-2.2-5.1">
+            <p id="section-2.2-5.1.1">The HPKE context (<a href="#hpke-context" class="auto internal xref">Section 2.2.4.1</a>) used to encrypt the response and to be later used in <a href="#decryption" class="auto internal xref">Section 2.3.1</a>.<a href="#section-2.2-5.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-2.2-5.2">
+            <p id="section-2.2-5.2.1">An encrypted bytestring (<a href="#encapsulation" class="auto internal xref">Section 2.2.4.2</a>) representing the request to be sent to the Bidding
+and Auction Services.<a href="#section-2.2-5.2.1" class="pilcrow">¶</a></p>
+</li>
+        </ol>
+<div id="request-payload">
 <section id="section-2.2.1">
           <h4 id="name-request-payload-data">
 <a href="#section-2.2.1" class="section-number selfRef">2.2.1. </a><a href="#name-request-payload-data" class="section-name selfRef">Request Payload Data</a>
           </h4>
-<p id="section-2.2.1-1">TODO: The W3C spec produces a map from IG-owner to IGs and
-this section needs to specify how that map goes into this CDDL.<a href="#section-2.2.1-1" class="pilcrow">¶</a></p>
-<p id="section-2.2.1-2">A request payload primarily consists of interest groups. A list of interest
-group is represented by the following <span>[<a href="#CDDL" class="cite xref">CDDL</a>]</span>:<a href="#section-2.2.1-2" class="pilcrow">¶</a></p>
-<div class="lang-cddl sourcecode" id="section-2.2.1-3">
+<p id="section-2.2.1-1">A request payload primarily consists of interest groups. A list of interest
+group is represented by the following <span>[<a href="#CDDL" class="cite xref">CDDL</a>]</span>:<a href="#section-2.2.1-1" class="pilcrow">¶</a></p>
+<div class="lang-cddl sourcecode" id="section-2.2.1-2">
 <pre>
 interestGroups = [ * interestGroup ]
 interestGroup = {
@@ -1440,14 +1454,14 @@ interestGroup = {
     ? recencyMs: int
   }
 }
-</pre><a href="#section-2.2.1-3" class="pilcrow">¶</a>
+</pre><a href="#section-2.2.1-2" class="pilcrow">¶</a>
 </div>
-<p id="section-2.2.1-4">A list of interest groups for each owner MUST first be represented as <span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span>,
+<p id="section-2.2.1-3">A list of interest groups for each owner MUST first be represented as <span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span>,
 and then the serialized list MUST be indiviudally compressed according to the
 compression algorithm specified in the message framing (<a href="#request-framing" class="auto internal xref">Section 2.2.3</a>).
 This compressed interest group data MUST then be aggregated into a map in the
-complete request, which MUST be <span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span> represented by the following <span>[<a href="#CDDL" class="cite xref">CDDL</a>]</span>:<a href="#section-2.2.1-4" class="pilcrow">¶</a></p>
-<div class="lang-cddl sourcecode" id="section-2.2.1-5">
+complete request, which MUST be <span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span> represented by the following <span>[<a href="#CDDL" class="cite xref">CDDL</a>]</span>:<a href="#section-2.2.1-3" class="pilcrow">¶</a></p>
+<div class="lang-cddl sourcecode" id="section-2.2.1-4">
 <pre>
 request = {
   version: int,
@@ -1460,10 +1474,10 @@ request = {
   },
   ? enableDebugReporting: bool
 }
-</pre><a href="#section-2.2.1-5" class="pilcrow">¶</a>
+</pre><a href="#section-2.2.1-4" class="pilcrow">¶</a>
 </div>
-<p id="section-2.2.1-6">The complete request MUST also be compressed using the same compression
-algorithm as specified in the message framing (<a href="#request-framing" class="auto internal xref">Section 2.2.3</a>).<a href="#section-2.2.1-6" class="pilcrow">¶</a></p>
+<p id="section-2.2.1-5">The complete request MUST also be compressed using the same compression
+algorithm as specified in the message framing (<a href="#request-framing" class="auto internal xref">Section 2.2.3</a>).<a href="#section-2.2.1-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="request-compression">
@@ -1571,7 +1585,7 @@ and are required inputs to the {#encapsulation} process.<a href="#section-2.2.4-
             </h5>
 <p id="section-2.2.4.1-1"><a href="https://www.rfc-editor.org/rfc/rfc9180.html#name-creating-the-encryption-con">Section 5.1</a>
 of <span>[<a href="#HPKE" class="cite xref">HPKE</a>]</span> describes how to create the Context required for encryption. This is
-considered the 'sending' HPKE context, and browser must store it for later
+considered the 'sending' HPKE context, and the browser MUST store it for later
 use when decrypting the response, as described in <a href="#decryption" class="auto internal xref">Section 2.3.1</a>.<a href="#section-2.2.4.1-1" class="pilcrow">¶</a></p>
 <p id="section-2.2.4.1-2">The HPKE context struct is defined by the following <span>[<a href="#CDDL" class="cite xref">CDDL</a>]</span>:<a href="#section-2.2.4.1-2" class="pilcrow">¶</a></p>
 <div class="lang-cddl sourcecode" id="section-2.2.4.1-3">
@@ -1783,7 +1797,21 @@ return an empty byte array.<a href="#section-2.2.5-3.11.1" class="pilcrow">¶</a
 the Bidding and Auction Services. The steps MUST be performed in the following
 order: decryption (<a href="#decryption" class="auto internal xref">Section 2.3.1</a>), decompression (<a href="#decompression" class="auto internal xref">Section 2.3.2</a>), and
 finally parsing the response payload as in <a href="#response-payload" class="auto internal xref">Section 2.3.3</a>.<a href="#section-2.3-1" class="pilcrow">¶</a></p>
-<p id="section-2.3-2">TODO investigate headers &amp; context, explicitly define the inputs<a href="#section-2.3-2" class="pilcrow">¶</a></p>
+<p id="section-2.3-2">The required inputs from the browser to the steps in {#services-to-browser}:<a href="#section-2.3-2" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3-3">
+<li id="section-2.3-3.1">
+            <p id="section-2.3-3.1.1">The encrypted repsonse bytestring.<a href="#section-2.3-3.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-2.3-3.2">
+            <p id="section-2.3-3.2.1">The HPKE context created in <a href="#hpke-context" class="auto internal xref">Section 2.2.4.1</a>.<a href="#section-2.3-3.2.1" class="pilcrow">¶</a></p>
+</li>
+        </ol>
+<p id="section-2.3-4">The resulting output for the browser is:<a href="#section-2.3-4" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3-5">
+<li id="section-2.3-5.1">
+            <p id="section-2.3-5.1.1">The decoded response data structure, as described in <a href="#response-payload" class="auto internal xref">Section 2.3.3</a>.<a href="#section-2.3-5.1.1" class="pilcrow">¶</a></p>
+</li>
+        </ol>
 <div id="decryption">
 <section id="section-2.3.1">
           <h4 id="name-decryption">
@@ -1794,8 +1822,9 @@ according to <a href="https://www.rfc-editor.org/rfc/rfc9458.html#name-encapsula
 of <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span> as the response to the request message.<a href="#section-2.3.1-1" class="pilcrow">¶</a></p>
 <p id="section-2.3.1-2">The browser MUST decrypt the response by following the standard <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span> <a href="https://www.rfc-editor.org/rfc/rfc9458#section-4.4-5">Encapsulated Response
 decryption procedure</a>. The
-HPKE context used for decryption should be precisely the same context that was
-created in <a href="#hpke-context" class="auto internal xref">Section 2.2.4.1</a>.<a href="#section-2.3.1-2" class="pilcrow">¶</a></p>
+HPKE context used for decryption MUST be precisely the same context that was
+created in <a href="#hpke-context" class="auto internal xref">Section 2.2.4.1</a>, and should be provided by the browser in addition to
+the response bytestring.<a href="#section-2.3.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="decompression">
@@ -1907,6 +1936,8 @@ reportingUrls = {
 
 </pre><a href="#section-2.3.3-2" class="pilcrow">¶</a>
 </div>
+<p id="section-2.3.3-3">The browser MAY then deserialize the bytestring into a <a href="https://wicg.github.io/turtledove/#server-auction-response">server
+auction response structure</a>.<a href="#section-2.3.3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>

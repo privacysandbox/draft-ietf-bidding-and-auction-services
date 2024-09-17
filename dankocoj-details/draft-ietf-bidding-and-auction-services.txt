@@ -202,10 +202,19 @@ Table of Contents
    request messages in order to communicate with the Bidding and Auction
    services.
 
-2.2.1.  Request Payload Data
+   The required inputs to the steps in Section 2.2 are:
 
-   TODO: The W3C spec produces a map from IG-owner to IGs and this
-   section needs to specify how that map goes into this CDDL.
+   1.  A data struct, as defined in Section 2.2.1.
+
+   The outputs of the steps in Section 2.2 will result in:
+
+   1.  The HPKE context (Section 2.2.4.1) used to encrypt the response
+       and to be later used in Section 2.3.1.
+
+   2.  An encrypted bytestring (Section 2.2.4.2) representing the
+       request to be sent to the Bidding and Auction Services.
+
+2.2.1.  Request Payload Data
 
    A request payload primarily consists of interest groups.  A list of
    interest group is represented by the following [CDDL]:
@@ -346,8 +355,8 @@ Table of Contents
    Section 5.1 (https://www.rfc-editor.org/rfc/rfc9180.html#name-
    creating-the-encryption-con) of [HPKE] describes how to create the
    Context required for encryption.  This is considered the 'sending'
-   HPKE context, and browser must store it for later use when decrypting
-   the response, as described in Section 2.3.1.
+   HPKE context, and the browser MUST store it for later use when
+   decrypting the response, as described in Section 2.3.1.
 
    The HPKE context struct is defined by the following [CDDL]:
 
@@ -499,7 +508,17 @@ Table of Contents
    decompression (Section 2.3.2), and finally parsing the response
    payload as in Section 2.3.3.
 
-   TODO investigate headers & context, explicitly define the inputs
+   The required inputs from the browser to the steps in {#services-to-
+   browser}:
+
+   1.  The encrypted repsonse bytestring.
+
+   2.  The HPKE context created in Section 2.2.4.1.
+
+   The resulting output for the browser is:
+
+   1.  The decoded response data structure, as described in
+       Section 2.3.3.
 
 2.3.1.  Decryption
 
@@ -511,8 +530,9 @@ Table of Contents
    The browser MUST decrypt the response by following the standard
    [OHTTP] Encapsulated Response decryption procedure (https://www.rfc-
    editor.org/rfc/rfc9458#section-4.4-5).  The HPKE context used for
-   decryption should be precisely the same context that was created in
-   Section 2.2.4.1.
+   decryption MUST be precisely the same context that was created in
+   Section 2.2.4.1, and should be provided by the browser in addition to
+   the response bytestring.
 
 2.3.2.  Decompression
 
@@ -614,6 +634,10 @@ Table of Contents
      ? reportingUrl: tstr,
      ? interactionReportingUrls: { * tstr => tstr }
    }
+
+   The browser MAY then deserialize the bytestring into a server auction
+   response structure (https://wicg.github.io/turtledove/#server-
+   auction-response).
 
 3.  Security Considerations
 
