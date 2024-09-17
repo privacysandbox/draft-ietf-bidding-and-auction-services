@@ -140,13 +140,15 @@ about the seller and buyer servers can be found in the [server-side system desig
 | `adRenderId = tstr` | [ADRENDERID] |
 | `interestGroupOwner = origin` | TODO |
 
-## Browser to Server {#browser-to-server}
+## Browser to Bidding and Auction Services {#browser-to-server}
 
 This section describes how the browser MUST form and serialize request messages
-in order to communicate with the Bidding and Auction services. Note that for
-a single auction, the browser will send a single request.
+in order to communicate with the Bidding and Auction services.
 
 ### Request Payload Data
+
+TODO: The W3C spec produces a map from IG-owner to IGs and
+this section needs to specify how that map goes into this CDDL.
 
 A request payload primarily consists of interest groups. A list of interest
 group is represented by the following [CDDL]:
@@ -266,15 +268,24 @@ padding scheme for requests.
 After framing and padding the compressed payload, the entire plaintext message is
 encrypted using [HPKE] with the encapsulation performed similarly
 to [Section 4.3](https://www.rfc-editor.org/rfc/rfc9458#section-4.3) of {{OHTTP}}.
-Details on how to acquire [HPKE] keys are out of scope for this document.
+Details on how to acquire [HPKE] keys are out of scope for this document, however
+we assume they will be provided by the browser as a [Key Configuration](https://www.rfc-editor.org/rfc/rfc9458#name-key-configuration)
+and are required inputs to the {#encapsulation} process.
 
 #### HPKE Context {#hpke-context}
 
-[Section 5.1](https://www.rfc-editor.org/rfc/rfc9180.html#name-creating-the-encryption-con) of [HPKE] describes how to create the Context required for encryption. This is
+[Section 5.1](https://www.rfc-editor.org/rfc/rfc9180.html#name-creating-the-encryption-con)
+of [HPKE] describes how to create the Context required for encryption. This is
 considered the 'sending' HPKE context, and browser must store it for later
 use when decrypting the response, as described in {{decryption}}.
 
-TODO describe the specifics of the context struct.
+The HPKE context struct is defined by the following [CDDL]:
+
+~~~~~ cddl
+hpke_context = {
+   TODO
+}
+~~~~~
 
 #### Encapsulation {#encapsulation}
 Instead of encapsulating Binary HTTP [BINARY] as per [Step 1 in OHTTP](https://www.rfc-editor.org/rfc/rfc9458#section-4.3-4.1.1),
@@ -367,19 +378,24 @@ each with an optional `desired size`.
 ## Bidding and Auction Services To Browser {#server-to-browser}
 
 This section describes how the browser MUST deserialize response messages from
-the Bidding and Auction Services.
+the Bidding and Auction Services. The steps MUST be performed in the following
+order: decryption ({{decryption}}), decompression ({{decompression}}), and
+finally parsing the response payload as in {{response-payload}}.
 
-### Decryption
+TODO investigate headers & context, explicitly define the inputs
+
+### Decryption {#decryption}
 
 The response message is encrypted using HPKE with the encapsulation performed
-according to [Section 4.4](https://www.rfc-editor.org/rfc/rfc9458.html#name-encapsulation-of-responses) of {{OHTTP}} as the response to the request message.
+according to [Section 4.4](https://www.rfc-editor.org/rfc/rfc9458.html#name-encapsulation-of-responses)
+of {{OHTTP}} as the response to the request message.
 
 The browser MUST decrypt the response by following the standard {{OHTTP}} [Encapsulated Response
 decryption procedure](https://www.rfc-editor.org/rfc/rfc9458#section-4.4-5). The
 HPKE context used for decryption should be precisely the same context that was
 created in {{hpke-context}}.
 
-### Decompression
+### Decompression {#decompression}
 
 The message framing is exactly as in {{request-framing}}, but the entire
 response payload is compressed. Starting with Byte 0, read bits 4-0 and use
