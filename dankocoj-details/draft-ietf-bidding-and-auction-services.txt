@@ -5,7 +5,7 @@
 Network Working Group                                           D. Kocoj
 Internet-Draft                                            B. R. Hamilton
 Intended status: Standards Track                                  Google
-Expires: 19 March 2025                                 15 September 2024
+Expires: 21 March 2025                                 17 September 2024
 
 
                       Bidding and Auction Services
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 19 March 2025.
+   This Internet-Draft will expire on 21 March 2025.
 
 Copyright Notice
 
@@ -64,7 +64,7 @@ Table of Contents
    2.  Message Format Specifications
      2.1.  Overview
        2.1.1.  Common Definitions
-     2.2.  Browser to Server
+     2.2.  Browser to Bidding and Auction Services
        2.2.1.  Request Payload Data
        2.2.2.  Compression
        2.2.3.  Framing and Padding
@@ -196,14 +196,16 @@ Table of Contents
 
                                  Table 1
 
-2.2.  Browser to Server
+2.2.  Browser to Bidding and Auction Services
 
    This section describes how the browser MUST form and serialize
    request messages in order to communicate with the Bidding and Auction
-   services.  Note that for a single auction, the browser will send a
-   single request.
+   services.
 
 2.2.1.  Request Payload Data
+
+   TODO: The W3C spec produces a map from IG-owner to IGs and this
+   section needs to specify how that map goes into this CDDL.
 
    A request payload primarily consists of interest groups.  A list of
    interest group is represented by the following [CDDL]:
@@ -334,7 +336,10 @@ Table of Contents
    plaintext message is encrypted using [HPKE] with the encapsulation
    performed similarly to Section 4.3 (https://www.rfc-editor.org/rfc/
    rfc9458#section-4.3) of [OHTTP].  Details on how to acquire [HPKE]
-   keys are out of scope for this document.
+   keys are out of scope for this document, however we assume they will
+   be provided by the browser as a Key Configuration (https://www.rfc-
+   editor.org/rfc/rfc9458#name-key-configuration) and are required
+   inputs to the {#encapsulation} process.
 
 2.2.4.1.  HPKE Context
 
@@ -344,7 +349,11 @@ Table of Contents
    HPKE context, and browser must store it for later use when decrypting
    the response, as described in Section 2.3.1.
 
-   TODO describe the specifics of the context struct.
+   The HPKE context struct is defined by the following [CDDL]:
+
+   hpke_context = {
+      TODO
+   }
 
 2.2.4.2.  Encapsulation
 
@@ -485,7 +494,12 @@ Table of Contents
 2.3.  Bidding and Auction Services To Browser
 
    This section describes how the browser MUST deserialize response
-   messages from the Bidding and Auction Services.
+   messages from the Bidding and Auction Services.  The steps MUST be
+   performed in the following order: decryption (Section 2.3.1),
+   decompression (Section 2.3.2), and finally parsing the response
+   payload as in Section 2.3.3.
+
+   TODO investigate headers & context, explicitly define the inputs
 
 2.3.1.  Decryption
 
