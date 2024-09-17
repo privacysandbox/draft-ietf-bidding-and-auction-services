@@ -70,7 +70,7 @@ Table of Contents
        2.2.3.  Framing and Padding
        2.2.4.  Encryption
        2.2.5.  Payload Optimization
-     2.3.  Bidding and Auction Services To Browser
+     2.3.  Bidding and Auction Services to Browser
        2.3.1.  Decryption
        2.3.2.  Decompression
        2.3.3.  Response Payload Data
@@ -491,7 +491,7 @@ Table of Contents
 
    13.  Return the encrypted result (as in Section 2.2.4).
 
-2.3.  Bidding and Auction Services To Browser
+2.3.  Bidding and Auction Services to Browser
 
    This section describes how the browser MUST deserialize response
    messages from the Bidding and Auction Services.  The steps MUST be
