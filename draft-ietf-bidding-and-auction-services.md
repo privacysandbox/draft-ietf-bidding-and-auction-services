@@ -140,7 +140,7 @@ about the seller and buyer servers can be found in the [server-side system desig
 | `adRenderId = tstr` | [ADRENDERID] |
 | `interestGroupOwner = origin` | TODO |
 
-## Browser to Bidding and Auction Services {#browser-to-server}
+## Browser to Bidding and Auction Services {#browser-to-services}
 
 This section describes how the browser MUST form and serialize request messages
 in order to communicate with the Bidding and Auction services.
@@ -375,7 +375,7 @@ each with an optional `desired size`.
 1. Frame `request` as in {{request-framing}} and zero pad up to `desired total size`.
 1. Return the encrypted result (as in {{encryption}}).
 
-## Bidding and Auction Services To Browser {#server-to-browser}
+## Bidding and Auction Services to Browser {#services-to-browser}
 
 This section describes how the browser MUST deserialize response messages from
 the Bidding and Auction Services. The steps MUST be performed in the following
