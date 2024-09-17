@@ -145,10 +145,17 @@ about the seller and buyer servers can be found in the [server-side system desig
 This section describes how the browser MUST form and serialize request messages
 in order to communicate with the Bidding and Auction services.
 
-### Request Payload Data
+The required inputs to the steps in {{browser-to-services}} are:
 
-TODO: The W3C spec produces a map from IG-owner to IGs and
-this section needs to specify how that map goes into this CDDL.
+1. A data struct, as defined in {{request-payload}}.
+
+The outputs of the steps in {{browser-to-services}} will result in:
+
+1. The HPKE context ({{hpke-context}}) used to encrypt the response and to be later used in {{decryption}}.
+2. An encrypted bytestring ({{encapsulation}}) representing the request to be sent to the Bidding
+and Auction Services.
+
+### Request Payload Data {#request-payload}
 
 A request payload primarily consists of interest groups. A list of interest
 group is represented by the following [CDDL]:
@@ -276,7 +283,7 @@ and are required inputs to the {#encapsulation} process.
 
 [Section 5.1](https://www.rfc-editor.org/rfc/rfc9180.html#name-creating-the-encryption-con)
 of [HPKE] describes how to create the Context required for encryption. This is
-considered the 'sending' HPKE context, and browser must store it for later
+considered the 'sending' HPKE context, and the browser MUST store it for later
 use when decrypting the response, as described in {{decryption}}.
 
 The HPKE context struct is defined by the following [CDDL]:
@@ -382,7 +389,14 @@ the Bidding and Auction Services. The steps MUST be performed in the following
 order: decryption ({{decryption}}), decompression ({{decompression}}), and
 finally parsing the response payload as in {{response-payload}}.
 
-TODO investigate headers & context, explicitly define the inputs
+The required inputs from the browser to the steps in {#services-to-browser}:
+
+1. The encrypted repsonse bytestring.
+2. The HPKE context created in {{hpke-context}}.
+
+The resulting output for the browser is:
+
+1. The decoded response data structure, as described in {{response-payload}}.
 
 ### Decryption {#decryption}
 
@@ -392,8 +406,9 @@ of {{OHTTP}} as the response to the request message.
 
 The browser MUST decrypt the response by following the standard {{OHTTP}} [Encapsulated Response
 decryption procedure](https://www.rfc-editor.org/rfc/rfc9458#section-4.4-5). The
-HPKE context used for decryption should be precisely the same context that was
-created in {{hpke-context}}.
+HPKE context used for decryption MUST be precisely the same context that was
+created in {{hpke-context}}, and should be provided by the browser in addition to
+the response bytestring.
 
 ### Decompression {#decompression}
 
@@ -408,8 +423,11 @@ as further described in {{response-payload}}.
 
 ### Response Payload Data {#response-payload}
 
-The response has the following data, serialized as {{CBOR}} and matching
-the following shape (described via {{CDDL}}):
+After decompression, the result will be a {{CBOR}} byte string. 
+The browser can then deserialize the byte string into a [server
+auction response structure](https://wicg.github.io/turtledove/#server-auction-response).
+
+The byte string has the following data (described via {{CDDL}}):
 
 ~~~~~cddl
 response = {
