@@ -423,7 +423,7 @@ as further described in {{response-payload}}.
 
 ### Response Payload Data {#response-payload}
 
-After decompression, the result will be a {{CBOR}} byte string. 
+After decompression, the result will be a {{CBOR}} byte string.
 The browser can then deserialize the byte string into a [server
 auction response structure](https://wicg.github.io/turtledove/#server-auction-response).
 
