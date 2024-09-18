@@ -147,18 +147,24 @@ in order to communicate with the Bidding and Auction services.
 
 The required inputs to the steps in {{browser-to-services}} are:
 
-1. A data struct, as defined in {{request-payload}}.
+1. A data struct, as defined in {{complete-request}}.
+2. An encryption [Key Configuration](https://www.rfc-editor.org/rfc/rfc9458#name-key-configuration).
+See {{encryption}} for more detail on this requirement.
 
 The outputs of the steps in {{browser-to-services}} will result in:
 
-1. The HPKE context ({{hpke-context}}) used to encrypt the response and to be later used in {{decryption}}.
-2. An encrypted bytestring ({{encapsulation}}) representing the request to be sent to the Bidding
+1. The context blob ({{hpke-context}}) used to encrypt the response and to be later used in {{decryption}}.
+2. An encrypted byte string ({{encapsulation}}) representing the request to be sent to the Bidding
 and Auction Services.
 
 ### Request Payload Data {#request-payload}
 
-A request payload primarily consists of interest groups. A list of interest
-group is represented by the following [CDDL]:
+A request payload primarily consists of interest groups. The interest groups are
+then wrapped into a request object that contains additional data.
+
+#### Interest Groups {#interest-groups}
+
+A list of interest group is represented by the following [CDDL]:
 
 ~~~~~ cddl
 interestGroups = [ * interestGroup ]
@@ -210,6 +216,8 @@ interestGroup = {
 }
 ~~~~~
 
+#### Complete Request {#complete-request}
+
 A list of interest groups for each owner MUST first be represented as {{CBOR}},
 and then the serialized list MUST be indiviudally compressed according to the
 compression algorithm specified in the message framing ({{request-framing}}).
@@ -218,6 +226,7 @@ complete request, which MUST be {{CBOR}} represented by the following {{CDDL}}:
 
 ~~~~~ cddl
 request = {
+  // TODO description of all fields
   version: int,
   generationId: uuid,
   publisher: origin,
@@ -277,22 +286,15 @@ encrypted using [HPKE] with the encapsulation performed similarly
 to [Section 4.3](https://www.rfc-editor.org/rfc/rfc9458#section-4.3) of {{OHTTP}}.
 Details on how to acquire [HPKE] keys are out of scope for this document, however
 we assume they will be provided by the browser as a [Key Configuration](https://www.rfc-editor.org/rfc/rfc9458#name-key-configuration)
-and are required inputs to the {#encapsulation} process.
+and are required inputs to the HPKE Context formation ({{hpke-context}}) and encapsulation ({{encapsulation}}) processes.
 
 #### HPKE Context {#hpke-context}
 
 [Section 5.1](https://www.rfc-editor.org/rfc/rfc9180.html#name-creating-the-encryption-con)
 of [HPKE] describes how to create the Context required for encryption. This is
 considered the 'sending' HPKE context, and the browser MUST store it for later
-use when decrypting the response, as described in {{decryption}}.
-
-The HPKE context struct is defined by the following [CDDL]:
-
-~~~~~ cddl
-hpke_context = {
-   TODO
-}
-~~~~~
+use when decrypting the response, as described in {{decryption}}. Note that the blob,
+after creation, is opaque to the browser itself.
 
 #### Encapsulation {#encapsulation}
 Instead of encapsulating Binary HTTP [BINARY] as per [Step 1 in OHTTP](https://www.rfc-editor.org/rfc/rfc9458#section-4.3-4.1.1),
@@ -391,7 +393,7 @@ finally parsing the response payload as in {{response-payload}}.
 
 The required inputs from the browser to the steps in {#services-to-browser}:
 
-1. The encrypted repsonse bytestring.
+1. The encrypted repsonse byte string.
 2. The HPKE context created in {{hpke-context}}.
 
 The resulting output for the browser is:
@@ -406,9 +408,9 @@ of {{OHTTP}} as the response to the request message.
 
 The browser MUST decrypt the response by following the standard {{OHTTP}} [Encapsulated Response
 decryption procedure](https://www.rfc-editor.org/rfc/rfc9458#section-4.4-5). The
-HPKE context used for decryption MUST be precisely the same context that was
+context used for decryption MUST be precisely the same context blob that was
 created in {{hpke-context}}, and should be provided by the browser in addition to
-the response bytestring.
+the response byte string.
 
 ### Decompression {#decompression}
 
