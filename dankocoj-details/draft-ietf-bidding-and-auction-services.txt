@@ -5,7 +5,7 @@
 Network Working Group                                           D. Kocoj
 Internet-Draft                                            B. R. Hamilton
 Intended status: Standards Track                                  Google
-Expires: 21 March 2025                                 17 September 2024
+Expires: 22 March 2025                                 18 September 2024
 
 
                       Bidding and Auction Services
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 21 March 2025.
+   This Internet-Draft will expire on 22 March 2025.
 
 Copyright Notice
 
@@ -548,8 +548,12 @@ Table of Contents
 
 2.3.3.  Response Payload Data
 
-   The response has the following data, serialized as [CBOR] and
-   matching the following shape (described via [CDDL]):
+   After decompression, the result will be a [CBOR] byte string.  The
+   browser can then deserialize the byte string into a server auction
+   response structure (https://wicg.github.io/turtledove/#server-
+   auction-response).
+
+   The byte string has the following data (described via [CDDL]):
 
    response = {
      ; The ad to render.
@@ -634,10 +638,6 @@ Table of Contents
      ? reportingUrl: tstr,
      ? interactionReportingUrls: { * tstr => tstr }
    }
-
-   The browser MAY then deserialize the bytestring into a server auction
-   response structure (https://wicg.github.io/turtledove/#server-
-   auction-response).
 
 3.  Security Considerations
 
