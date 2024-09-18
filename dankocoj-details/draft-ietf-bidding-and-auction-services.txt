@@ -204,20 +204,29 @@ Table of Contents
 
    The required inputs to the steps in Section 2.2 are:
 
-   1.  A data struct, as defined in Section 2.2.1.
+   1.  A data struct, as defined in Section 2.2.1.2.
+
+   2.  An encryption Key Configuration (https://www.rfc-editor.org/rfc/
+       rfc9458#name-key-configuration).  See Section 2.2.4 for more
+       detail on this requirement.
 
    The outputs of the steps in Section 2.2 will result in:
 
-   1.  The HPKE context (Section 2.2.4.1) used to encrypt the response
+   1.  The context blob (Section 2.2.4.1) used to encrypt the response
        and to be later used in Section 2.3.1.
 
-   2.  An encrypted bytestring (Section 2.2.4.2) representing the
+   2.  An encrypted byte string (Section 2.2.4.2) representing the
        request to be sent to the Bidding and Auction Services.
 
 2.2.1.  Request Payload Data
 
-   A request payload primarily consists of interest groups.  A list of
-   interest group is represented by the following [CDDL]:
+   A request payload primarily consists of interest groups.  The
+   interest groups are then wrapped into a request object that contains
+   additional data.
+
+2.2.1.1.  Interest Groups
+
+   A list of interest group is represented by the following [CDDL]:
 
    interestGroups = [ * interestGroup ]
    interestGroup = {
@@ -267,6 +276,8 @@ Table of Contents
      }
    }
 
+2.2.1.2.  Complete Request
+
    A list of interest groups for each owner MUST first be represented as
    [CBOR], and then the serialized list MUST be indiviudally compressed
    according to the compression algorithm specified in the message
@@ -275,6 +286,7 @@ Table of Contents
    [CBOR] represented by the following [CDDL]:
 
    request = {
+     // TODO description of all fields
      version: int,
      generationId: uuid,
      publisher: origin,
@@ -348,7 +360,8 @@ Table of Contents
    keys are out of scope for this document, however we assume they will
    be provided by the browser as a Key Configuration (https://www.rfc-
    editor.org/rfc/rfc9458#name-key-configuration) and are required
-   inputs to the {#encapsulation} process.
+   inputs to the HPKE Context formation (Section 2.2.4.1) and
+   encapsulation (Section 2.2.4.2) processes.
 
 2.2.4.1.  HPKE Context
 
@@ -356,13 +369,8 @@ Table of Contents
    creating-the-encryption-con) of [HPKE] describes how to create the
    Context required for encryption.  This is considered the 'sending'
    HPKE context, and the browser MUST store it for later use when
-   decrypting the response, as described in Section 2.3.1.
-
-   The HPKE context struct is defined by the following [CDDL]:
-
-   hpke_context = {
-      TODO
-   }
+   decrypting the response, as described in Section 2.3.1.  Note that
+   the blob, after creation, is opaque to the browser itself.
 
 2.2.4.2.  Encapsulation
 
@@ -511,7 +519,7 @@ Table of Contents
    The required inputs from the browser to the steps in {#services-to-
    browser}:
 
-   1.  The encrypted repsonse bytestring.
+   1.  The encrypted repsonse byte string.
 
    2.  The HPKE context created in Section 2.2.4.1.
 
@@ -529,10 +537,10 @@ Table of Contents
 
    The browser MUST decrypt the response by following the standard
    [OHTTP] Encapsulated Response decryption procedure (https://www.rfc-
-   editor.org/rfc/rfc9458#section-4.4-5).  The HPKE context used for
-   decryption MUST be precisely the same context that was created in
-   Section 2.2.4.1, and should be provided by the browser in addition to
-   the response bytestring.
+   editor.org/rfc/rfc9458#section-4.4-5).  The context used for
+   decryption MUST be precisely the same context blob that was created
+   in Section 2.2.4.1, and should be provided by the browser in addition
+   to the response byte string.
 
 2.3.2.  Decompression
 

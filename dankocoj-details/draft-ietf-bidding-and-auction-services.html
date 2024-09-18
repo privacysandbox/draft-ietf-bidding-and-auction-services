@@ -11,18 +11,18 @@
        The Bidding and Auction Services provide a way for advertising auctions to execute in
 remote environments while preserving user privacy. 
     " name="description">
-<meta content="xml2rfc 3.23.0" name="generator">
+<meta content="xml2rfc 3.23.1" name="generator">
 <meta content="Internet-Draft" name="keyword">
 <meta content="draft-ietf-bidding-and-auction-services-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.23.0
-    Python 3.12.3
+  xml2rfc 3.23.1
+    Python 3.12.6
     ConfigArgParse 1.7
-    google-i18n-address 3.1.0
+    google-i18n-address 3.1.1
     intervaltree 3.1.0
     Jinja2 3.1.4
     lxml 4.9.4
-    platformdirs 4.2.2
+    platformdirs 4.3.6
     pycountry 22.3.5
     PyYAML 6.0.1
     requests 2.32.3
@@ -1385,16 +1385,20 @@ in order to communicate with the Bidding and Auction services.<a href="#section-
 <p id="section-2.2-2">The required inputs to the steps in <a href="#browser-to-services" class="auto internal xref">Section 2.2</a> are:<a href="#section-2.2-2" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-2.2-3">
 <li id="section-2.2-3.1">
-            <p id="section-2.2-3.1.1">A data struct, as defined in <a href="#request-payload" class="auto internal xref">Section 2.2.1</a>.<a href="#section-2.2-3.1.1" class="pilcrow">¶</a></p>
+            <p id="section-2.2-3.1.1">A data struct, as defined in <a href="#complete-request" class="auto internal xref">Section 2.2.1.2</a>.<a href="#section-2.2-3.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li id="section-2.2-3.2">
+            <p id="section-2.2-3.2.1">An encryption <a href="https://www.rfc-editor.org/rfc/rfc9458#name-key-configuration">Key Configuration</a>.
+See <a href="#encryption" class="auto internal xref">Section 2.2.4</a> for more detail on this requirement.<a href="#section-2.2-3.2.1" class="pilcrow">¶</a></p>
 </li>
         </ol>
 <p id="section-2.2-4">The outputs of the steps in <a href="#browser-to-services" class="auto internal xref">Section 2.2</a> will result in:<a href="#section-2.2-4" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-2.2-5">
 <li id="section-2.2-5.1">
-            <p id="section-2.2-5.1.1">The HPKE context (<a href="#hpke-context" class="auto internal xref">Section 2.2.4.1</a>) used to encrypt the response and to be later used in <a href="#decryption" class="auto internal xref">Section 2.3.1</a>.<a href="#section-2.2-5.1.1" class="pilcrow">¶</a></p>
+            <p id="section-2.2-5.1.1">The context blob (<a href="#hpke-context" class="auto internal xref">Section 2.2.4.1</a>) used to encrypt the response and to be later used in <a href="#decryption" class="auto internal xref">Section 2.3.1</a>.<a href="#section-2.2-5.1.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-2.2-5.2">
-            <p id="section-2.2-5.2.1">An encrypted bytestring (<a href="#encapsulation" class="auto internal xref">Section 2.2.4.2</a>) representing the request to be sent to the Bidding
+            <p id="section-2.2-5.2.1">An encrypted byte string (<a href="#encapsulation" class="auto internal xref">Section 2.2.4.2</a>) representing the request to be sent to the Bidding
 and Auction Services.<a href="#section-2.2-5.2.1" class="pilcrow">¶</a></p>
 </li>
         </ol>
@@ -1403,9 +1407,15 @@ and Auction Services.<a href="#section-2.2-5.2.1" class="pilcrow">¶</a></p>
           <h4 id="name-request-payload-data">
 <a href="#section-2.2.1" class="section-number selfRef">2.2.1. </a><a href="#name-request-payload-data" class="section-name selfRef">Request Payload Data</a>
           </h4>
-<p id="section-2.2.1-1">A request payload primarily consists of interest groups. A list of interest
-group is represented by the following <span>[<a href="#CDDL" class="cite xref">CDDL</a>]</span>:<a href="#section-2.2.1-1" class="pilcrow">¶</a></p>
-<div class="lang-cddl sourcecode" id="section-2.2.1-2">
+<p id="section-2.2.1-1">A request payload primarily consists of interest groups. The interest groups are
+then wrapped into a request object that contains additional data.<a href="#section-2.2.1-1" class="pilcrow">¶</a></p>
+<div id="interest-groups">
+<section id="section-2.2.1.1">
+            <h5 id="name-interest-groups">
+<a href="#section-2.2.1.1" class="section-number selfRef">2.2.1.1. </a><a href="#name-interest-groups" class="section-name selfRef">Interest Groups</a>
+            </h5>
+<p id="section-2.2.1.1-1">A list of interest group is represented by the following <span>[<a href="#CDDL" class="cite xref">CDDL</a>]</span>:<a href="#section-2.2.1.1-1" class="pilcrow">¶</a></p>
+<div class="lang-cddl sourcecode" id="section-2.2.1.1-2">
 <pre>
 interestGroups = [ * interestGroup ]
 interestGroup = {
@@ -1454,16 +1464,24 @@ interestGroup = {
     ? recencyMs: int
   }
 }
-</pre><a href="#section-2.2.1-2" class="pilcrow">¶</a>
+</pre><a href="#section-2.2.1.1-2" class="pilcrow">¶</a>
 </div>
-<p id="section-2.2.1-3">A list of interest groups for each owner MUST first be represented as <span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span>,
+</section>
+</div>
+<div id="complete-request">
+<section id="section-2.2.1.2">
+            <h5 id="name-complete-request">
+<a href="#section-2.2.1.2" class="section-number selfRef">2.2.1.2. </a><a href="#name-complete-request" class="section-name selfRef">Complete Request</a>
+            </h5>
+<p id="section-2.2.1.2-1">A list of interest groups for each owner MUST first be represented as <span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span>,
 and then the serialized list MUST be indiviudally compressed according to the
 compression algorithm specified in the message framing (<a href="#request-framing" class="auto internal xref">Section 2.2.3</a>).
 This compressed interest group data MUST then be aggregated into a map in the
-complete request, which MUST be <span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span> represented by the following <span>[<a href="#CDDL" class="cite xref">CDDL</a>]</span>:<a href="#section-2.2.1-3" class="pilcrow">¶</a></p>
-<div class="lang-cddl sourcecode" id="section-2.2.1-4">
+complete request, which MUST be <span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span> represented by the following <span>[<a href="#CDDL" class="cite xref">CDDL</a>]</span>:<a href="#section-2.2.1.2-1" class="pilcrow">¶</a></p>
+<div class="lang-cddl sourcecode" id="section-2.2.1.2-2">
 <pre>
 request = {
+  // TODO description of all fields
   version: int,
   generationId: uuid,
   publisher: origin,
@@ -1474,10 +1492,12 @@ request = {
   },
   ? enableDebugReporting: bool
 }
-</pre><a href="#section-2.2.1-4" class="pilcrow">¶</a>
+</pre><a href="#section-2.2.1.2-2" class="pilcrow">¶</a>
 </div>
-<p id="section-2.2.1-5">The complete request MUST also be compressed using the same compression
-algorithm as specified in the message framing (<a href="#request-framing" class="auto internal xref">Section 2.2.3</a>).<a href="#section-2.2.1-5" class="pilcrow">¶</a></p>
+<p id="section-2.2.1.2-3">The complete request MUST also be compressed using the same compression
+algorithm as specified in the message framing (<a href="#request-framing" class="auto internal xref">Section 2.2.3</a>).<a href="#section-2.2.1.2-3" class="pilcrow">¶</a></p>
+</section>
+</div>
 </section>
 </div>
 <div id="request-compression">
@@ -1577,7 +1597,7 @@ encrypted using <span>[<a href="#HPKE" class="cite xref">HPKE</a>]</span> with t
 to <a href="https://www.rfc-editor.org/rfc/rfc9458#section-4.3">Section 4.3</a> of <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span>.
 Details on how to acquire <span>[<a href="#HPKE" class="cite xref">HPKE</a>]</span> keys are out of scope for this document, however
 we assume they will be provided by the browser as a <a href="https://www.rfc-editor.org/rfc/rfc9458#name-key-configuration">Key Configuration</a>
-and are required inputs to the {#encapsulation} process.<a href="#section-2.2.4-1" class="pilcrow">¶</a></p>
+and are required inputs to the HPKE Context formation (<a href="#hpke-context" class="auto internal xref">Section 2.2.4.1</a>) and encapsulation (<a href="#encapsulation" class="auto internal xref">Section 2.2.4.2</a>) processes.<a href="#section-2.2.4-1" class="pilcrow">¶</a></p>
 <div id="hpke-context">
 <section id="section-2.2.4.1">
             <h5 id="name-hpke-context">
@@ -1586,15 +1606,8 @@ and are required inputs to the {#encapsulation} process.<a href="#section-2.2.4-
 <p id="section-2.2.4.1-1"><a href="https://www.rfc-editor.org/rfc/rfc9180.html#name-creating-the-encryption-con">Section 5.1</a>
 of <span>[<a href="#HPKE" class="cite xref">HPKE</a>]</span> describes how to create the Context required for encryption. This is
 considered the 'sending' HPKE context, and the browser MUST store it for later
-use when decrypting the response, as described in <a href="#decryption" class="auto internal xref">Section 2.3.1</a>.<a href="#section-2.2.4.1-1" class="pilcrow">¶</a></p>
-<p id="section-2.2.4.1-2">The HPKE context struct is defined by the following <span>[<a href="#CDDL" class="cite xref">CDDL</a>]</span>:<a href="#section-2.2.4.1-2" class="pilcrow">¶</a></p>
-<div class="lang-cddl sourcecode" id="section-2.2.4.1-3">
-<pre>
-hpke_context = {
-   TODO
-}
-</pre><a href="#section-2.2.4.1-3" class="pilcrow">¶</a>
-</div>
+use when decrypting the response, as described in <a href="#decryption" class="auto internal xref">Section 2.3.1</a>. Note that the blob,
+after creation, is opaque to the browser itself.<a href="#section-2.2.4.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="encapsulation">
@@ -1800,7 +1813,7 @@ finally parsing the response payload as in <a href="#response-payload" class="au
 <p id="section-2.3-2">The required inputs from the browser to the steps in {#services-to-browser}:<a href="#section-2.3-2" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-2.3-3">
 <li id="section-2.3-3.1">
-            <p id="section-2.3-3.1.1">The encrypted repsonse bytestring.<a href="#section-2.3-3.1.1" class="pilcrow">¶</a></p>
+            <p id="section-2.3-3.1.1">The encrypted repsonse byte string.<a href="#section-2.3-3.1.1" class="pilcrow">¶</a></p>
 </li>
           <li id="section-2.3-3.2">
             <p id="section-2.3-3.2.1">The HPKE context created in <a href="#hpke-context" class="auto internal xref">Section 2.2.4.1</a>.<a href="#section-2.3-3.2.1" class="pilcrow">¶</a></p>
@@ -1822,9 +1835,9 @@ according to <a href="https://www.rfc-editor.org/rfc/rfc9458.html#name-encapsula
 of <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span> as the response to the request message.<a href="#section-2.3.1-1" class="pilcrow">¶</a></p>
 <p id="section-2.3.1-2">The browser MUST decrypt the response by following the standard <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span> <a href="https://www.rfc-editor.org/rfc/rfc9458#section-4.4-5">Encapsulated Response
 decryption procedure</a>. The
-HPKE context used for decryption MUST be precisely the same context that was
+context used for decryption MUST be precisely the same context blob that was
 created in <a href="#hpke-context" class="auto internal xref">Section 2.2.4.1</a>, and should be provided by the browser in addition to
-the response bytestring.<a href="#section-2.3.1-2" class="pilcrow">¶</a></p>
+the response byte string.<a href="#section-2.3.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="decompression">
