@@ -5,7 +5,7 @@
 Network Working Group                                           D. Kocoj
 Internet-Draft                                            B. R. Hamilton
 Intended status: Standards Track                                  Google
-Expires: 22 March 2025                                 18 September 2024
+Expires: 23 March 2025                                 19 September 2024
 
 
                       Bidding and Auction Services
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 22 March 2025.
+   This Internet-Draft will expire on 23 March 2025.
 
 Copyright Notice
 
@@ -202,17 +202,20 @@ Table of Contents
    request messages in order to communicate with the Bidding and Auction
    services.
 
-   The required inputs to the steps in Section 2.2 are:
+   The required inputs from the browser to the steps in Section 2.2 are:
 
-   1.  A data struct, as defined in Section 2.2.1.2.
+   1.  A complete request payload, as defined in Section 2.2.1.2.
 
-   2.  An encryption Key Configuration (https://www.rfc-editor.org/rfc/
+   2.  A map of interestGroupOwner to interest group names, as defined
+       in Section 2.2.4.1.2.
+
+   3.  An encryption Key Configuration (https://www.rfc-editor.org/rfc/
        rfc9458#name-key-configuration).  See Section 2.2.4 for more
        detail on this requirement.
 
    The outputs of the steps in Section 2.2 will result in:
 
-   1.  The context blob (Section 2.2.4.1) used to encrypt the response
+   1.  The context blob (Section 2.2.4.1.1) used to encrypt the response
        and to be later used in Section 2.3.1.
 
    2.  An encrypted byte string (Section 2.2.4.2) representing the
@@ -360,17 +363,38 @@ Table of Contents
    keys are out of scope for this document, however we assume they will
    be provided by the browser as a Key Configuration (https://www.rfc-
    editor.org/rfc/rfc9458#name-key-configuration) and are required
-   inputs to the HPKE Context formation (Section 2.2.4.1) and
-   encapsulation (Section 2.2.4.2) processes.
+   inputs to the context formation (Section 2.2.4.1) and encapsulation
+   (Section 2.2.4.2) processes.
 
-2.2.4.1.  HPKE Context
+2.2.4.1.  Encryption Context
+
+   The encryption context MUST be composed of two parts:
+
+   1.  HPKE Context (Section 2.2.4.1.1)
+
+   2.  A map storing interest group information (Section 2.2.4.1.2)
+
+   The two parts may be stored in whichever way is most convenient, as
+   long as they are provided to the browser as a single opaque blob.
+
+2.2.4.1.1.  HPKE Context
 
    Section 5.1 (https://www.rfc-editor.org/rfc/rfc9180.html#name-
    creating-the-encryption-con) of [HPKE] describes how to create the
    Context required for encryption.  This is considered the 'sending'
    HPKE context, and the browser MUST store it for later use when
-   decrypting the response, as described in Section 2.3.1.  Note that
-   the blob, after creation, is opaque to the browser itself.
+   decrypting the response, as described in Section 2.3.1.
+
+2.2.4.1.2.  Interest Group Map
+
+   The encryption context must include a map of interestGroupOwner
+   (Section 2.1.1) to a list of plaintext string interest group names
+   (the order of which MUST exactly match the request payload provided
+   in Section 2.2.1.1).  This map will be used by Section 2.3.3 to
+   deserialize the response into a a structure usable by the browser.
+
+   This map may be represented in whichever way is most convenient for
+   use in Section 2.3.3.
 
 2.2.4.2.  Encapsulation
 
@@ -519,9 +543,9 @@ Table of Contents
    The required inputs from the browser to the steps in {#services-to-
    browser}:
 
-   1.  The encrypted repsonse byte string.
+   1.  The encrypted response byte string.
 
-   2.  The HPKE context created in Section 2.2.4.1.
+   2.  The HPKE context created in Section 2.2.4.1.1.
 
    The resulting output for the browser is:
 
@@ -539,8 +563,8 @@ Table of Contents
    [OHTTP] Encapsulated Response decryption procedure (https://www.rfc-
    editor.org/rfc/rfc9458#section-4.4-5).  The context used for
    decryption MUST be precisely the same context blob that was created
-   in Section 2.2.4.1, and should be provided by the browser in addition
-   to the response byte string.
+   in Section 2.2.4.1.1, and should be provided by the browser in
+   addition to the response byte string.
 
 2.3.2.  Decompression
 
@@ -556,10 +580,7 @@ Table of Contents
 
 2.3.3.  Response Payload Data
 
-   After decompression, the result will be a [CBOR] byte string.  The
-   browser can then deserialize the byte string into a server auction
-   response structure (https://wicg.github.io/turtledove/#server-
-   auction-response).
+   After decompression, the result will be a [CBOR] byte string.
 
    The byte string has the following data (described via [CDDL]):
 
@@ -646,6 +667,17 @@ Table of Contents
      ? reportingUrl: tstr,
      ? interactionReportingUrls: { * tstr => tstr }
    }
+
+   Now, the byte string can be decoded into a format usable by the
+   browser, the server auction response structure
+   (https://wicg.github.io/turtledove/#server-auction-response).
+
+   To perform this decoding, follow CBOR Section 5.2 (https://www.rfc-
+   editor.org/rfc/rfc8949.html#name-generic-encoders-and-decode).  Map
+   the decoded data to the server auction response structure according
+   to the following table:
+
+   TODO
 
 3.  Security Considerations
 
