@@ -448,45 +448,50 @@ as further described in {{response-payload}}.
 
 ### Response Payload Data {#response-payload}
 
-After decompression, the result will be a {{CBOR}} byte string.
+After decompression, the result will be a {{CBOR}} byte string (described below).
 
-The byte string has the following data (described via {{CDDL}}):
+The byte string MUST be decoded into a format usable by the browser,
+the [server auction response structure](https://wicg.github.io/turtledove/#server-auction-response).
+The `server auction response structure` is the final, consumable output of {{services-to-browser}}.
+
+To perform this decoding, use a compliant [CBOR] decoder. The following [CDDL]
+describes the structure of the CBOR data. Map the decoded data
+to the `server auction response structure` according to the instructions
+provided for each field.
 
 ~~~~~cddl
 response = {
   ; The ad to render.
+  ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-ad-render-url.
   adRenderURL: adRenderUrl,
 
   ; List of URLs for component ads displayed as part of this
   ; ad.
+  ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-ad-components.
+  ; If not present, map as an empty list.
   ? components: [* adRenderUrl],
 
   ; Name of the interest group to which the ad belongs.
   ; See https://wicg.github.io/turtledove/#interest-group-name.
+  ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-interest-group-name.
+  ; If not present, map as Null.
   ? interestGroupName: tstr,
 
   ; Origin of the Buyer who owns the interest group.
   ; The original request for this response MUST contain this
   ; interestGroupOwner, which additionally MUST provide an interest
   ; group with interestGroupName.
+  ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-interest-group-owner.
+  ; If not present, map as Null.
   ? interestGroupOwner: interestGroupOwner,
 
   ; Indices of interest groups in the original request for this owner
   ; that submitted a bid.
+  ; Maps to https://wicg.github.io/turtledove/#server-auction-response-bidding-groups.
+  ; If not present, map as an empty list.
+  ; Else, TODO
   ? biddingGroups: {
     * interestGroupOwner => [* int]
-  },
-
-  ; Specifies which interest groups are eligible for an update on the
-  ; client.
-  ? updateGroups: {
-    * interestGroupOwner => [* {
-      ; Index of interest group in the original request for interestGroupOwner.
-      index: int
-      ; Browser should update the interest group represented by 'index'
-      ; if its on-device last updated time is gerather than this.
-      updateIfOlderThanMs: int
-    }]
   },
 
   ; Score of the ad determined during the auction.
@@ -494,59 +499,84 @@ response = {
   ; win the auction.
   ; The winner of the auction would be the ad that was given the
   ; highest score.
+  ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-score.
+  ; If not present, map as Null.
   ? score: float,
 
   ; Bid price corresponding to an ad
+  ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-bid.
+  ; If not present, map as Null.
   ? bid: float,
 
   ; Optional currency of the bid.
+  ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-bid-currency.
+  ; If not present, map as Null.
   ? bidCurrency: currency,
 
   ; Optional BuyerReportingId of the winning Ad
+  ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-buyer-reporting-id.
+  ; If not present, map as Null.
   ? buyerReportingId: tstr,
 
   ; Optional BuyerAndSellerReportingId of the winning Ad
+  ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-buyer-and-seller-reporting-id.
+  ; If not present, map as Null.
   ? buyerAndSellerReportingId: tstr,
 
   ; The auction result may be ignored if set to true.
+  ; Maps to https://wicg.github.io/turtledove/#server-auction-response-is-chaff.
+  ; If not present, map as false.
   ? isChaff: bool,
 
+  ; Optional wrapper for various reporting URLs.
   ? winReportingUrls: {
+    ; Maps to https://wicg.github.io/turtledove/#server-auction-response-buyer-reporting.
+    ; If not present, map as 'Null'.
     ? buyerReportingUrls: reportingUrls,
+    ; Maps to https://wicg.github.io/turtledove/#server-auction-response-component-seller-reporting.
+    ; If not present, map as 'Null'.
     ? componentSellerReportingUrls: reportingUrls,
+    ; Maps to https://wicg.github.io/turtledove/#server-auction-response-top-level-seller-reporting.
+    ; If not present, map as 'Null'.
     ? topLevelSellerReportingUrls: reportingUrls
   },
 
+  ; Contains an error message from the auction executed on the trusted auction
+  ; server.
+  ; May be used to provide additional context for the result of an auction.
+  ; Maps to https://wicg.github.io/turtledove/#server-auction-response-error.
+  ; If not present, map as Null.
+  ; Else, ignore the `code` field and use the `message` field directly
+  ; for the server auction response error field.
   ? error: {
     code: int,
     message: tstr
   },
 
-  ; Arbitrary metadata to pass to the top-level seller
+  ; Arbitrary metadata to pass to the top-level seller.
+  ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-ad-metadata.
+  ; If not present, map as Null.
   ? adMetadata: json,
 
   ; Optional name/domain for the top-level seller in case this is a
   ; component auction.
+  ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-top-level-seller.
+  ; If not present, map as Null.
   ? topLevelSeller: origin,
-
 }
 
 ; Defines the structure for reporting URLs.
 reportingUrls = {
+  ; Maps to https://wicg.github.io/turtledove/#server-auction-reporting-info-reporting-url.
+  ; If not present, map as Null.
   ? reportingUrl: tstr,
+  ; Maps to https://wicg.github.io/turtledove/#server-auction-reporting-info-beacon-urls.
+  ; If not present, map as an empty ordered map (https://infra.spec.whatwg.org/#ordered-map).
+  ; Else, TODO
   ? interactionReportingUrls: { * tstr => tstr }
 }
 
 ~~~~~
-
-Now, the byte string can be decoded into a format usable by the browser,
-the [server auction response structure](https://wicg.github.io/turtledove/#server-auction-response).
-
-To perform this decoding, follow [CBOR Section 5.2](https://www.rfc-editor.org/rfc/rfc8949.html#name-generic-encoders-and-decode). Map the decoded data to the
-`server auction response structure` according to the following table:
-
-TODO
-
 
 # Security Considerations
 
