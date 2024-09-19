@@ -126,7 +126,7 @@ the seller will forward parts of the request to buyer servers. It is then up to 
 seller server to gather buyer responses and form a final response for the browser. More detail
 about the seller and buyer servers can be found in the [server-side system design documentation](https://github.com/privacysandbox/protected-auction-services-docs/blob/main/bidding_auction_services_system_design.md).
 
-### Common Definitions
+### Common Definitions {#common-definitions}
 
 {{format}} makes frequent use of the following definitions.
 
@@ -145,10 +145,12 @@ about the seller and buyer servers can be found in the [server-side system desig
 This section describes how the browser MUST form and serialize request messages
 in order to communicate with the Bidding and Auction services.
 
-The required inputs to the steps in {{browser-to-services}} are:
+The required inputs from the browser to the steps in {{browser-to-services}}
+are:
 
-1. A data struct, as defined in {{complete-request}}.
-2. An encryption [Key Configuration](https://www.rfc-editor.org/rfc/rfc9458#name-key-configuration).
+1. A complete request payload, as defined in {{complete-request}}.
+2. A map of `interestGroupOwner` to interest group names, as defined in {{ig-map}}.
+3. An encryption [Key Configuration](https://www.rfc-editor.org/rfc/rfc9458#name-key-configuration).
 See {{encryption}} for more detail on this requirement.
 
 The outputs of the steps in {{browser-to-services}} will result in:
@@ -286,15 +288,36 @@ encrypted using [HPKE] with the encapsulation performed similarly
 to [Section 4.3](https://www.rfc-editor.org/rfc/rfc9458#section-4.3) of {{OHTTP}}.
 Details on how to acquire [HPKE] keys are out of scope for this document, however
 we assume they will be provided by the browser as a [Key Configuration](https://www.rfc-editor.org/rfc/rfc9458#name-key-configuration)
-and are required inputs to the HPKE Context formation ({{hpke-context}}) and encapsulation ({{encapsulation}}) processes.
+and are required inputs to the context formation ({{context}}) and encapsulation
+({{encapsulation}}) processes.
 
-#### HPKE Context {#hpke-context}
+#### Encryption Context {#context}
+
+The encryption context MUST be composed of two parts:
+
+1. HPKE Context ({{hpke-context}})
+2. A map storing interest group information ({{ig-map}})
+
+The two parts may be stored in whichever way is most convenient, as long as
+they are provided to the browser as a single opaque blob.
+
+##### HPKE Context {#hpke-context}
 
 [Section 5.1](https://www.rfc-editor.org/rfc/rfc9180.html#name-creating-the-encryption-con)
 of [HPKE] describes how to create the Context required for encryption. This is
 considered the 'sending' HPKE context, and the browser MUST store it for later
-use when decrypting the response, as described in {{decryption}}. Note that the blob,
-after creation, is opaque to the browser itself.
+use when decrypting the response, as described in {{decryption}}.
+
+##### Interest Group Map {#ig-map}
+
+The encryption context must include a map of `interestGroupOwner` ({{common-definitions}})
+to a list of plaintext string interest group names (the order of which MUST
+exactly match the request payload provided in {{interest-groups}}). This map
+will be used by {{response-payload}} to deserialize the response into a
+a structure usable by the browser.
+
+This map may be represented in whichever way is most convenient for use in
+{{response-payload}}.
 
 #### Encapsulation {#encapsulation}
 Instead of encapsulating Binary HTTP [BINARY] as per [Step 1 in OHTTP](https://www.rfc-editor.org/rfc/rfc9458#section-4.3-4.1.1),
@@ -393,7 +416,7 @@ finally parsing the response payload as in {{response-payload}}.
 
 The required inputs from the browser to the steps in {#services-to-browser}:
 
-1. The encrypted repsonse byte string.
+1. The encrypted response byte string.
 2. The HPKE context created in {{hpke-context}}.
 
 The resulting output for the browser is:
@@ -426,8 +449,6 @@ as further described in {{response-payload}}.
 ### Response Payload Data {#response-payload}
 
 After decompression, the result will be a {{CBOR}} byte string.
-The browser can then deserialize the byte string into a [server
-auction response structure](https://wicg.github.io/turtledove/#server-auction-response).
 
 The byte string has the following data (described via {{CDDL}}):
 
@@ -517,6 +538,15 @@ reportingUrls = {
 }
 
 ~~~~~
+
+Now, the byte string can be decoded into a format usable by the browser,
+the [server auction response structure](https://wicg.github.io/turtledove/#server-auction-response).
+
+To perform this decoding, follow [CBOR Section 5.2](https://www.rfc-editor.org/rfc/rfc8949.html#name-generic-encoders-and-decode). Map the decoded data to the
+`server auction response structure` according to the following table:
+
+TODO
+
 
 # Security Considerations
 
