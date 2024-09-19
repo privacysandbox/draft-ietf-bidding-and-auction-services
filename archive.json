@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-09-17T00:40:31.105088+00:00",
+  "timestamp": "2024-09-19T00:50:25.847838+00:00",
   "repo": "privacysandbox/draft-ietf-protected-audience-auction-service",
   "labels": [
     {
@@ -833,19 +833,458 @@
       "labels": [],
       "body": "The major work items left:\r\n1. Work through all of the TODOs in the W3C spec that mention this document and make sure that the W3C spec has clear sections that it can reference.\r\n2. Verify that the request and response message structures are in-sync with the W3C spec.\r\n3. Resolve remaining TODOs in this spec.\r\n4. Solicit feedback for any other sections that may be missing from the spec.\r\n5. Increase the amount of detail in the compression and decompression sections to resolve any ambiguity.\r\n6. Increase the amount of detail in the encryption and decryption sections to resolve any ambiguity.\r\n",
       "createdAt": "2024-09-13T04:12:42Z",
-      "updatedAt": "2024-09-15T20:56:17Z",
+      "updatedAt": "2024-09-18T22:21:05Z",
       "baseRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
       "baseRefName": "main",
       "baseRefOid": "9e068afd23bc5c9cabaa1aa6097d23cf72399388",
       "headRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
       "headRefName": "dankocoj-details",
-      "headRefOid": "aa7b047ee8c4046ea2342e4ace5db05f503410e2",
+      "headRefOid": "681566dced8cf0d74796089d927056a7364e035d",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
       "comments": [],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDOMnZLVc6Jq5e0",
+          "commit": {
+            "abbreviatedOid": "aa7b047"
+          },
+          "author": "JensenPaul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-17T13:12:12Z",
+          "updatedAt": "2024-09-17T13:30:21Z",
+          "comments": [
+            {
+              "originalPosition": 71,
+              "body": "Perhaps not worth addressing in this PR, but \"a single auction\" is a somewhat vague term as it probably is really a single component auction or top-level auction with no component auctions.  You could say \"a Protected Audience auction for one seller\" but then it sounds like we don't support multiple sellers, which we do.",
+              "createdAt": "2024-09-17T13:12:12Z",
+              "updatedAt": "2024-09-17T13:30:21Z"
+            },
+            {
+              "originalPosition": 92,
+              "body": "I think we may want to say that the keys are provided by the browser, and make then an explicit input to the request creation logic.",
+              "createdAt": "2024-09-17T13:13:50Z",
+              "updatedAt": "2024-09-17T13:30:21Z"
+            },
+            {
+              "originalPosition": 102,
+              "body": "Maybe not for this PR, but I'd start by defining a really simple context that is a struct containing simply the HPKE context.  We can add things to it later.",
+              "createdAt": "2024-09-17T13:15:44Z",
+              "updatedAt": "2024-09-17T13:30:21Z"
+            },
+            {
+              "originalPosition": 65,
+              "body": "To make this consistent with the title below.  I think it's also good to be consistent with our use of \"services\" rather than \"server\" but I don't feel strongly.\r\n```suggestion\r\n## Browser to Bidding and Auction Services {#browser-to-server}\r\n\r\n```",
+              "createdAt": "2024-09-17T13:18:15Z",
+              "updatedAt": "2024-09-17T13:30:21Z"
+            },
+            {
+              "originalPosition": 135,
+              "body": "I feel like this section needs more structure, e.g. we could list out some high level steps here that link to the sections below, like:\r\n1. we need to define inputs to this process, which should include some blob of data and the context that was produced by the browser-to-server section.\r\n2. is there some header we are processing first?  do we need to check the version etc?\r\n3. do we do decryption next? if so we should link to that section\r\n4. do we do decompression next? if so we should link to that section",
+              "createdAt": "2024-09-17T13:24:03Z",
+              "updatedAt": "2024-09-17T13:30:21Z"
+            },
+            {
+              "originalPosition": 164,
+              "body": "This section defines a format and I guess the implication is that we parse the CBOR into this schema/format.  So what's the output of this section that the browser is going to accept? is it just the parsed structure?",
+              "createdAt": "2024-09-17T13:27:15Z",
+              "updatedAt": "2024-09-17T13:30:21Z"
+            },
+            {
+              "originalPosition": 73,
+              "body": "I think we need to be clearer about what the inputs to this section are and exactly how they get placed into this schema.  The W3C spec produces a map from IG-owner to IGs and I think this section needs to specify how that map goes into this CDDL.  Perhaps this is not for this PR.",
+              "createdAt": "2024-09-17T13:30:14Z",
+              "updatedAt": "2024-09-17T13:30:21Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6JtC8A",
+          "commit": {
+            "abbreviatedOid": "aa7b047"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-17T16:45:13Z",
+          "updatedAt": "2024-09-17T16:45:15Z",
+          "comments": [
+            {
+              "originalPosition": 71,
+              "body": "I will remove it for now since I think it's better to err on 'not enough detail' than 'slightly incorrect detail'. ",
+              "createdAt": "2024-09-17T16:45:14Z",
+              "updatedAt": "2024-09-17T16:45:15Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6JtEbh",
+          "commit": {
+            "abbreviatedOid": "aa7b047"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-17T16:48:25Z",
+          "updatedAt": "2024-09-17T16:48:27Z",
+          "comments": [
+            {
+              "originalPosition": 73,
+              "body": "Adding a TODO, will address as a separate PR",
+              "createdAt": "2024-09-17T16:48:26Z",
+              "updatedAt": "2024-09-17T16:48:27Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6JtHqC",
+          "commit": {
+            "abbreviatedOid": "aa7b047"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-17T16:54:17Z",
+          "updatedAt": "2024-09-17T16:54:18Z",
+          "comments": [
+            {
+              "originalPosition": 164,
+              "body": "That is a great question, I actually didn't ever think about that. @brusshamilton maybe you can give me a code pointer? ",
+              "createdAt": "2024-09-17T16:54:17Z",
+              "updatedAt": "2024-09-17T16:54:18Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6JtJga",
+          "commit": {
+            "abbreviatedOid": "aa7b047"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-17T16:58:11Z",
+          "updatedAt": "2024-09-17T16:58:12Z",
+          "comments": [
+            {
+              "originalPosition": 135,
+              "body": "![image](https://github.com/user-attachments/assets/0e030412-eced-43dd-99df-60c41c4cbb63)\r\nSo I have been relying on the structure and prose in each section here to guide the user through the sequence of steps. But i will add more discussion re inputs (blob, header, hpke context).  ",
+              "createdAt": "2024-09-17T16:58:11Z",
+              "updatedAt": "2024-09-17T16:58:12Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6JtJ3E",
+          "commit": {
+            "abbreviatedOid": "aa7b047"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-17T16:58:57Z",
+          "updatedAt": "2024-09-17T16:58:58Z",
+          "comments": [
+            {
+              "originalPosition": 135,
+              "body": "I think I see what you are saying though, a simple explicit list of the steps makes sense.",
+              "createdAt": "2024-09-17T16:58:58Z",
+              "updatedAt": "2024-09-17T16:58:58Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6JuOow",
+          "commit": {
+            "abbreviatedOid": "aa7b047"
+          },
+          "author": "JensenPaul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-17T18:55:22Z",
+          "updatedAt": "2024-09-17T18:55:22Z",
+          "comments": [
+            {
+              "originalPosition": 164,
+              "body": "https://wicg.github.io/turtledove/#dom-navigator-getinterestgroupadauctiondata is where our web spec assembles the map to be passed to this spec.\r\nhttps://pr-preview.s3.amazonaws.com/brusshamilton/turtledove/pull/1276.html#ref-for-auction-config-server-response%E2%91%A2 is where our web spec uses the IETF spec to process the response blob into a struct like this: https://pr-preview.s3.amazonaws.com/brusshamilton/turtledove/pull/1276.html#server-auction-response",
+              "createdAt": "2024-09-17T18:55:22Z",
+              "updatedAt": "2024-09-17T18:55:23Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6J1bhX",
+          "commit": {
+            "abbreviatedOid": "bd4321d"
+          },
+          "author": "JensenPaul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-18T12:05:14Z",
+          "updatedAt": "2024-09-18T12:45:30Z",
+          "comments": [
+            {
+              "originalPosition": 75,
+              "body": "This is pretty vague and I'm not sure why it's in a list of one.  I think you want to refer directly to the \"request\" object in the {{request-payload}} section.  The \"request\" object has version and generationId fields that I think we need to explain what values go into as I don't think the browser defines them?",
+              "createdAt": "2024-09-18T12:05:14Z",
+              "updatedAt": "2024-09-18T12:45:30Z"
+            },
+            {
+              "originalPosition": 79,
+              "body": "I don't think we want this to be just an HPKE context.  We want this to be an opaque context object that we define in this spec.  We can start by defining it as a struct or object that contains an HPKE context and a copy of the interest group inputs.",
+              "createdAt": "2024-09-18T12:06:37Z",
+              "updatedAt": "2024-09-18T12:45:30Z"
+            },
+            {
+              "originalPosition": 80,
+              "body": "is bytestring a known term?",
+              "createdAt": "2024-09-18T12:07:24Z",
+              "updatedAt": "2024-09-18T12:45:30Z"
+            },
+            {
+              "originalPosition": 75,
+              "body": "We also need to take the encryption key as an input.",
+              "createdAt": "2024-09-18T12:08:10Z",
+              "updatedAt": "2024-09-18T12:45:30Z"
+            },
+            {
+              "originalPosition": 121,
+              "body": "I can't figure out how the HPKE spec defines this.\r\nChrome code uses this context: https://source.chromium.org/chromium/chromium/src/+/main:third_party/boringssl/src/include/openssl/hpke.h;l=367;drc=a150b50c0ff706af12c449c7fccd3cf2745e2061;bpv=1;bpt=1\r\nPerhaps we want to just say it's defined in the https://www.rfc-editor.org/rfc/rfc9180.html#name-creating-the-encryption-con and not try and specify it with CDDL.  I don't think there's a need to specify it with CDDL as it's not getting transmitted or saved in CBOR.",
+              "createdAt": "2024-09-18T12:29:15Z",
+              "updatedAt": "2024-09-18T12:45:30Z"
+            },
+            {
+              "originalPosition": 180,
+              "body": "I don't think we want the browser to know anything about HPKE.  I think we want to specify the input to {{services-to-browser}} as an opaque context that contains the HPKE context and the original interest groups.",
+              "createdAt": "2024-09-18T12:31:14Z",
+              "updatedAt": "2024-09-18T12:45:30Z"
+            },
+            {
+              "originalPosition": 204,
+              "body": "I don't think we want the browser to do this.  I think we want to define the steps in this spec for how this is done.\r\nMany fields are easy to convert, e.g. adRenderURL goes straight to \"ad render url\", as do bid and score as well.\r\nFor biddingGroups, we need to convert the ints back into interest group names using the original interest groups that we stored in the opaque context when we did the encoding.\r\nIt might be good to start by copying the list of field names from https://pr-preview.s3.amazonaws.com/brusshamilton/turtledove/pull/1276.html#server-auction-response and then listing out how each is filled in.",
+              "createdAt": "2024-09-18T12:42:47Z",
+              "updatedAt": "2024-09-18T12:45:30Z"
+            },
+            {
+              "originalPosition": 226,
+              "body": "I don't know if we want to spec the update piece yet as it's not part of the W3C spec yet.",
+              "createdAt": "2024-09-18T12:43:42Z",
+              "updatedAt": "2024-09-18T12:45:30Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6J4ORv",
+          "commit": {
+            "abbreviatedOid": "bd4321d"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-18T16:28:24Z",
+          "updatedAt": "2024-09-18T16:28:24Z",
+          "comments": [
+            {
+              "originalPosition": 75,
+              "body": "Will add a TODO in the request object to define these fields -- from my understanding, they are supposed to come from the browser. @brusshamilton will you include these in the w3c spec? Also updating the doc structure a bit to be able to link to the request object more directly.",
+              "createdAt": "2024-09-18T16:28:24Z",
+              "updatedAt": "2024-09-18T16:28:24Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6J4Rc9",
+          "commit": {
+            "abbreviatedOid": "bd4321d"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-18T16:34:13Z",
+          "updatedAt": "2024-09-18T16:34:13Z",
+          "comments": [
+            {
+              "originalPosition": 80,
+              "body": "Should be two words, fixing everywhere",
+              "createdAt": "2024-09-18T16:34:13Z",
+              "updatedAt": "2024-09-18T16:34:22Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6J6fbP",
+          "commit": {
+            "abbreviatedOid": "bd4321d"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-18T21:11:46Z",
+          "updatedAt": "2024-09-18T21:11:46Z",
+          "comments": [
+            {
+              "originalPosition": 121,
+              "body": "I've linked to that definition a few lines above. I will remove the cddl. ",
+              "createdAt": "2024-09-18T21:11:46Z",
+              "updatedAt": "2024-09-18T21:11:47Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6J6gkI",
+          "commit": {
+            "abbreviatedOid": "bd4321d"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-18T21:14:01Z",
+          "updatedAt": "2024-09-18T21:14:02Z",
+          "comments": [
+            {
+              "originalPosition": 180,
+              "body": "I see, going to try to move some of the 'HPKE context' references to 'context blob' and update the description in the {{services-to-browser}} section so it's clear that the browser knows nothing about the blob other than it being 'context'. ",
+              "createdAt": "2024-09-18T21:14:01Z",
+              "updatedAt": "2024-09-18T21:14:02Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6J6jJ5",
+          "commit": {
+            "abbreviatedOid": "bd4321d"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-18T21:20:21Z",
+          "updatedAt": "2024-09-18T21:20:22Z",
+          "comments": [
+            {
+              "originalPosition": 79,
+              "body": "'copy of the interest group inputs' \r\n- I understand that's necessary so we can perform index matching (the response has some fields that just return an index number that we have to somehow match to an IG name), but I am not sure if that should go in the IETF spec or the w3c spec. @brusshamilton can you take point on this specific aspect? I also don't know what to do with `request ID`: https://pr-preview.s3.amazonaws.com/brusshamilton/turtledove/pull/1276.html#server-auction-request-context. ",
+              "createdAt": "2024-09-18T21:20:21Z",
+              "updatedAt": "2024-09-18T21:20:22Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6J6pOA",
+          "commit": {
+            "abbreviatedOid": "bd4321d"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-18T21:33:23Z",
+          "updatedAt": "2024-09-18T21:33:23Z",
+          "comments": [
+            {
+              "originalPosition": 180,
+              "body": "more discussion here: https://github.com/privacysandbox/draft-ietf-protected-audience-auction-service/pull/4#discussion_r1765737519 , will udpate based on results.",
+              "createdAt": "2024-09-18T21:33:23Z",
+              "updatedAt": "2024-09-18T21:33:23Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6J6zyD",
+          "commit": {
+            "abbreviatedOid": "bd4321d"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-18T21:58:43Z",
+          "updatedAt": "2024-09-18T21:58:44Z",
+          "comments": [
+            {
+              "originalPosition": 79,
+              "body": "The `request context` is going to be defined in the IETF spec. The IETF spec doesn't use the `request ID`.",
+              "createdAt": "2024-09-18T21:58:44Z",
+              "updatedAt": "2024-09-18T21:58:44Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6J62oX",
+          "commit": {
+            "abbreviatedOid": "bd4321d"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-18T22:07:55Z",
+          "updatedAt": "2024-09-18T22:07:55Z",
+          "comments": [
+            {
+              "originalPosition": 79,
+              "body": "ok. What should the fields of request context be?",
+              "createdAt": "2024-09-18T22:07:55Z",
+              "updatedAt": "2024-09-18T22:07:56Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6J65jk",
+          "commit": {
+            "abbreviatedOid": "bd4321d"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-18T22:19:29Z",
+          "updatedAt": "2024-09-18T22:19:29Z",
+          "comments": [
+            {
+              "originalPosition": 79,
+              "body": "It should probably contain whatever you need to reconstruct the response. So, probably the HPKE context and a map from origin to the list of interest groups included in the request. I don't think we need CDDL for that, since it's just internal types.",
+              "createdAt": "2024-09-18T22:19:29Z",
+              "updatedAt": "2024-09-18T22:19:30Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6J656s",
+          "commit": {
+            "abbreviatedOid": "bd4321d"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-18T22:21:04Z",
+          "updatedAt": "2024-09-18T22:21:05Z",
+          "comments": [
+            {
+              "originalPosition": 75,
+              "body": "The generation ID and version are going to be from this spec, as they are specific to this serialization format.",
+              "createdAt": "2024-09-18T22:21:04Z",
+              "updatedAt": "2024-09-18T22:21:05Z"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
