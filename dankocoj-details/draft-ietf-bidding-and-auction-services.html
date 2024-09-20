@@ -1147,7 +1147,7 @@ remote environments while preserving user privacy.<a href="#section-abstract-1" 
                 </ul>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2">
-                <p id="section-toc.1-1.2.2.2.1"><a href="#section-2.2" class="auto internal xref">2.2</a>.  <a href="#name-browser-to-bidding-and-auct" class="internal xref">Browser to Bidding and Auction Services</a></p>
+                <p id="section-toc.1-1.2.2.2.1"><a href="#section-2.2" class="auto internal xref">2.2</a>.  <a href="#name-client-to-bidding-and-aucti" class="internal xref">Client to Bidding and Auction Services</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.2.2.1">
                     <p id="section-toc.1-1.2.2.2.2.1.1"><a href="#section-2.2.1" class="auto internal xref">2.2.1</a>.  <a href="#name-request-payload-data" class="internal xref">Request Payload Data</a></p>
@@ -1167,7 +1167,7 @@ remote environments while preserving user privacy.<a href="#section-abstract-1" 
                 </ul>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.3">
-                <p id="section-toc.1-1.2.2.3.1"><a href="#section-2.3" class="auto internal xref">2.3</a>.  <a href="#name-bidding-and-auction-service" class="internal xref">Bidding and Auction Services to Browser</a></p>
+                <p id="section-toc.1-1.2.2.3.1"><a href="#section-2.3" class="auto internal xref">2.3</a>.  <a href="#name-bidding-and-auction-service" class="internal xref">Bidding and Auction Services to Client</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.2.2.3.2.1">
                     <p id="section-toc.1-1.2.2.3.2.1.1"><a href="#section-2.3.1" class="auto internal xref">2.3.1</a>.  <a href="#name-decryption" class="internal xref">Decryption</a></p>
@@ -1262,12 +1262,12 @@ essential to creating a diverse and healthy ecosystem for such services.<a href=
 <a href="#section-1.1" class="section-number selfRef">1.1. </a><a href="#name-scope" class="section-name selfRef">Scope</a>
         </h3>
 <p id="section-1.1-1">This document provides a specification for the request and response message
-format that a browser can use to communicate with remote services
-that allows the browser to offload much of the work involved in running an advertisement
-selection auction as part of the browser's implementation of the
+format that a client can use to communicate with remote services
+that allows the client to offload much of the work involved in running an advertisement
+selection auction as part of the client's implementation of the
 Protected Audience API.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
-<p id="section-1.1-2">This document does not describe distribution of private keys to the bidding
-and auction services.<a href="#section-1.1-2" class="pilcrow">¶</a></p>
+<p id="section-1.1-2">This document does not describe distribution of private keys to the Bidding
+and Auction services.<a href="#section-1.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="Terminology">
@@ -1275,11 +1275,16 @@ and auction services.<a href="#section-1.1-2" class="pilcrow">¶</a></p>
         <h3 id="name-terminology">
 <a href="#section-1.2" class="section-number selfRef">1.2. </a><a href="#name-terminology" class="section-name selfRef">Terminology</a>
         </h3>
-<p id="section-1.2-1">The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+<p id="section-1.2-1">The key word "client" is to be interpreted as an implementation of this
+document that creates Requests (<a href="#client-to-services" class="auto internal xref">Section 2.2</a>) and consumes Responses
+(<a href="#services-to-client" class="auto internal xref">Section 2.3</a>). The key phrase "Bidding and Auction Services" is
+to be interpreted as an implementation of this document that consumes
+Requests and creates Responses.<a href="#section-1.2-1" class="pilcrow">¶</a></p>
+<p id="section-1.2-2">The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
 NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED",
 "MAY", and "OPTIONAL" in this document are to be interpreted as
 described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span> when, and only when, they
-appear in all capitals, as shown here.<a href="#section-1.2-1" class="pilcrow">¶</a></p>
+appear in all capitals, as shown here.<a href="#section-1.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1295,11 +1300,11 @@ appear in all capitals, as shown here.<a href="#section-1.2-1" class="pilcrow">�
 <a href="#section-2.1" class="section-number selfRef">2.1. </a><a href="#name-overview" class="section-name selfRef">Overview</a>
         </h3>
 <p id="section-2.1-1">To understand this document, it is important to know that the
-communication between the browser and the remote servers uses a
-request-response message exchange pattern. The request will first reach a seller server, after which
-the seller will forward parts of the request to buyer servers. It is then up to the
-seller server to gather buyer responses and form a final response for the browser. More detail
-about the seller and buyer servers can be found in the <a href="https://github.com/privacysandbox/protected-auction-services-docs/blob/main/bidding_auction_services_system_design.md">server-side system design documentation</a>.<a href="#section-2.1-1" class="pilcrow">¶</a></p>
+communication between the client and the remote services uses a
+request-response message exchange pattern. The request will first reach a seller service, after which
+the seller will forward parts of the request to buyer service. It is then up to the
+seller service to gather buyer responses and form a final response for the client. More detail
+about the seller and buyer services can be found in the <a href="https://github.com/privacysandbox/protected-auction-services-docs/blob/main/bidding_auction_services_system_design.md">server-side system design documentation</a>.<a href="#section-2.1-1" class="pilcrow">¶</a></p>
 <div id="common-definitions">
 <section id="section-2.1.1">
           <h4 id="name-common-definitions">
@@ -1375,14 +1380,14 @@ about the seller and buyer servers can be found in the <a href="https://github.c
 </div>
 </section>
 </div>
-<div id="browser-to-services">
+<div id="client-to-services">
 <section id="section-2.2">
-        <h3 id="name-browser-to-bidding-and-auct">
-<a href="#section-2.2" class="section-number selfRef">2.2. </a><a href="#name-browser-to-bidding-and-auct" class="section-name selfRef">Browser to Bidding and Auction Services</a>
+        <h3 id="name-client-to-bidding-and-aucti">
+<a href="#section-2.2" class="section-number selfRef">2.2. </a><a href="#name-client-to-bidding-and-aucti" class="section-name selfRef">Client to Bidding and Auction Services</a>
         </h3>
-<p id="section-2.2-1">This section describes how the browser MUST form and serialize request messages
+<p id="section-2.2-1">This section describes how the client MUST form and serialize request messages
 in order to communicate with the Bidding and Auction services.<a href="#section-2.2-1" class="pilcrow">¶</a></p>
-<p id="section-2.2-2">The required inputs from the browser to the steps in <a href="#browser-to-services" class="auto internal xref">Section 2.2</a>
+<p id="section-2.2-2">The required inputs from the client to the steps in <a href="#client-to-services" class="auto internal xref">Section 2.2</a>
 are:<a href="#section-2.2-2" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-2.2-3">
 <li id="section-2.2-3.1">
@@ -1396,7 +1401,7 @@ are:<a href="#section-2.2-2" class="pilcrow">¶</a></p>
 See <a href="#encryption" class="auto internal xref">Section 2.2.4</a> for more detail on this requirement.<a href="#section-2.2-3.3.1" class="pilcrow">¶</a></p>
 </li>
         </ol>
-<p id="section-2.2-4">The outputs of the steps in <a href="#browser-to-services" class="auto internal xref">Section 2.2</a> will result in:<a href="#section-2.2-4" class="pilcrow">¶</a></p>
+<p id="section-2.2-4">The outputs of the steps in <a href="#client-to-services" class="auto internal xref">Section 2.2</a> will result in:<a href="#section-2.2-4" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-2.2-5">
 <li id="section-2.2-5.1">
             <p id="section-2.2-5.1.1">The context blob (<a href="#hpke-context" class="auto internal xref">Section 2.2.4.1.1</a>) used to encrypt the response and to be later used in <a href="#decryption" class="auto internal xref">Section 2.3.1</a>.<a href="#section-2.2-5.1.1" class="pilcrow">¶</a></p>
@@ -1600,7 +1605,7 @@ padding scheme for requests.<a href="#section-2.2.3-5" class="pilcrow">¶</a></p
 encrypted using <span>[<a href="#HPKE" class="cite xref">HPKE</a>]</span> with the encapsulation performed similarly
 to <a href="https://www.rfc-editor.org/rfc/rfc9458#section-4.3">Section 4.3</a> of <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span>.
 Details on how to acquire <span>[<a href="#HPKE" class="cite xref">HPKE</a>]</span> keys are out of scope for this document, however
-we assume they will be provided by the browser as a <a href="https://www.rfc-editor.org/rfc/rfc9458#name-key-configuration">Key Configuration</a>
+we assume they will be provided by the client as a <a href="https://www.rfc-editor.org/rfc/rfc9458#name-key-configuration">Key Configuration</a>
 and are required inputs to the context formation (<a href="#context" class="auto internal xref">Section 2.2.4.1</a>) and encapsulation
 (<a href="#encapsulation" class="auto internal xref">Section 2.2.4.2</a>) processes.<a href="#section-2.2.4-1" class="pilcrow">¶</a></p>
 <div id="context">
@@ -1618,7 +1623,7 @@ and are required inputs to the context formation (<a href="#context" class="auto
 </li>
             </ol>
 <p id="section-2.2.4.1-3">The two parts may be stored in whichever way is most convenient, as long as
-they are provided to the browser as a single opaque blob.<a href="#section-2.2.4.1-3" class="pilcrow">¶</a></p>
+they are provided to the client as a single opaque blob.<a href="#section-2.2.4.1-3" class="pilcrow">¶</a></p>
 <div id="hpke-context">
 <section id="section-2.2.4.1.1">
               <h6 id="name-hpke-context">
@@ -1626,7 +1631,7 @@ they are provided to the browser as a single opaque blob.<a href="#section-2.2.4
               </h6>
 <p id="section-2.2.4.1.1-1"><a href="https://www.rfc-editor.org/rfc/rfc9180.html#name-creating-the-encryption-con">Section 5.1</a>
 of <span>[<a href="#HPKE" class="cite xref">HPKE</a>]</span> describes how to create the Context required for encryption. This is
-considered the 'sending' HPKE context, and the browser MUST store it for later
+considered the 'sending' HPKE context, and the client MUST store it for later
 use when decrypting the response, as described in <a href="#decryption" class="auto internal xref">Section 2.3.1</a>.<a href="#section-2.2.4.1.1-1" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1639,7 +1644,7 @@ use when decrypting the response, as described in <a href="#decryption" class="a
 to a list of plaintext string interest group names (the order of which MUST
 exactly match the request payload provided in <a href="#interest-groups" class="auto internal xref">Section 2.2.1.1</a>). This map
 will be used by <a href="#response-payload" class="auto internal xref">Section 2.3.3</a> to deserialize the response into a
-a structure usable by the browser.<a href="#section-2.2.4.1.2-1" class="pilcrow">¶</a></p>
+a structure usable by the client.<a href="#section-2.2.4.1.2-1" class="pilcrow">¶</a></p>
 <p id="section-2.2.4.1.2-2">This map may be represented in whichever way is most convenient for use in
 <a href="#response-payload" class="auto internal xref">Section 2.3.3</a>.<a href="#section-2.2.4.1.2-2" class="pilcrow">¶</a></p>
 </section>
@@ -1837,16 +1842,16 @@ return an empty byte array.<a href="#section-2.2.5-3.11.1" class="pilcrow">¶</a
 </div>
 </section>
 </div>
-<div id="services-to-browser">
+<div id="services-to-client">
 <section id="section-2.3">
         <h3 id="name-bidding-and-auction-service">
-<a href="#section-2.3" class="section-number selfRef">2.3. </a><a href="#name-bidding-and-auction-service" class="section-name selfRef">Bidding and Auction Services to Browser</a>
+<a href="#section-2.3" class="section-number selfRef">2.3. </a><a href="#name-bidding-and-auction-service" class="section-name selfRef">Bidding and Auction Services to Client</a>
         </h3>
-<p id="section-2.3-1">This section describes how the browser MUST deserialize response messages from
+<p id="section-2.3-1">This section describes how the client MUST deserialize response messages from
 the Bidding and Auction Services. The steps MUST be performed in the following
 order: decryption (<a href="#decryption" class="auto internal xref">Section 2.3.1</a>), decompression (<a href="#decompression" class="auto internal xref">Section 2.3.2</a>), and
 finally parsing the response payload as in <a href="#response-payload" class="auto internal xref">Section 2.3.3</a>.<a href="#section-2.3-1" class="pilcrow">¶</a></p>
-<p id="section-2.3-2">The required inputs from the browser to the steps in {#services-to-browser}:<a href="#section-2.3-2" class="pilcrow">¶</a></p>
+<p id="section-2.3-2">The required inputs from the client to the steps in {#services-to-client}:<a href="#section-2.3-2" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-2.3-3">
 <li id="section-2.3-3.1">
             <p id="section-2.3-3.1.1">The encrypted response byte string.<a href="#section-2.3-3.1.1" class="pilcrow">¶</a></p>
@@ -1855,7 +1860,7 @@ finally parsing the response payload as in <a href="#response-payload" class="au
             <p id="section-2.3-3.2.1">The HPKE context created in <a href="#hpke-context" class="auto internal xref">Section 2.2.4.1.1</a>.<a href="#section-2.3-3.2.1" class="pilcrow">¶</a></p>
 </li>
         </ol>
-<p id="section-2.3-4">The resulting output for the browser is:<a href="#section-2.3-4" class="pilcrow">¶</a></p>
+<p id="section-2.3-4">The resulting output for the client is:<a href="#section-2.3-4" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-2.3-5">
 <li id="section-2.3-5.1">
             <p id="section-2.3-5.1.1">The decoded response data structure, as described in <a href="#response-payload" class="auto internal xref">Section 2.3.3</a>.<a href="#section-2.3-5.1.1" class="pilcrow">¶</a></p>
@@ -1869,10 +1874,10 @@ finally parsing the response payload as in <a href="#response-payload" class="au
 <p id="section-2.3.1-1">The response message is encrypted using HPKE with the encapsulation performed
 according to <a href="https://www.rfc-editor.org/rfc/rfc9458.html#name-encapsulation-of-responses">Section 4.4</a>
 of <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span> as the response to the request message.<a href="#section-2.3.1-1" class="pilcrow">¶</a></p>
-<p id="section-2.3.1-2">The browser MUST decrypt the response by following the standard <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span> <a href="https://www.rfc-editor.org/rfc/rfc9458#section-4.4-5">Encapsulated Response
+<p id="section-2.3.1-2">The client MUST decrypt the response by following the standard <span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span> <a href="https://www.rfc-editor.org/rfc/rfc9458#section-4.4-5">Encapsulated Response
 decryption procedure</a>. The
 context used for decryption MUST be precisely the same context blob that was
-created in <a href="#hpke-context" class="auto internal xref">Section 2.2.4.1.1</a>, and should be provided by the browser in addition to
+created in <a href="#hpke-context" class="auto internal xref">Section 2.2.4.1.1</a>, and should be provided by the client in addition to
 the response byte string.<a href="#section-2.3.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
@@ -1896,9 +1901,9 @@ as further described in <a href="#response-payload" class="auto internal xref">S
 <a href="#section-2.3.3" class="section-number selfRef">2.3.3. </a><a href="#name-response-payload-data" class="section-name selfRef">Response Payload Data</a>
           </h4>
 <p id="section-2.3.3-1">After decompression, the result will be a <span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span> byte string (described below).<a href="#section-2.3.3-1" class="pilcrow">¶</a></p>
-<p id="section-2.3.3-2">The byte string MUST be decoded into a format usable by the browser,
+<p id="section-2.3.3-2">The byte string MUST be decoded into a format usable by the client,
 the <a href="https://wicg.github.io/turtledove/#server-auction-response">server auction response structure</a>.
-The <code>server auction response structure</code> is the final, consumable output of <a href="#services-to-browser" class="auto internal xref">Section 2.3</a>.<a href="#section-2.3.3-2" class="pilcrow">¶</a></p>
+The <code>server auction response structure</code> is the final, consumable output of <a href="#services-to-client" class="auto internal xref">Section 2.3</a>.<a href="#section-2.3.3-2" class="pilcrow">¶</a></p>
 <p id="section-2.3.3-3">To perform this decoding, use a compliant <span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span> decoder. The following <span>[<a href="#CDDL" class="cite xref">CDDL</a>]</span>
 describes the structure of the CBOR data. Map the decoded data
 to the <code>server auction response structure</code> according to the instructions

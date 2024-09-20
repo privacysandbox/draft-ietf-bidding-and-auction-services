@@ -64,13 +64,13 @@ Table of Contents
    2.  Message Format Specifications
      2.1.  Overview
        2.1.1.  Common Definitions
-     2.2.  Browser to Bidding and Auction Services
+     2.2.  Client to Bidding and Auction Services
        2.2.1.  Request Payload Data
        2.2.2.  Compression
        2.2.3.  Framing and Padding
        2.2.4.  Encryption
        2.2.5.  Payload Optimization
-     2.3.  Bidding and Auction Services to Browser
+     2.3.  Bidding and Auction Services to Client
        2.3.1.  Decryption
        2.3.2.  Decompression
        2.3.3.  Response Payload Data
@@ -136,15 +136,21 @@ Table of Contents
 1.1.  Scope
 
    This document provides a specification for the request and response
-   message format that a browser can use to communicate with remote
-   services that allows the browser to offload much of the work involved
-   in running an advertisement selection auction as part of the
-   browser's implementation of the Protected Audience API.
+   message format that a client can use to communicate with remote
+   services that allows the client to offload much of the work involved
+   in running an advertisement selection auction as part of the client's
+   implementation of the Protected Audience API.
 
    This document does not describe distribution of private keys to the
-   bidding and auction services.
+   Bidding and Auction services.
 
 1.2.  Terminology
+
+   The key word "client" is to be interpreted as an implementation of
+   this document that creates Requests (Section 2.2) and consumes
+   Responses (Section 2.3).  The key phrase "Bidding and Auction
+   Services" is to be interpreted as an implementation of this document
+   that consumes Requests and creates Responses.
 
    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
@@ -157,12 +163,12 @@ Table of Contents
 2.1.  Overview
 
    To understand this document, it is important to know that the
-   communication between the browser and the remote servers uses a
+   communication between the client and the remote services uses a
    request-response message exchange pattern.  The request will first
-   reach a seller server, after which the seller will forward parts of
-   the request to buyer servers.  It is then up to the seller server to
-   gather buyer responses and form a final response for the browser.
-   More detail about the seller and buyer servers can be found in the
+   reach a seller service, after which the seller will forward parts of
+   the request to buyer service.  It is then up to the seller service to
+   gather buyer responses and form a final response for the client.
+   More detail about the seller and buyer services can be found in the
    server-side system design documentation
    (https://github.com/privacysandbox/protected-auction-services-
    docs/blob/main/bidding_auction_services_system_design.md).
@@ -196,13 +202,13 @@ Table of Contents
 
                                  Table 1
 
-2.2.  Browser to Bidding and Auction Services
+2.2.  Client to Bidding and Auction Services
 
-   This section describes how the browser MUST form and serialize
-   request messages in order to communicate with the Bidding and Auction
+   This section describes how the client MUST form and serialize request
+   messages in order to communicate with the Bidding and Auction
    services.
 
-   The required inputs from the browser to the steps in Section 2.2 are:
+   The required inputs from the client to the steps in Section 2.2 are:
 
    1.  A complete request payload, as defined in Section 2.2.1.2.
 
@@ -361,7 +367,7 @@ Table of Contents
    performed similarly to Section 4.3 (https://www.rfc-editor.org/rfc/
    rfc9458#section-4.3) of [OHTTP].  Details on how to acquire [HPKE]
    keys are out of scope for this document, however we assume they will
-   be provided by the browser as a Key Configuration (https://www.rfc-
+   be provided by the client as a Key Configuration (https://www.rfc-
    editor.org/rfc/rfc9458#name-key-configuration) and are required
    inputs to the context formation (Section 2.2.4.1) and encapsulation
    (Section 2.2.4.2) processes.
@@ -375,14 +381,14 @@ Table of Contents
    2.  A map storing interest group information (Section 2.2.4.1.2)
 
    The two parts may be stored in whichever way is most convenient, as
-   long as they are provided to the browser as a single opaque blob.
+   long as they are provided to the client as a single opaque blob.
 
 2.2.4.1.1.  HPKE Context
 
    Section 5.1 (https://www.rfc-editor.org/rfc/rfc9180.html#name-
    creating-the-encryption-con) of [HPKE] describes how to create the
    Context required for encryption.  This is considered the 'sending'
-   HPKE context, and the browser MUST store it for later use when
+   HPKE context, and the client MUST store it for later use when
    decrypting the response, as described in Section 2.3.1.
 
 2.2.4.1.2.  Interest Group Map
@@ -391,7 +397,7 @@ Table of Contents
    (Section 2.1.1) to a list of plaintext string interest group names
    (the order of which MUST exactly match the request payload provided
    in Section 2.2.1.1).  This map will be used by Section 2.3.3 to
-   deserialize the response into a a structure usable by the browser.
+   deserialize the response into a a structure usable by the client.
 
    This map may be represented in whichever way is most convenient for
    use in Section 2.3.3.
@@ -532,22 +538,22 @@ Table of Contents
 
    13.  Return the encrypted result (as in Section 2.2.4).
 
-2.3.  Bidding and Auction Services to Browser
+2.3.  Bidding and Auction Services to Client
 
-   This section describes how the browser MUST deserialize response
+   This section describes how the client MUST deserialize response
    messages from the Bidding and Auction Services.  The steps MUST be
    performed in the following order: decryption (Section 2.3.1),
    decompression (Section 2.3.2), and finally parsing the response
    payload as in Section 2.3.3.
 
-   The required inputs from the browser to the steps in {#services-to-
-   browser}:
+   The required inputs from the client to the steps in {#services-to-
+   client}:
 
    1.  The encrypted response byte string.
 
    2.  The HPKE context created in Section 2.2.4.1.1.
 
-   The resulting output for the browser is:
+   The resulting output for the client is:
 
    1.  The decoded response data structure, as described in
        Section 2.3.3.
@@ -559,11 +565,11 @@ Table of Contents
    rfc9458.html#name-encapsulation-of-responses) of [OHTTP] as the
    response to the request message.
 
-   The browser MUST decrypt the response by following the standard
+   The client MUST decrypt the response by following the standard
    [OHTTP] Encapsulated Response decryption procedure (https://www.rfc-
    editor.org/rfc/rfc9458#section-4.4-5).  The context used for
    decryption MUST be precisely the same context blob that was created
-   in Section 2.2.4.1.1, and should be provided by the browser in
+   in Section 2.2.4.1.1, and should be provided by the client in
    addition to the response byte string.
 
 2.3.2.  Decompression
@@ -583,7 +589,7 @@ Table of Contents
    After decompression, the result will be a [CBOR] byte string
    (described below).
 
-   The byte string MUST be decoded into a format usable by the browser,
+   The byte string MUST be decoded into a format usable by the client,
    the server auction response structure (https://wicg.github.io/
    turtledove/#server-auction-response).  The server auction response
    structure is the final, consumable output of Section 2.3.
