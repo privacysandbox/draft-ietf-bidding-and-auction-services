@@ -489,8 +489,16 @@ response = {
   ; that submitted a bid.
   ; Maps to https://wicg.github.io/turtledove/#server-auction-response-bidding-groups.
   ; If not present, map as an empty list.
-  ; Else, TODO
-  ? biddingGroups: {
+  ; Else,
+  ;   1. create an empty list
+  ;   2. for each interest group owner key in the biddingGroups map
+  ;   3.    for each index in biddingGroups[interest group owner]
+  ;   4.       interest group name equals the string at the index from (3)
+  ;            in Encryption Context's Interest Group Map (Section 2.2.4.1.2)
+  ;   5.       add a tuple to the list in (1) of [interest group owner (2),
+               interest group name (4)]
+  ;   6. return the list in (1)
+   ? biddingGroups: {
     * interestGroupOwner => [* int]
   },
 
@@ -567,12 +575,11 @@ response = {
 
 ; Defines the structure for reporting URLs.
 reportingUrls = {
-  ; Maps to https://wicg.github.io/turtledove/#server-auction-reporting-info-reporting-url.
+  ; Maps directly to https://wicg.github.io/turtledove/#server-auction-reporting-info-reporting-url.
   ; If not present, map as Null.
   ? reportingUrl: tstr,
-  ; Maps to https://wicg.github.io/turtledove/#server-auction-reporting-info-beacon-urls.
+  ; Maps directly to https://wicg.github.io/turtledove/#server-auction-reporting-info-beacon-urls.
   ; If not present, map as an empty ordered map (https://infra.spec.whatwg.org/#ordered-map).
-  ; Else, TODO
   ? interactionReportingUrls: { * tstr => tstr }
 }
 
