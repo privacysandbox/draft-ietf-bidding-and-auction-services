@@ -1,0 +1,828 @@
+
+
+
+
+TBD                                                             D. Kocoj
+Internet-Draft                                            B. R. Hamilton
+Intended status: Standards Track                                  Google
+Expires: 25 March 2025                                 21 September 2024
+
+
+                      Bidding and Auction Services
+             draft-ietf-bidding-and-auction-services-latest
+
+Abstract
+
+   The Bidding and Auction Services provide a way for advertising
+   auctions to execute in remote environments while preserving user
+   privacy.
+
+Discussion Venues
+
+   This note is to be removed before publishing as an RFC.
+
+   Source for this draft and an issue tracker can be found at
+   https://github.com/privacysandbox/draft-ietf-protected-audience-
+   auction-service.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on 25 March 2025.
+
+Copyright Notice
+
+   Copyright (c) 2024 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.  Code Components
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
+
+Table of Contents
+
+   1.  Introduction
+     1.1.  Scope
+     1.2.  Terminology
+   2.  Message Format Specifications
+     2.1.  Overview
+       2.1.1.  Common Definitions
+       2.1.2.  Message Framing and Padding
+     2.2.  Request Format
+       2.2.1.  Encryption
+       2.2.2.  Framing and Padding
+       2.2.3.  Request Message
+       2.2.4.  Generating a Request
+       2.2.5.  Parsing a Request
+     2.3.  Response Format
+       2.3.1.  Bidding and Auction Services to Client
+       2.3.2.  Decryption
+       2.3.3.  Decompression
+       2.3.4.  Response Payload Data
+   3.  Security Considerations
+   4.  IANA Considerations
+   5.  Normative References
+   Acknowledgments
+   Authors' Addresses
+
+1.  Introduction
+
+   Today, real-time bidding and ad auctions are executed on servers that
+   may not provide technical guarantees of security.  Some users have
+   concerns about how their data is handled to generate relevant ads and
+   in how that data is shared.  Protected Audience API (Android
+   (https://developer.android.com/design-for-safety/privacy-sandbox/
+   fledge), Chrome (https://developer.chrome.com/docs/privacy-sandbox/
+   fledge/)) provides ways to preserve privacy and limit third-party
+   data sharing by serving personalized ads based on previous mobile app
+   or web engagement.
+
+   For all platforms, Protected Audience may require real-time services
+   (https://github.com/privacysandbox/fledge-docs/blob/main/
+   trusted_services_overview.md).  In the initial proposal by Chrome
+   (https://github.com/WICG/turtledove/blob/main/FLEDGE.md), bidding and
+   auction for Protected Audience ad demand is executed locally.  This
+   can demand computation requirements that may be impractical to
+   execute on devices with limited processing power, or may be too slow
+   to render ads due to network latency.
+
+   This Bidding and Auction Services proposal outlines a way to allow
+   Protected Audience computation to take place on cloud servers, rather
+   than running locally on a user's device.  Moving computations to the
+   cloud has the following benefits:
+
+   *  Scalable auctions.
+
+   *  A scalable ad auction may include several buyers and sellers and
+      that can demand more compute resources and network bandwidth.
+
+   *  System health of the user's device.
+
+   *  Ensure better system health of the user's device by freeing up
+      computational cycles and network bandwidth.
+
+   *  Better latency of ad auctions.
+
+   *  Server to server communication on the cloud is faster than
+      multiple device to server calls.
+
+   *  Adtech code can execute faster on servers with higher computing
+      power compared to a device.
+
+   *  Servers have better processing power.
+
+   *  Adtechs can run more compute intensive workloads on a server
+      compared to a device for better utility.
+
+   Standardized protocols for interacting with Bidding and Auction
+   Services are essential to creating a diverse and healthy ecosystem
+   for such services.
+
+1.1.  Scope
+
+   This document provides a specification for the request and response
+   message format that a client can use to communicate with remote
+   services that allows the client to offload much of the work involved
+   in running an advertisement selection auction as part of the client's
+   implementation of the Protected Audience API.
+
+   This document does not describe distribution of private keys to the
+   bidding and auction services.
+
+1.2.  Terminology
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in BCP
+   14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+2.  Message Format Specifications
+
+2.1.  Overview
+
+   To understand this document, it is important to know that the
+   communication between the client and the remote servers uses a
+   request-response message exchange pattern.  The request will first
+   reach a seller server, after which the seller will forward parts of
+   the request to buyer servers.  It is then up to the seller server to
+   gather buyer responses and form a final response for the client.
+   More detail about the seller and buyer servers can be found in the
+   server-side system design documentation
+   (https://github.com/privacysandbox/protected-auction-services-
+   docs/blob/main/bidding_auction_services_system_design.md).
+
+2.1.1.  Common Definitions
+
+   Section 2 makes frequent use of the following definitions.
+
+        +=========================================+==============+
+        | Term with CDDL Definition               | Detailed     |
+        |                                         | Reference    |
+        +=========================================+==============+
+        | json = tstr                             | [JSON]       |
+        +-----------------------------------------+--------------+
+        | uuid = tstr .regexp "[a-fA-F0-9]{8}-[a- | [RFC9562]    |
+        | fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-       |              |
+        | F0-9]{4}-[a-fA-F0-9]{12}"               |              |
+        +-----------------------------------------+--------------+
+        | origin = tstr .regexp                   | [ORIGIN]     |
+        | "https://([^/:](:[0-9]+)?/"             |              |
+        +-----------------------------------------+--------------+
+        | currency = tstr .size 3 .regexp         | [ISO4217]    |
+        | /^[A-Z]{3}$/                            |              |
+        +-----------------------------------------+--------------+
+        | adRenderUrl = tstr                      | [URL]        |
+        +-----------------------------------------+--------------+
+        | adRenderId = tstr                       | [ADRENDERID] |
+        +-----------------------------------------+--------------+
+        | interestGroupOwner = origin             | TODO         |
+        +-----------------------------------------+--------------+
+
+                                 Table 1
+
+2.1.2.  Message Framing and Padding
+
+   Bidding and Auction Services requests and responses have the
+   following framing:
+
+   +==========+=========+=============+========+=============+=========+
+   | Byte     | 0       | 0           | 1 to 4 | 5 to        | Size+5  |
+   |          |         |             |        | Size+4      | to end  |
+   +==========+=========+=============+========+=============+=========+
+   | Bits     | 7-5     | 4-0         | *      | *           | *       |
+   +----------+---------+-------------+--------+-------------+---------+
+   | Contents | Version | Compression | Size   | Request     | Padding |
+   |          |         |             |        | Payload     |         |
+   +----------+---------+-------------+--------+-------------+---------+
+
+                                  Table 2
+
+   where the the first 3 bits of the frame header specify the payload
+   version and the following 5 bits specify the compression algorithm.
+   The format described in this document corresponds to version 0.
+
+   The compression method's value in bits 4-0 in Section 2.2.2
+   corresponds to the below table:
+
+                    +=============+==================+
+                    | Compression | Description      |
+                    +=============+==================+
+                    |      0      | No Compression   |
+                    +-------------+------------------+
+                    |      1      | Brotli [RFC7932] |
+                    +-------------+------------------+
+                    |      2      | GZIP [RFC1952]   |
+                    +-------------+------------------+
+                    |     3-31    | Reserved         |
+                    +-------------+------------------+
+
+                                 Table 3
+
+   The amount of padding depends on the type of message and will be
+   discussed for each message type separately.
+
+2.2.  Request Format
+
+   This section discusses the request message sent from the client to
+   the Bidding and Auction Services endpoint.
+
+   The request from the Client to Bidding and Auction Services consists
+   of an [HPKE] encrypted payload with attached header (see
+   Section 2.2.1).  The plaintext payload contains a framing header,
+   outer request, and padding (see Section 2.2.2).  The request message
+   Section 2.2.3 is a [CBOR] encoded message that contains one or more
+   compressed interest group lists Section 2.2.3.1.
+
+2.2.1.  Encryption
+
+   The request is encrypted with [HPKE].  The request uses a similar
+   encapsulated message format to that used by [OHTTP], with only an
+   additional version field.
+
+   Encapsulated Request {
+     Version (8),
+     Key Identifier (8),
+     HPKE KEM ID (16),
+     HPKE KDF ID (16),
+     HPKE AEAD ID (16),
+     Encapsulated KEM Shared Secret (8 * Nenc),
+     HPKE-Protected Request (..),
+   }
+
+   The Version for this message SHOULD be 0.  The HPKE KEM ID, HPKE KDF
+   ID, and HPKE AEAD ID are the key encapsulation mechanism, key
+   derivation function and authenticated encryption with associated data
+   function parameters for [HPKE].  For this protocol, a compliant
+   implementation MUST support HKDF-SHA256 (0x0010) for HPKE KEM ID,
+   HKDF-SHA256 (0x0001) for HPKE KDF ID, and AES-256-GCM (0x0002) for
+   HPKE AEAD ID.
+
+   Encryption of the request is similar to in [OHTTP] Section 4.3
+   (https://www.rfc-editor.org/rfc/rfc9458#name-encapsulation-of-
+   requests), only with a different media type and the Version prepended
+   to the encrypted message:
+
+   1.  Construct a message header (hdr) by concatenating the values of
+       the Key Identifier, HPKE KEM ID, HPKE KDF ID, and HPKE AEAD ID in
+       network byte order.
+
+   2.  Build a sequence of bytes (info) by concatenating the ASCII-
+       encoded string "message/auction request", a zero byte, and hdr.
+
+   3.  Create a sending HPKE context by invoking SetupBaseS()
+       (Section 5.1.1 (https://rfc-editor.org/rfc/rfc9180#section-5.1.1)
+       of [HPKE]) with the public key of the receiver pkR and info.
+       This yields the context sctxt and an encapsulation key enc.
+
+   4.  Encrypt request by invoking the Seal() method on sctxt
+       (Section 5.2 (https://rfc-editor.org/rfc/rfc9180#section-5.2) of
+       [HPKE]) with empty associated data aad, yielding ciphertext ct.
+
+   5.  Concatenate the values of Version, hdr, enc, and ct.
+
+   In pseudocode, this procedure is as follows:
+
+   hdr = concat(encode(1, key_id),
+                encode(2, kem_id),
+                encode(2, kdf_id),
+                encode(2, aead_id))
+   info = concat(encode_str("message/bhttp request"),
+                 encode(1, 0),
+                 hdr)
+   enc, sctxt = SetupBaseS(pkR, info)
+   ct = sctxt.Seal("", request)
+   enc_request = concat(encode(1,version), hdr, enc, ct)
+
+2.2.2.  Framing and Padding
+
+   The plaintext message uses the framing described in Section 2.1.2.
+
+   Messages MAY be zero padded so that the encrypted request is one of
+   the following bin sizes: 0KiB, 5KiB, 10KiB, 20KiB, 30KiB, 40KiB,
+   55KiB.  An implementation MAY need to remove some data from the
+   payload to fit inside the largest bucket.
+
+   A compatible implementation processing requests SHOULD NOT rely on a
+   specific padding scheme for requests.
+
+2.2.3.  Request Message
+
+   The request message is a [CBOR] encoded message with the following
+   [CDDL] schema:
+
+   request = {
+     // TODO description of all fields
+     version: int,
+     generationId: uuid,
+     publisher: origin,
+     interestGroups: {
+       ; Map of interest group owner to CBOR encoded list of interest
+       ; groups compressed using the method described in § Compression.
+       * interestGroupOwner => bstr
+     },
+     ? enableDebugReporting: bool
+   }
+
+   The version field SHOULD be set to 0 for this version of the
+   protocol.  The interestGroups field is a map from interest group
+   owner to a compressed, [CBOR]-encoded list of interest groups for
+   that owner.
+
+2.2.3.1.  List of Interest Groups
+
+   A list of interest group is encoded in [CBOR] with the following
+   [CDDL] schema:
+
+   interestGroups = [ * interestGroup ]
+   interestGroup = {
+     ; This interest group's name, see
+     ; https://wicg.github.io/turtledove/#interest-group-name.
+     name: tstr,
+
+     ; Keys used to look up real-time bidding signals, see
+     ; https://wicg.github.io/turtledove/#interest-group-trusted-bidding-signals-keys.
+     ? biddingSignalsKeys: [* tstr],
+     ; Data about the user that the bidder can use during bid calculation, see
+     ; https://wicg.github.io/turtledove/#interest-group-user-bidding-signals.
+     ? userBiddingSignals: json,
+     ; Contains various ads that the interest group might show. See
+     ; https://wicg.github.io/turtledove/#interest-group-ads.
+     ? ads: [* adRenderId],
+
+     ; Contains various ad components (or "products") that can be used to
+     ; construct ads composed of multiple pieces — a top-level ad template
+     ; "container" which includes some slots that can be filled in with
+     ; specific "products". See
+     ; https://wicg.github.io/turtledove/#interest-group-ad-components.
+     ? components: [* adRenderId],
+     ? browserSignals: {
+       ; Number of times the group was joined in the last 30 days.
+       ? joinCount: int,
+
+       ; Number of times the group bid in an auction in the last 30
+       ; days.
+       ? bidCount: int,
+
+       ; Tuple of time-ad pairs for a previous win for this interest
+       ; group that occurred in the last 30 days.
+       ; The time is specified in seconds before the containing
+       ; auctionBlob was requested.
+       ? prevWins: [* [int, adRenderId]],
+
+       ; The most recent join time for this group expressed
+       ; in milli seconds before the containing auctionBlob
+       ; was requested. This field will be used by newer client
+       ; versions. For older devices, the precison will be in seconds.
+       ; If recencyMs is present, this value will be used to offer
+       ; higher precision. If not, recency will be used. Only
+       ; one of the recency or recencyMs is expected to present in
+       ; the request.
+       ? recencyMs: int
+     }
+   }
+
+   Each list is separately compressed with the compression method
+   indicated in the Section 2.1.2 header.
+
+2.2.4.  Generating a Request
+
+   This section describes how the client MAY form and serialize request
+   messages in order to communicate with the Bidding and Auction
+   services.
+
+   This algorithm takes as input all of the relevant interest groups, an
+   optional desired total size, an optional list of interest group
+   owners to include each with an optional desired size, and the [HPKE]
+   public key and its associated key ID.  It generates a message using
+   [GZIP] for compression.
+
+   1.   Let included_groups be an empty map.
+
+   2.   If desired total size is not specified, but the list of interest
+        group owners includes at least one entry with a specified
+        desired size:
+
+        1.  Set desired total size to the sum of all specified desired
+            size in the list of interest group owners.
+
+   3.   Group the list of relevant interest groups by owner into a map
+        of from interest group owner to a list of interest groups sorted
+        by decreasing priority, interest group map.
+
+   4.   If the list of interest group owners is specified, remove
+        interest groups whose owner is not on the list.
+
+   5.   Construct a request, request, as normal only with the value of
+        the interestGroups field for each interest group owner as zero
+        length.
+
+   6.   Set current_size to be the serialized size of the encrypted
+        request created from request without padding.
+
+   7.   Set remaining_allocated_size to 0.
+
+   8.   Set remaining_unsized_owners to 0.
+
+   9.   For each interest group owner, interest group list in interest
+        group map:
+
+        1.  If there is a desired size for interest group owner:
+
+            1.  Increment remaining_allocated_size by desired size.
+
+        2.  Otherwise
+
+            1.  Increment remaining_unsized_owners by 1.
+
+   10.  For each interest group owner, interest group list in interest
+        group map where there is a desired size specified for interest
+        group owner:
+
+        1.  If the number of unsized_owners is not 0:
+
+            1.  Set the allowed_interest_group_size to the desired size
+                for this interest group owner.  This is a fixed size
+                allocation.
+
+        2.  Otherwise:
+
+            1.  Let remaining_size be equal to the desired total size-
+                current_size.
+
+            2.  Set the allowed_interest_group_size to
+                remaining_size*desired_size/remaining_allocated_size.
+                This is a proportional allocation.
+
+        3.  Set remaining_allocated_size = remaining_allocated_size-
+            current_size.
+
+        4.  [CBOR] encode the interest group list into serialized list.
+
+        5.  [GZIP] the serialized list into compressed list.
+
+        6.  If adding the compressed list to request would make it more
+            than allowed_interest_group_size larger than the current
+            size, then remove the lowest priority interest group and
+            repeat from the previous step.
+
+        7.  Set request["interestGroups"][interest group owner] to
+            compressed list.
+
+        8.  Set included_groups[interest group owner] to interest group
+            list.
+
+        9.  Set current_size to be the serialized size of the encrypted
+            request created from request without padding.
+
+   11.  For each interest group owner, interest group list in interest
+        group map where there is not desired size specified for interest
+        group owner:
+
+        1.  Let remaining_size be equal to the desired total size-
+            current_size.
+
+        2.  Set the allowed_interest_group_size to
+            remaining_size*/remaining_unsized_owners.  This is a equal
+            size allocation.
+
+        3.  Decrement remaining_unsized_owners by 1.
+
+        4.  [CBOR] encode the interest group list into serialized list.
+
+        5.  [GZIP] the serialized list into compressed list.
+
+        6.  If adding the compressed list to request would make it more
+            than allowed_interest_group_size larger than the current
+            size, then remove the lowest priority interest group and
+            repeat from the previous step.
+
+        7.  Set request["interestGroups"][interest group owner] to
+            compressed list.
+
+        8.  Set included_groups[interest group owner] to interest group
+            list.
+
+        9.  Set current_size to be the serialized size of the encrypted
+            request created from request without padding.
+
+   12.  If there are no interest groups in the request, discard the
+        request and return failure.
+
+   13.  Prepend the framing header to request with Compression set to 2.
+
+   14.  If desired total size is set then zero pad request to desired
+        total size.  Otherwise zero pad `request up to the smallest bin
+        size in Section 2.2.2 larger than request.
+
+   15.  Encrypt request using the public key and its key id as in
+        Section 2.2.1 to get the encrypted message and hpke context.
+
+   16.  Let the request context be the tuple (included_groups, hpke
+        context)
+
+   17.  Return the request and the request context.
+
+2.2.5.  Parsing a Request
+
+   TODO
+
+2.3.  Response Format
+
+2.3.1.  Bidding and Auction Services to Client
+
+   This section describes how the client MUST deserialize response
+   messages from the Bidding and Auction Services.  The steps MUST be
+   performed in the following order: decryption (Section 2.3.2),
+   decompression (Section 2.3.3), and finally parsing the response
+   payload as in Section 2.3.4.
+
+   The required inputs from the client to the steps in {#services-to-
+   client}:
+
+   1.  The encrypted response byte string.
+
+   2.  The request context created while generating the request in
+       Section 2.2.4.
+
+   The resulting output for the client is:
+
+   1.  The decoded response data structure, as described in
+       Section 2.3.4.
+
+2.3.2.  Decryption
+
+   The response message is encrypted using HPKE with the encapsulation
+   performed according to Section 4.4 (https://www.rfc-editor.org/rfc/
+   rfc9458.html#name-encapsulation-of-responses) of [OHTTP] as the
+   response to the request message.
+
+   The client MUST decrypt the response by following the standard
+   [OHTTP] Encapsulated Response decryption procedure (https://www.rfc-
+   editor.org/rfc/rfc9458#section-4.4-5).  The context used for
+   decryption MUST be precisely the same context blob that was created
+   when generating the request Section 2.2.4.
+
+2.3.3.  Decompression
+
+   The message framing is exactly as in Section 2.2.2, but the entire
+   response payload is compressed.  Starting with Byte 0, read bits 4-0
+   and use the chart in Section 2.1.2 to decode which decompression
+   algorithm MUST be applied to the response payload.
+
+   The output of the decompression process will be a payload equivalent
+   to the auction server response struct (https://wicg.github.io/
+   turtledove/#server-auction-response), as further described in
+   Section 2.3.4.
+
+2.3.4.  Response Payload Data
+
+   After decompression, the result will be a [CBOR] byte string
+   (described below).
+
+   The byte string MUST be decoded into a format usable by the client,
+   the server auction response structure (https://wicg.github.io/
+   turtledove/#server-auction-response).  The server auction response
+   structure is the final, consumable output of Section 2.3.1.
+
+   To perform this decoding, use a compliant [CBOR] decoder.  The
+   following [CDDL] describes the structure of the CBOR data.  Map the
+   decoded data to the server auction response structure according to
+   the instructions provided for each field.
+
+   response = {
+     ; The ad to render.
+     ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-ad-render-url.
+     adRenderURL: adRenderUrl,
+
+     ; List of URLs for component ads displayed as part of this
+     ; ad.
+     ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-ad-components.
+     ; If not present, map as an empty list.
+     ? components: [* adRenderUrl],
+
+     ; Name of the interest group to which the ad belongs.
+     ; See https://wicg.github.io/turtledove/#interest-group-name.
+     ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-interest-group-name.
+     ; If not present, map as Null.
+     ? interestGroupName: tstr,
+
+     ; Origin of the Buyer who owns the interest group.
+     ; The original request for this response MUST contain this
+     ; interestGroupOwner, which additionally MUST provide an interest
+     ; group with interestGroupName.
+     ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-interest-group-owner.
+     ; If not present, map as Null.
+     ? interestGroupOwner: interestGroupOwner,
+
+     ; Indices of interest groups in the original request for this owner
+     ; that submitted a bid.
+     ; Maps to https://wicg.github.io/turtledove/#server-auction-response-bidding-groups.
+     ; If not present, map as an empty list.
+     ; Else,
+     ;   1. create an empty list
+     ;   2. for each interest group owner key in the biddingGroups map
+     ;   3.    for each index in biddingGroups[interest group owner]
+     ;   4.       interest group name equals the string at the index from (3)
+     ;            in Encryption Context's Interest Group Map (Section 2.2.4.1.2)
+     ;   5.       add a tuple to the list in (1) of [interest group owner (2),
+                  interest group name (4)]
+     ;   6. return the list in (1)
+      ? biddingGroups: {
+       * interestGroupOwner => [* int]
+     },
+
+     ; Score of the ad determined during the auction.
+     ; Any value that is zero or negative indicates that the ad cannot
+     ; win the auction.
+     ; The winner of the auction would be the ad that was given the
+     ; highest score.
+     ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-score.
+     ; If not present, map as Null.
+     ? score: float,
+
+     ; Bid price corresponding to an ad
+     ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-bid.
+     ; If not present, map as Null.
+     ? bid: float,
+
+     ; Optional currency of the bid.
+     ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-bid-currency.
+     ; If not present, map as Null.
+     ? bidCurrency: currency,
+
+     ; Optional BuyerReportingId of the winning Ad
+     ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-buyer-reporting-id.
+     ; If not present, map as Null.
+     ? buyerReportingId: tstr,
+
+     ; Optional BuyerAndSellerReportingId of the winning Ad
+     ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-buyer-and-seller-reporting-id.
+     ; If not present, map as Null.
+     ? buyerAndSellerReportingId: tstr,
+
+     ; The auction result may be ignored if set to true.
+     ; Maps to https://wicg.github.io/turtledove/#server-auction-response-is-chaff.
+     ; If not present, map as false.
+     ? isChaff: bool,
+
+     ; Optional wrapper for various reporting URLs.
+     ? winReportingUrls: {
+       ; Maps to https://wicg.github.io/turtledove/#server-auction-response-buyer-reporting.
+       ; If not present, map as 'Null'.
+       ? buyerReportingUrls: reportingUrls,
+       ; Maps to https://wicg.github.io/turtledove/#server-auction-response-component-seller-reporting.
+       ; If not present, map as 'Null'.
+       ? componentSellerReportingUrls: reportingUrls,
+       ; Maps to https://wicg.github.io/turtledove/#server-auction-response-top-level-seller-reporting.
+       ; If not present, map as 'Null'.
+       ? topLevelSellerReportingUrls: reportingUrls
+     },
+
+     ; Contains an error message from the auction executed on the trusted auction
+     ; server.
+     ; May be used to provide additional context for the result of an auction.
+     ; Maps to https://wicg.github.io/turtledove/#server-auction-response-error.
+     ; If not present, map as Null.
+     ; Else, ignore the `code` field and use the `message` field directly
+     ; for the server auction response error field.
+     ? error: {
+       code: int,
+       message: tstr
+     },
+
+     ; Arbitrary metadata to pass to the top-level seller.
+     ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-ad-metadata.
+     ; If not present, map as Null.
+     ? adMetadata: json,
+
+     ; Optional name/domain for the top-level seller in case this is a
+     ; component auction.
+     ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-top-level-seller.
+     ; If not present, map as Null.
+     ? topLevelSeller: origin,
+   }
+
+   ; Defines the structure for reporting URLs.
+   reportingUrls = {
+     ; Maps directly to https://wicg.github.io/turtledove/#server-auction-reporting-info-reporting-url.
+     ; If not present, map as Null.
+     ? reportingUrl: tstr,
+     ; Maps directly to https://wicg.github.io/turtledove/#server-auction-reporting-info-beacon-urls.
+     ; If not present, map as an empty ordered map (https://infra.spec.whatwg.org/#ordered-map).
+     ? interactionReportingUrls: { * tstr => tstr }
+   }
+
+3.  Security Considerations
+
+   TODO
+
+4.  IANA Considerations
+
+   This document introduces no additional considerations for IANA.
+
+5.  Normative References
+
+   [ADRENDERID]
+              "Protected Audience", 2024, <https://wicg.github.io/
+              turtledove/#server-auction-previous-win-ad-render-id>.
+
+   [BINARY]   Thomson, M. and C. A. Wood, "Binary Representation of HTTP
+              Messages", RFC 9292, DOI 10.17487/RFC9292, August 2022,
+              <https://www.rfc-editor.org/rfc/rfc9292>.
+
+   [CBOR]     Bormann, C. and P. Hoffman, "Concise Binary Object
+              Representation (CBOR)", STD 94, RFC 8949,
+              DOI 10.17487/RFC8949, December 2020,
+              <https://www.rfc-editor.org/rfc/rfc8949>.
+
+   [CDDL]     Birkholz, H., Vigano, C., and C. Bormann, "Concise Data
+              Definition Language (CDDL): A Notational Convention to
+              Express Concise Binary Object Representation (CBOR) and
+              JSON Data Structures", RFC 8610, DOI 10.17487/RFC8610,
+              June 2019, <https://www.rfc-editor.org/rfc/rfc8610>.
+
+   [GZIP]     Deutsch, P., "GZIP file format specification version 4.3",
+              RFC 1952, DOI 10.17487/RFC1952, May 1996,
+              <https://www.rfc-editor.org/rfc/rfc1952>.
+
+   [HPKE]     Barnes, R., Bhargavan, K., Lipp, B., and C. Wood, "Hybrid
+              Public Key Encryption", RFC 9180, DOI 10.17487/RFC9180,
+              February 2022, <https://www.rfc-editor.org/rfc/rfc9180>.
+
+   [ISO4217]  "ISO 4217 Currency codes", 2024,
+              <https://www.iso.org/iso-4217-currency-codes.html>.
+
+   [JSON]     Bray, T., Ed., "The JavaScript Object Notation (JSON) Data
+              Interchange Format", STD 90, RFC 8259,
+              DOI 10.17487/RFC8259, December 2017,
+              <https://www.rfc-editor.org/rfc/rfc8259>.
+
+   [OHTTP]    Thomson, M. and C. A. Wood, "Oblivious HTTP", RFC 9458,
+              DOI 10.17487/RFC9458, January 2024,
+              <https://www.rfc-editor.org/rfc/rfc9458>.
+
+   [ORIGIN]   "HTML Living Standard", 2024,
+              <https://html.spec.whatwg.org/multipage/
+              webappapis.html#concept-settings-object-origin>.
+
+   [RFC1952]  Deutsch, P., "GZIP file format specification version 4.3",
+              RFC 1952, DOI 10.17487/RFC1952, May 1996,
+              <https://www.rfc-editor.org/rfc/rfc1952>.
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/rfc/rfc2119>.
+
+   [RFC7932]  Alakuijala, J. and Z. Szabadka, "Brotli Compressed Data
+              Format", RFC 7932, DOI 10.17487/RFC7932, July 2016,
+              <https://www.rfc-editor.org/rfc/rfc7932>.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
+
+   [RFC9562]  Davis, K., Peabody, B., and P. Leach, "Universally Unique
+              IDentifiers (UUIDs)", RFC 9562, DOI 10.17487/RFC9562, May
+              2024, <https://www.rfc-editor.org/rfc/rfc9562>.
+
+   [SHA-256]  Eastlake 3rd, D. and T. Hansen, "US Secure Hash Algorithms
+              (SHA and SHA-based HMAC and HKDF)", RFC 6234,
+              DOI 10.17487/RFC6234, May 2011,
+              <https://www.rfc-editor.org/rfc/rfc6234>.
+
+   [URL]      "URL Living Standard", 2024,
+              <https://url.spec.whatwg.org/#concept-url>.
+
+Acknowledgments
+
+   TODO
+
+Authors' Addresses
+
+   Daniel Kocoj
+   Google
+   Email: dankocoj@google.com
+
+
+   Benjamin "Russ" Hamilton
+   Google
+   Email: behamilton@google.com
