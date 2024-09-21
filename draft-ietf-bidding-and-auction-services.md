@@ -5,8 +5,8 @@ title: Bidding and Auction Services
 docname: draft-ietf-bidding-and-auction-services-latest
 category: std
 
-# area: TODO
-# workgroup: TODO
+area: TBD
+workgroup: TBD
 keyword: Internet-Draft
 
 ipr: trust200902
@@ -33,6 +33,7 @@ normative:
   SHA-256: RFC6234
   HPKE: RFC9180
   BINARY: RFC9292
+  GZIP: RFC1952
   ISO4217:
     target: https://www.iso.org/iso-4217-currency-codes.html
     title: ISO 4217 Currency codes
@@ -140,33 +141,138 @@ about the seller and buyer servers can be found in the [server-side system desig
 | `adRenderId = tstr` | [ADRENDERID] |
 | `interestGroupOwner = origin` | TODO |
 
-## Client to Bidding and Auction Services {#client-to-services}
+### Message Framing and Padding {#framing}
 
-This section describes how the client MUST form and serialize request messages
-in order to communicate with the Bidding and Auction services.
+Bidding and Auction Services requests and responses have the following framing:
 
-The required inputs from the client to the steps in {{client-to-services}}
-are:
+| Byte     | 0         | 0             | 1 to 4   | 5 to Size+4       | Size+5 to end   |
+| -------- | --------- | ------------- | -------- | ----------------- | --------------- |
+| Bits     | 7-5       | 4-0           | *        | *                 | *               |
+| -------- | --------- | ------------- | -------- | ----------------- | --------------- |
+| Contents | Version   | Compression   | Size     | Request Payload   | Padding         |
 
-1. A complete request payload, as defined in {{complete-request}}.
-2. A map of `interestGroupOwner` to interest group names, as defined in {{ig-map}}.
-3. An encryption [Key Configuration](https://www.rfc-editor.org/rfc/rfc9458#name-key-configuration).
-See {{encryption}} for more detail on this requirement.
+where the the first 3 bits of the frame header specify the payload
+version and the following 5 bits specify the compression algorithm.
+The format described in this document corresponds to version 0.
 
-The outputs of the steps in {{client-to-services}} will result in:
+The compression method's value in bits 4-0 in {{request-framing}}
+corresponds to the below table:
 
-1. The context blob ({{hpke-context}}) used to encrypt the response and to be later used in {{decryption}}.
-2. An encrypted byte string ({{encapsulation}}) representing the request to be sent to the Bidding
-and Auction Services.
+| Compression | Description        |
+| :---------: | :-------------     |
+|      0      | No Compression     |
+|      1      | Brotli {{!RFC7932}}|
+|      2      | GZIP {{!RFC1952}}  |
+|    3-31     | Reserved           |
 
-### Request Payload Data {#request-payload}
+The amount of padding depends on the type of message and will be discussed for
+each message type separately.
 
-A request payload primarily consists of interest groups. The interest groups are
-then wrapped into a request object that contains additional data.
+## Request Format
 
-#### Interest Groups {#interest-groups}
+This section discusses the request message sent from the client to the Bidding
+and Auction Services endpoint.
 
-A list of interest group is represented by the following [CDDL]:
+The request from the Client to Bidding and Auction Services consists of an
+[HPKE] encrypted payload with attached header (see {{request-encryption}}). The
+plaintext payload contains a framing header, outer request, and padding (see
+{{request-framing}}). The request message {{request-message}} is a [CBOR] encoded
+message that contains one or more compressed interest group lists {{request-groups}}.
+
+### Encryption {#request-encryption}
+
+The request is encrypted with [HPKE]. The request uses a similar encapsulated message
+format to that used by [OHTTP], with only an additional version field.
+
+~~~~~
+Encapsulated Request {
+  Version (8),
+  Key Identifier (8),
+  HPKE KEM ID (16),
+  HPKE KDF ID (16),
+  HPKE AEAD ID (16),
+  Encapsulated KEM Shared Secret (8 * Nenc),
+  HPKE-Protected Request (..),
+}
+~~~~~
+
+The `Version` for this message SHOULD be 0. The `HPKE KEM ID`, `HPKE KDF ID`,
+and `HPKE AEAD ID` are the key encapsulation mechanism, key derivation function
+and authenticated encryption with associated data function parameters for
+[HPKE]. For this protocol, a compliant implementation MUST support
+HKDF-SHA256 (0x0010) for `HPKE KEM ID`, HKDF-SHA256 (0x0001) for
+`HPKE KDF ID`, and AES-256-GCM (0x0002) for `HPKE AEAD ID`.
+
+Encryption of the request is similar to in [OHTTP] [Section 4.3](https://www.rfc-editor.org/rfc/rfc9458#name-encapsulation-of-requests), only with a different media type
+and the `Version` prepended to the encrypted message:
+
+1. Construct a message header (`hdr`) by concatenating the values of the
+   `Key Identifier`, `HPKE KEM ID`, `HPKE KDF ID`, and `HPKE AEAD ID` in network
+   byte order.
+1. Build a sequence of bytes (`info`) by concatenating the ASCII-encoded string
+   "message/auction request", a zero byte, and `hdr`.
+1. Create a sending HPKE context by invoking `SetupBaseS()`
+   ([Section 5.1.1](https://rfc-editor.org/rfc/rfc9180#section-5.1.1) of [HPKE])
+   with the public key of the receiver `pkR` and `info`. This yields the context
+   `sctxt` and an encapsulation key `enc`.
+1. Encrypt `request` by invoking the `Seal()` method on `sctxt`
+   ([Section 5.2](https://rfc-editor.org/rfc/rfc9180#section-5.2) of [HPKE])
+   with empty associated data `aad`, yielding ciphertext `ct`.
+1. Concatenate the values of `Version`, `hdr`, `enc`, and `ct`.
+
+In pseudocode, this procedure is as follows:
+
+~~~~~
+hdr = concat(encode(1, key_id),
+             encode(2, kem_id),
+             encode(2, kdf_id),
+             encode(2, aead_id))
+info = concat(encode_str("message/bhttp request"),
+              encode(1, 0),
+              hdr)
+enc, sctxt = SetupBaseS(pkR, info)
+ct = sctxt.Seal("", request)
+enc_request = concat(encode(1,version), hdr, enc, ct)
+~~~~~
+
+### Framing and Padding {#request-framing}
+
+The plaintext message uses the framing described in {{framing}}.
+
+Messages MAY be zero padded so that the encrypted request is one of the
+following bin sizes: 0KiB, 5KiB, 10KiB, 20KiB, 30KiB, 40KiB, 55KiB. An
+implementation MAY need to remove some data from the payload to fit inside the
+largest bucket.
+
+A compatible implementation processing requests SHOULD NOT rely on a specific
+padding scheme for requests.
+
+### Request Message {#request-message}
+
+The request message is a [CBOR] encoded message with the following [CDDL] schema:
+
+~~~~~ cddl
+request = {
+  // TODO description of all fields
+  version: int,
+  generationId: uuid,
+  publisher: origin,
+  interestGroups: {
+    ; Map of interest group owner to CBOR encoded list of interest
+    ; groups compressed using the method described in § Compression.
+    * interestGroupOwner => bstr
+  },
+  ? enableDebugReporting: bool
+}
+~~~~~
+
+The `version` field SHOULD be set to 0 for this version of the protocol. The
+`interestGroups` field is a map from interest group owner to a compressed,
+[CBOR]-encoded list of interest groups for that owner.
+
+#### List of Interest Groups {#request-groups}
+
+A list of interest group is encoded in [CBOR] with the following [CDDL] schema:
 
 ~~~~~ cddl
 interestGroups = [ * interestGroup ]
@@ -218,132 +324,20 @@ interestGroup = {
 }
 ~~~~~
 
-#### Complete Request {#complete-request}
+Each list is separately compressed with the compression method indicated in
+the {{framing}} header.
 
-A list of interest groups for each owner MUST first be represented as {{CBOR}},
-and then the serialized list MUST be indiviudally compressed according to the
-compression algorithm specified in the message framing ({{request-framing}}).
-This compressed interest group data MUST then be aggregated into a map in the
-complete request, which MUST be {{CBOR}} represented by the following {{CDDL}}:
+### Generating a Request {#request-generate}
 
-~~~~~ cddl
-request = {
-  // TODO description of all fields
-  version: int,
-  generationId: uuid,
-  publisher: origin,
-  interestGroups: {
-    ; Map of interest group owner to CBOR encoded list of interest
-    ; groups compressed using the method described in § Compression.
-    * interestGroupOwner => bstr
-  },
-  ? enableDebugReporting: bool
-}
-~~~~~
+This section describes how the client MAY form and serialize request messages
+in order to communicate with the Bidding and Auction services.
 
-The complete request MUST also be compressed using the same compression
-algorithm as specified in the message framing ({{request-framing}}).
+This algorithm takes as input all of the `relevant interest groups`,
+an optional `desired total size`, an optional list of `interest group owners` to
+include each with an optional `desired size`, and the [HPKE] `public key` and
+its associated `key ID`. It generates a message using [GZIP] for compression.
 
-### Compression {#request-compression}
-
-The payload MAY undergo compression.
-
-The compression method's value in bits 4-0 in {{request-framing}}
-corresponds to the below table:
-
-| Compression | Description        |
-| :---------: | :-------------     |
-|      0      | No Compression     |
-|      1      | Brotli {{!RFC7932}}|
-|      2      | GZIP {{!RFC1952}}  |
-|    3-31     | Reserved           |
-
-
-### Framing and Padding {#request-framing}
-
-The plaintext message has the following framing:
-
-| Byte     | 0         | 0             | 1 to 4   | 5 to Size+4       | Size+5 to end   |
-| -------- | --------- | ------------- | -------- | ----------------- | --------------- |
-| Bits     | 7-5       | 4-0           | *        | *                 | *               |
-| -------- | --------- | ------------- | -------- | ----------------- | --------------- |
-| Contents | Version   | Compression   | Size     | Request Payload   | Padding         |
-
-where the the first 3 bits of the frame header specify the payload
-version and the following 5 bits specify the compression algorithm.
-The format described in this document corresponds to version 0.
-
-Messages MAY be zero padded so that the encrypted request is one of the
-following bin sizes: 0KiB, 5KiB, 10KiB, 20KiB, 30KiB, 40KiB, 55KiB. An
-implementation MAY need to remove some data from the payload to fit inside the
-largest bucket.
-
-A compatible implementation processing requests SHOULD NOT rely on a specific
-padding scheme for requests.
-
-### Encryption {#encryption}
-
-After framing and padding the compressed payload, the entire plaintext message is
-encrypted using [HPKE] with the encapsulation performed similarly
-to [Section 4.3](https://www.rfc-editor.org/rfc/rfc9458#section-4.3) of {{OHTTP}}.
-Details on how to acquire [HPKE] keys are out of scope for this document, however
-we assume they will be provided by the client as a [Key Configuration](https://www.rfc-editor.org/rfc/rfc9458#name-key-configuration)
-and are required inputs to the context formation ({{context}}) and encapsulation
-({{encapsulation}}) processes.
-
-#### Encryption Context {#context}
-
-The encryption context MUST be composed of two parts:
-
-1. HPKE Context ({{hpke-context}})
-2. A map storing interest group information ({{ig-map}})
-
-The two parts may be stored in whichever way is most convenient, as long as
-they are provided to the client as a single opaque blob.
-
-##### HPKE Context {#hpke-context}
-
-[Section 5.1](https://www.rfc-editor.org/rfc/rfc9180.html#name-creating-the-encryption-con)
-of [HPKE] describes how to create the Context required for encryption. This is
-considered the 'sending' HPKE context, and the client MUST store it for later
-use when decrypting the response, as described in {{decryption}}.
-
-##### Interest Group Map {#ig-map}
-
-The encryption context must include a map of `interestGroupOwner` ({{common-definitions}})
-to a list of plaintext string interest group names (the order of which MUST
-exactly match the request payload provided in {{interest-groups}}). This map
-will be used by {{response-payload}} to deserialize the response into a
-a structure usable by the client.
-
-This map may be represented in whichever way is most convenient for use in
-{{response-payload}}.
-
-#### Encapsulation {#encapsulation}
-Instead of encapsulating Binary HTTP [BINARY] as per [Step 1 in OHTTP](https://www.rfc-editor.org/rfc/rfc9458#section-4.3-4.1.1),
-the output from {{request-framing}} MUST be used as-is. This means that
-we are repurposing the [OHTTP] encapsulation mechanism, so [we are required to
-define new media types](https://www.rfc-editor.org/rfc/rfc9458.html#name-repurposing-the-encapsulati):
-
-* The OHTTP request media type is “message/auction request”
-* The OHTTP response media type is “message/auction response”
-
-Note that these media types are [concatenated with other fields when
-creating the HPKE encryption context](https://www.rfc-editor.org/rfc/rfc9458.html#name-encapsulation-of-requests),
-and are not HTTP content or media types. In order to perform the encapsulation,
-the steps in [the OHTTP encapsulation process](https://www.rfc-editor.org/rfc/rfc9458#section-4.3-3)
-MUST be followed precisely, except with an `info` equivalent to `message/auction request`.
-
-### Payload Optimization {#request-optimization}
-
-A compatible implementation MAY support control over how interest groups are
-serialized into a request and the size of the request. An example implementation
-for this feature is as follows:
-
-This algorithm takes as input all of the `relevant interest groups`, an optional
-`desired total size`, and an optional list of `interest group owners` to include
-each with an optional `desired size`.
-
+1. Let `included_groups` be an empty map.
 1. If `desired total size` is not specified, but the list of `interest group owners`
    includes at least one entry with a specified `desired size`:
    1. Set `desired total size` to the sum of all specified `desired size` in the
@@ -378,12 +372,14 @@ each with an optional `desired size`.
          `remaining_size`*`desired_size`/`remaining_allocated_size`. This is a
          proportional allocation.
    1. Set `remaining_allocated_size` = `remaining_allocated_size`-`current_size`.
-   1. Serialize the `interest group list` into `serialized_group`.
-   1. If adding the `serialized_group` to `request` would make it more than
+   1. [CBOR] encode the `interest group list` into `serialized list`.
+   1. [GZIP] the `serialized list` into `compressed list`.
+   1. If adding the `compressed list` to `request` would make it more than
       `allowed_interest_group_size` larger than the current size, then remove
       the lowest priority interest group and repeat from the previous step.
    1. Set `request["interestGroups"][interest group owner]` to
-      `serialized_group`.
+      `compressed list`.
+   1. Set `included_groups[interest group owner]` to `interest group list`.
    1. Set `current_size` to be the serialized size of the encrypted request
       created from `request` without padding.
 1. For each `interest group owner`, `interest group list` in
@@ -394,20 +390,34 @@ each with an optional `desired size`.
       `remaining_size`*/`remaining_unsized_owners`. This is a
       equal size allocation.
    1. Decrement `remaining_unsized_owners` by 1.
-   1. Serialize the `interest group list` into `serialized_group`.
-   1. If adding the `serialized_group` to `request` would make it more than
+   1. [CBOR] encode the `interest group list` into `serialized list`.
+   1. [GZIP] the `serialized list` into `compressed list`.
+   1. If adding the `compressed list` to `request` would make it more than
       `allowed_interest_group_size` larger than the current size, then remove
       the lowest priority interest group and repeat from the previous step.
    1. Set `request["interestGroups"][interest group owner]` to
-      `serialized_group`.
+      `compressed list`.
+   1. Set `included_groups[interest group owner]` to `interest group list`.
    1. Set `current_size` to be the serialized size of the encrypted request
       created from `request` without padding.
 1. If there are no interest groups in the request, discard the `request` and
-   return an empty byte array.
-1. Frame `request` as in {{request-framing}} and zero pad up to `desired total size`.
-1. Return the encrypted result (as in {{encryption}}).
+   return failure.
+1. Prepend the framing header to `request` with `Compression` set to 2.
+1. If `desired total size` is set then zero pad `request` to `desired total size`.
+   Otherwise zero pad `request up to the smallest bin size in {{request-framing}}
+   larger than request.
+1. Encrypt `request` using the `public key` and its `key id` as in
+   {{request-encryption}} to get the `encrypted message` and `hpke context`.
+1. Let the `request context` be the tuple (`included_groups`, `hpke context`)
+1. Return the `request` and the `request context`.
 
-## Bidding and Auction Services to Client {#services-to-client}
+### Parsing a Request {#request-parsing}
+
+TODO
+
+## Response Format
+
+### Bidding and Auction Services to Client {#services-to-client}
 
 This section describes how the client MUST deserialize response messages from
 the Bidding and Auction Services. The steps MUST be performed in the following
@@ -417,7 +427,7 @@ finally parsing the response payload as in {{response-payload}}.
 The required inputs from the client to the steps in {#services-to-client}:
 
 1. The encrypted response byte string.
-2. The HPKE context created in {{hpke-context}}.
+2. The request context created while generating the request in {{request-generate}}.
 
 The resulting output for the client is:
 
@@ -432,14 +442,13 @@ of {{OHTTP}} as the response to the request message.
 The client MUST decrypt the response by following the standard {{OHTTP}} [Encapsulated Response
 decryption procedure](https://www.rfc-editor.org/rfc/rfc9458#section-4.4-5). The
 context used for decryption MUST be precisely the same context blob that was
-created in {{hpke-context}}, and should be provided by the client in addition to
-the response byte string.
+created when generating the request {{request-generate}}.
 
 ### Decompression {#decompression}
 
 The message framing is exactly as in {{request-framing}}, but the entire
 response payload is compressed. Starting with Byte 0, read bits 4-0 and use
-the chart in {{request-compression}} to decode which decompression algorithm
+the chart in {{framing}} to decode which decompression algorithm
 MUST be applied to the response payload.
 
 The output of the decompression process will be a payload equivalent to the
