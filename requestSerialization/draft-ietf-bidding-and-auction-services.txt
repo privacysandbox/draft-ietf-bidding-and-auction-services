@@ -144,9 +144,15 @@ Table of Contents
    implementation of the Protected Audience API.
 
    This document does not describe distribution of private keys to the
-   bidding and auction services.
+   Bidding and Auction services.
 
 1.2.  Terminology
+
+   The key word "client" is to be interpreted as an implementation of
+   this document that creates Requests (Section 2.2) and consumes
+   Responses (Section 2.3.1).  The key phrase "Bidding and Auction
+   Services" is to be interpreted as an implementation of this document
+   that consumes Requests and creates Responses.
 
    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
@@ -159,12 +165,12 @@ Table of Contents
 2.1.  Overview
 
    To understand this document, it is important to know that the
-   communication between the client and the remote servers uses a
+   communication between the client and the remote services uses a
    request-response message exchange pattern.  The request will first
-   reach a seller server, after which the seller will forward parts of
-   the request to buyer servers.  It is then up to the seller server to
+   reach a seller service, after which the seller will forward parts of
+   the request to buyer service.  It is then up to the seller service to
    gather buyer responses and form a final response for the client.
-   More detail about the seller and buyer servers can be found in the
+   More detail about the seller and buyer services can be found in the
    server-side system design documentation
    (https://github.com/privacysandbox/protected-auction-services-
    docs/blob/main/bidding_auction_services_system_design.md).
@@ -179,7 +185,7 @@ Table of Contents
         +=========================================+==============+
         | json = tstr                             | [JSON]       |
         +-----------------------------------------+--------------+
-        | uuid = tstr .regexp "[a-fA-F0-9]{8}-[a- | [RFC9562]    |
+        | uuid = tstr .regexp "[a-fA-F0-9]{8}-[a- | [UUID]       |
         | fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-       |              |
         | F0-9]{4}-[a-fA-F0-9]{12}"               |              |
         +-----------------------------------------+--------------+
@@ -304,12 +310,12 @@ Table of Contents
                 encode(2, kem_id),
                 encode(2, kdf_id),
                 encode(2, aead_id))
-   info = concat(encode_str("message/bhttp request"),
+   info = concat(encode_str("message/auction request"),
                  encode(1, 0),
                  hdr)
    enc, sctxt = SetupBaseS(pkR, info)
    ct = sctxt.Seal("", request)
-   enc_request = concat(encode(1,version), hdr, enc, ct)
+   enc_request = concat(encode(1, version), hdr, enc, ct)
 
 2.2.2.  Framing and Padding
 
@@ -408,11 +414,11 @@ Table of Contents
    messages in order to communicate with the Bidding and Auction
    services.
 
-   This algorithm takes as input all of the relevant interest groups, an
-   optional desired total size, an optional list of interest group
-   owners to include each with an optional desired size, and the [HPKE]
-   public key and its associated key ID.  It generates a message using
-   [GZIP] for compression.
+   This algorithm takes as input the publisher, all of the relevant
+   interest groups, an optional desired total size, an optional list of
+   interest group owners to include each with an optional desired size,
+   and the [HPKE] public key and its associated key ID.  It returns an
+   encrypted request and a request context tuple.
 
    1.   Let included_groups be an empty map.
 
@@ -430,9 +436,11 @@ Table of Contents
    4.   If the list of interest group owners is specified, remove
         interest groups whose owner is not on the list.
 
-   5.   Construct a request, request, as normal only with the value of
-        the interestGroups field for each interest group owner as zero
-        length.
+   5.   Construct a request, request with request["publisher"] set to
+        publisher, request["version"] set to 0, request["generationId"]
+        set to a new [UUID] Version 4 (https://www.rfc-editor.org/rfc/
+        rfc9562.html#section-5.4), and request["enableDebugReporting"]
+        set to true.
 
    6.   Set current_size to be the serialized size of the encrypted
         request created from request without padding.
@@ -478,10 +486,11 @@ Table of Contents
 
         5.  [GZIP] the serialized list into compressed list.
 
-        6.  If adding the compressed list to request would make it more
-            than allowed_interest_group_size larger than the current
-            size, then remove the lowest priority interest group and
-            repeat from the previous step.
+        6.  If setting request["interestGroups"][interest group owner]
+            to compressed list would make it's serialized size more than
+            allowed_interest_group_size larger than the current size,
+            then remove the lowest priority interest group and repeat
+            from the previous step.
 
         7.  Set request["interestGroups"][interest group owner] to
             compressed list.
@@ -529,7 +538,7 @@ Table of Contents
    13.  Prepend the framing header to request with Compression set to 2.
 
    14.  If desired total size is set then zero pad request to desired
-        total size.  Otherwise zero pad `request up to the smallest bin
+        total size.  Otherwise zero pad request up to the smallest bin
         size in Section 2.2.2 larger than request.
 
    15.  Encrypt request using the public key and its key id as in
@@ -542,7 +551,8 @@ Table of Contents
 
 2.2.5.  Parsing a Request
 
-   TODO
+   This algorithm takes as input an encrypted request and an [HPKE]
+   private key.
 
 2.3.  Response Format
 
@@ -800,10 +810,6 @@ Table of Contents
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
               May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
 
-   [RFC9562]  Davis, K., Peabody, B., and P. Leach, "Universally Unique
-              IDentifiers (UUIDs)", RFC 9562, DOI 10.17487/RFC9562, May
-              2024, <https://www.rfc-editor.org/rfc/rfc9562>.
-
    [SHA-256]  Eastlake 3rd, D. and T. Hansen, "US Secure Hash Algorithms
               (SHA and SHA-based HMAC and HKDF)", RFC 6234,
               DOI 10.17487/RFC6234, May 2011,
@@ -811,6 +817,10 @@ Table of Contents
 
    [URL]      "URL Living Standard", 2024,
               <https://url.spec.whatwg.org/#concept-url>.
+
+   [UUID]     Davis, K., Peabody, B., and P. Leach, "Universally Unique
+              IDentifiers (UUIDs)", RFC 9562, DOI 10.17487/RFC9562, May
+              2024, <https://www.rfc-editor.org/rfc/rfc9562>.
 
 Acknowledgments
 

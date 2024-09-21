@@ -1272,8 +1272,8 @@ format that a client can use to communicate with remote services
 that allows the client to offload much of the work involved in running an advertisement
 selection auction as part of the client's implementation of the
 Protected Audience API.<a href="#section-1.1-1" class="pilcrow">¶</a></p>
-<p id="section-1.1-2">This document does not describe distribution of private keys to the bidding
-and auction services.<a href="#section-1.1-2" class="pilcrow">¶</a></p>
+<p id="section-1.1-2">This document does not describe distribution of private keys to the Bidding
+and Auction services.<a href="#section-1.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="Terminology">
@@ -1281,11 +1281,16 @@ and auction services.<a href="#section-1.1-2" class="pilcrow">¶</a></p>
         <h3 id="name-terminology">
 <a href="#section-1.2" class="section-number selfRef">1.2. </a><a href="#name-terminology" class="section-name selfRef">Terminology</a>
         </h3>
-<p id="section-1.2-1">The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+<p id="section-1.2-1">The key word "client" is to be interpreted as an implementation of this
+document that creates Requests (<a href="#client-to-services" class="auto internal xref">Section 2.2</a>) and consumes Responses
+(<a href="#services-to-client" class="auto internal xref">Section 2.3.1</a>). The key phrase "Bidding and Auction Services" is
+to be interpreted as an implementation of this document that consumes
+Requests and creates Responses.<a href="#section-1.2-1" class="pilcrow">¶</a></p>
+<p id="section-1.2-2">The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
 NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED",
 "MAY", and "OPTIONAL" in this document are to be interpreted as
 described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span> when, and only when, they
-appear in all capitals, as shown here.<a href="#section-1.2-1" class="pilcrow">¶</a></p>
+appear in all capitals, as shown here.<a href="#section-1.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1301,11 +1306,11 @@ appear in all capitals, as shown here.<a href="#section-1.2-1" class="pilcrow">�
 <a href="#section-2.1" class="section-number selfRef">2.1. </a><a href="#name-overview" class="section-name selfRef">Overview</a>
         </h3>
 <p id="section-2.1-1">To understand this document, it is important to know that the
-communication between the client and the remote servers uses a
-request-response message exchange pattern. The request will first reach a seller server, after which
-the seller will forward parts of the request to buyer servers. It is then up to the
-seller server to gather buyer responses and form a final response for the client. More detail
-about the seller and buyer servers can be found in the <a href="https://github.com/privacysandbox/protected-auction-services-docs/blob/main/bidding_auction_services_system_design.md">server-side system design documentation</a>.<a href="#section-2.1-1" class="pilcrow">¶</a></p>
+communication between the client and the remote services uses a
+request-response message exchange pattern. The request will first reach a seller service, after which
+the seller will forward parts of the request to buyer service. It is then up to the
+seller service to gather buyer responses and form a final response for the client. More detail
+about the seller and buyer services can be found in the <a href="https://github.com/privacysandbox/protected-auction-services-docs/blob/main/bidding_auction_services_system_design.md">server-side system design documentation</a>.<a href="#section-2.1-1" class="pilcrow">¶</a></p>
 <div id="common-definitions">
 <section id="section-2.1.1">
           <h4 id="name-common-definitions">
@@ -1334,7 +1339,7 @@ about the seller and buyer servers can be found in the <a href="https://github.c
                   <code>uuid = tstr .regexp "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"</code>
 </td>
                 <td class="text-left" rowspan="1" colspan="1">
-                  <span>[<a href="#RFC9562" class="cite xref">RFC9562</a>]</span>
+                  <span>[<a href="#UUID" class="cite xref">UUID</a>]</span>
 </td>
               </tr>
               <tr>
@@ -1456,7 +1461,7 @@ each message type separately.<a href="#section-2.1.2-6" class="pilcrow">¶</a></
 </div>
 </section>
 </div>
-<div id="request-format">
+<div id="client-to-services">
 <section id="section-2.2">
         <h3 id="name-request-format">
 <a href="#section-2.2" class="section-number selfRef">2.2. </a><a href="#name-request-format" class="section-name selfRef">Request Format</a>
@@ -1528,12 +1533,12 @@ hdr = concat(encode(1, key_id),
              encode(2, kem_id),
              encode(2, kdf_id),
              encode(2, aead_id))
-info = concat(encode_str("message/bhttp request"),
+info = concat(encode_str("message/auction request"),
               encode(1, 0),
               hdr)
 enc, sctxt = SetupBaseS(pkR, info)
 ct = sctxt.Seal("", request)
-enc_request = concat(encode(1,version), hdr, enc, ct)
+enc_request = concat(encode(1, version), hdr, enc, ct)
 </pre><a href="#section-2.2.1-7" class="pilcrow">¶</a>
 </div>
 </section>
@@ -1647,10 +1652,11 @@ the <a href="#framing" class="auto internal xref">Section 2.1.2</a> header.<a hr
           </h4>
 <p id="section-2.2.4-1">This section describes how the client MAY form and serialize request messages
 in order to communicate with the Bidding and Auction services.<a href="#section-2.2.4-1" class="pilcrow">¶</a></p>
-<p id="section-2.2.4-2">This algorithm takes as input all of the <code>relevant interest groups</code>,
+<p id="section-2.2.4-2">This algorithm takes as input the <code>publisher</code>, all of the <code>relevant interest groups</code>,
 an optional <code>desired total size</code>, an optional list of <code>interest group owners</code> to
 include each with an optional <code>desired size</code>, and the <span>[<a href="#HPKE" class="cite xref">HPKE</a>]</span> <code>public key</code> and
-its associated <code>key ID</code>. It generates a message using <span>[<a href="#GZIP" class="cite xref">GZIP</a>]</span> for compression.<a href="#section-2.2.4-2" class="pilcrow">¶</a></p>
+its associated <code>key ID</code>. It returns an <code>encrypted request</code> and a <code>request context</code>
+tuple.<a href="#section-2.2.4-2" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-2.2.4-3">
 <li id="section-2.2.4-3.1">
               <p id="section-2.2.4-3.1.1">Let <code>included_groups</code> be an empty map.<a href="#section-2.2.4-3.1.1" class="pilcrow">¶</a></p>
@@ -1675,9 +1681,10 @@ priority, <code>interest group map</code>.<a href="#section-2.2.4-3.3.1" class="
 whose owner is not on the list.<a href="#section-2.2.4-3.4.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-2.2.4-3.5">
-              <p id="section-2.2.4-3.5.1">Construct a request, <code>request</code>, as normal only with the value of the
-<code>interestGroups</code> field for each interest group owner as
-zero length.<a href="#section-2.2.4-3.5.1" class="pilcrow">¶</a></p>
+              <p id="section-2.2.4-3.5.1">Construct a request, <code>request</code> with <code>request["publisher"]</code> set to <code>publisher</code>,
+<code>request["version"]</code> set to 0, <code>request["generationId"]</code> set to a new [UUID]
+<a href="https://www.rfc-editor.org/rfc/rfc9562.html#section-5.4">Version 4</a>,
+and <code>request["enableDebugReporting"]</code> set to true.<a href="#section-2.2.4-3.5.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-2.2.4-3.6">
               <p id="section-2.2.4-3.6.1">Set <code>current_size</code> to be the serialized size of the encrypted request
@@ -1748,7 +1755,8 @@ proportional allocation.<a href="#section-2.2.4-3.10.2.2.2.2.1" class="pilcrow">
                   <p id="section-2.2.4-3.10.2.5.1"><span>[<a href="#GZIP" class="cite xref">GZIP</a>]</span> the <code>serialized list</code> into <code>compressed list</code>.<a href="#section-2.2.4-3.10.2.5.1" class="pilcrow">¶</a></p>
 </li>
                 <li id="section-2.2.4-3.10.2.6">
-                  <p id="section-2.2.4-3.10.2.6.1">If adding the <code>compressed list</code> to <code>request</code> would make it more than
+                  <p id="section-2.2.4-3.10.2.6.1">If setting <code>request["interestGroups"][interest group owner]</code> to
+<code>compressed list</code> would make it's serialized size more than
 <code>allowed_interest_group_size</code> larger than the current size, then remove
 the lowest priority interest group and repeat from the previous step.<a href="#section-2.2.4-3.10.2.6.1" class="pilcrow">¶</a></p>
 </li>
@@ -1814,7 +1822,7 @@ return failure.<a href="#section-2.2.4-3.12.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-2.2.4-3.14">
               <p id="section-2.2.4-3.14.1">If <code>desired total size</code> is set then zero pad <code>request</code> to <code>desired total size</code>.
-Otherwise zero pad `request up to the smallest bin size in <a href="#request-framing" class="auto internal xref">Section 2.2.2</a>
+Otherwise zero pad <code>request</code> up to the smallest bin size in <a href="#request-framing" class="auto internal xref">Section 2.2.2</a>
 larger than request.<a href="#section-2.2.4-3.14.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-2.2.4-3.15">
@@ -1835,7 +1843,7 @@ larger than request.<a href="#section-2.2.4-3.14.1" class="pilcrow">¶</a></p>
           <h4 id="name-parsing-a-request">
 <a href="#section-2.2.5" class="section-number selfRef">2.2.5. </a><a href="#name-parsing-a-request" class="section-name selfRef">Parsing a Request</a>
           </h4>
-<p id="section-2.2.5-1">TODO<a href="#section-2.2.5-1" class="pilcrow">¶</a></p>
+<p id="section-2.2.5-1">This algorithm takes as input an <code>encrypted request</code> and an <span>[<a href="#HPKE" class="cite xref">HPKE</a>]</span> <code>private key</code>.<a href="#section-2.2.5-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -2123,17 +2131,17 @@ reportingUrls = {
       <dd>
 <span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8174">https://www.rfc-editor.org/rfc/rfc8174</a>&gt;</span>. </dd>
 <dd class="break"></dd>
-<dt id="RFC9562">[RFC9562]</dt>
-      <dd>
-<span class="refAuthor">Davis, K.</span>, <span class="refAuthor">Peabody, B.</span>, and <span class="refAuthor">P. Leach</span>, <span class="refTitle">"Universally Unique IDentifiers (UUIDs)"</span>, <span class="seriesInfo">RFC 9562</span>, <span class="seriesInfo">DOI 10.17487/RFC9562</span>, <time datetime="2024-05" class="refDate">May 2024</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9562">https://www.rfc-editor.org/rfc/rfc9562</a>&gt;</span>. </dd>
-<dd class="break"></dd>
 <dt id="SHA-256">[SHA-256]</dt>
       <dd>
 <span class="refAuthor">Eastlake 3rd, D.</span> and <span class="refAuthor">T. Hansen</span>, <span class="refTitle">"US Secure Hash Algorithms (SHA and SHA-based HMAC and HKDF)"</span>, <span class="seriesInfo">RFC 6234</span>, <span class="seriesInfo">DOI 10.17487/RFC6234</span>, <time datetime="2011-05" class="refDate">May 2011</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6234">https://www.rfc-editor.org/rfc/rfc6234</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="URL">[URL]</dt>
-    <dd>
+      <dd>
 <span class="refTitle">"URL Living Standard"</span>, <time datetime="2024" class="refDate">2024</time>, <span>&lt;<a href="https://url.spec.whatwg.org/#concept-url">https://url.spec.whatwg.org/#concept-url</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="UUID">[UUID]</dt>
+    <dd>
+<span class="refAuthor">Davis, K.</span>, <span class="refAuthor">Peabody, B.</span>, and <span class="refAuthor">P. Leach</span>, <span class="refTitle">"Universally Unique IDentifiers (UUIDs)"</span>, <span class="seriesInfo">RFC 9562</span>, <span class="seriesInfo">DOI 10.17487/RFC9562</span>, <time datetime="2024-05" class="refDate">May 2024</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9562">https://www.rfc-editor.org/rfc/rfc9562</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
