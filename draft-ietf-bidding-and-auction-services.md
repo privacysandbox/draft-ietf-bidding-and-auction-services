@@ -176,7 +176,7 @@ corresponds to the below table:
 The amount of padding depends on the type of message and will be discussed for
 each message type separately.
 
-## Request Format
+## Request Format {#client-to-services}
 
 This section discusses the request message sent from the client to the Bidding
 and Auction Services endpoint.
