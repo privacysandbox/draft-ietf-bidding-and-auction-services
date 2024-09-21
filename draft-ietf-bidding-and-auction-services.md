@@ -34,6 +34,7 @@ normative:
   HPKE: RFC9180
   BINARY: RFC9292
   GZIP: RFC1952
+  UUID: RFC9562
   ISO4217:
     target: https://www.iso.org/iso-4217-currency-codes.html
     title: ISO 4217 Currency codes
@@ -134,7 +135,7 @@ about the seller and buyer servers can be found in the [server-side system desig
 | Term with CDDL Definition | Detailed Reference |
 | :--- | :--- |
 | `json = tstr` | [JSON] |
-| `uuid = tstr .regexp "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"` | {{!RFC9562}} |
+| `uuid = tstr .regexp "[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}"` | [UUID] |
 | `origin = tstr .regexp "https://([^/:](:[0-9]+)?/"` | [ORIGIN] |
 | `currency = tstr .size 3 .regexp /^[A-Z]{3}$/` | [ISO4217] |
 | `adRenderUrl = tstr` | [URL] |
@@ -227,12 +228,12 @@ hdr = concat(encode(1, key_id),
              encode(2, kem_id),
              encode(2, kdf_id),
              encode(2, aead_id))
-info = concat(encode_str("message/bhttp request"),
+info = concat(encode_str("message/auction request"),
               encode(1, 0),
               hdr)
 enc, sctxt = SetupBaseS(pkR, info)
 ct = sctxt.Seal("", request)
-enc_request = concat(encode(1,version), hdr, enc, ct)
+enc_request = concat(encode(1, version), hdr, enc, ct)
 ~~~~~
 
 ### Framing and Padding {#request-framing}
@@ -332,10 +333,11 @@ the {{framing}} header.
 This section describes how the client MAY form and serialize request messages
 in order to communicate with the Bidding and Auction services.
 
-This algorithm takes as input all of the `relevant interest groups`,
+This algorithm takes as input the `publisher`, all of the `relevant interest groups`,
 an optional `desired total size`, an optional list of `interest group owners` to
 include each with an optional `desired size`, and the [HPKE] `public key` and
-its associated `key ID`. It generates a message using [GZIP] for compression.
+its associated `key ID`. It returns an `encrypted request` and a `request context`
+tuple.
 
 1. Let `included_groups` be an empty map.
 1. If `desired total size` is not specified, but the list of `interest group owners`
@@ -347,9 +349,10 @@ its associated `key ID`. It generates a message using [GZIP] for compression.
    priority, `interest group map`.
 1. If the list of `interest group owners` is specified, remove interest groups
    whose owner is not on the list.
-1. Construct a request, `request`, as normal only with the value of the
-   `interestGroups` field for each interest group owner as
-   zero length.
+1. Construct a request, `request` with `request["publisher"]` set to `publisher`,
+   `request["version"]` set to 0, `request["generationId"]` set to a new [UUID]
+   [Version 4](https://www.rfc-editor.org/rfc/rfc9562.html#section-5.4),
+   and `request["enableDebugReporting"]` set to true.
 1. Set `current_size` to be the serialized size of the encrypted request
    created from `request` without padding.
 1. Set `remaining_allocated_size` to 0.
@@ -374,7 +377,8 @@ its associated `key ID`. It generates a message using [GZIP] for compression.
    1. Set `remaining_allocated_size` = `remaining_allocated_size`-`current_size`.
    1. [CBOR] encode the `interest group list` into `serialized list`.
    1. [GZIP] the `serialized list` into `compressed list`.
-   1. If adding the `compressed list` to `request` would make it more than
+   1. If setting `request["interestGroups"][interest group owner]` to
+      `compressed list` would make it's serialized size more than
       `allowed_interest_group_size` larger than the current size, then remove
       the lowest priority interest group and repeat from the previous step.
    1. Set `request["interestGroups"][interest group owner]` to
@@ -404,7 +408,7 @@ its associated `key ID`. It generates a message using [GZIP] for compression.
    return failure.
 1. Prepend the framing header to `request` with `Compression` set to 2.
 1. If `desired total size` is set then zero pad `request` to `desired total size`.
-   Otherwise zero pad `request up to the smallest bin size in {{request-framing}}
+   Otherwise zero pad `request` up to the smallest bin size in {{request-framing}}
    larger than request.
 1. Encrypt `request` using the `public key` and its `key id` as in
    {{request-encryption}} to get the `encrypted message` and `hpke context`.
@@ -413,7 +417,7 @@ its associated `key ID`. It generates a message using [GZIP] for compression.
 
 ### Parsing a Request {#request-parsing}
 
-TODO
+This algorithm takes as input an `encrypted request` and an [HPKE] `private key`.
 
 ## Response Format
 
