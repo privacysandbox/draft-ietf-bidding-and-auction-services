@@ -100,16 +100,23 @@ Standardized protocols for interacting with Bidding and Auction Services are
 essential to creating a diverse and healthy ecosystem for such services.
 
 ## Scope {#Scope}
+
 This document provides a specification for the request and response message
 format that a client can use to communicate with remote services
 that allows the client to offload much of the work involved in running an advertisement
 selection auction as part of the client's implementation of the
 Protected Audience API.
 
-This document does not describe distribution of private keys to the bidding
-and auction services.
+This document does not describe distribution of private keys to the Bidding
+and Auction services.
 
 ## Terminology {#Terminology}
+
+The key word "client" is to be interpreted as an implementation of this
+document that creates Requests ({{client-to-services}}) and consumes Responses
+({{services-to-client}}). The key phrase "Bidding and Auction Services" is
+to be interpreted as an implementation of this document that consumes
+Requests and creates Responses.
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
 NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED",
@@ -122,11 +129,11 @@ appear in all capitals, as shown here.
 ## Overview
 
 To understand this document, it is important to know that the
-communication between the client and the remote servers uses a
-request-response message exchange pattern. The request will first reach a seller server, after which
-the seller will forward parts of the request to buyer servers. It is then up to the
-seller server to gather buyer responses and form a final response for the client. More detail
-about the seller and buyer servers can be found in the [server-side system design documentation](https://github.com/privacysandbox/protected-auction-services-docs/blob/main/bidding_auction_services_system_design.md).
+communication between the client and the remote services uses a
+request-response message exchange pattern. The request will first reach a seller service, after which
+the seller will forward parts of the request to buyer service. It is then up to the
+seller service to gather buyer responses and form a final response for the client. More detail
+about the seller and buyer services can be found in the [server-side system design documentation](https://github.com/privacysandbox/protected-auction-services-docs/blob/main/bidding_auction_services_system_design.md).
 
 ### Common Definitions {#common-definitions}
 
