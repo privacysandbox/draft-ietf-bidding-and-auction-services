@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-09-19T00:50:25.847838+00:00",
+  "timestamp": "2024-09-22T00:55:32.868794+00:00",
   "repo": "privacysandbox/draft-ietf-protected-audience-auction-service",
   "labels": [
     {
@@ -833,13 +833,13 @@
       "labels": [],
       "body": "The major work items left:\r\n1. Work through all of the TODOs in the W3C spec that mention this document and make sure that the W3C spec has clear sections that it can reference.\r\n2. Verify that the request and response message structures are in-sync with the W3C spec.\r\n3. Resolve remaining TODOs in this spec.\r\n4. Solicit feedback for any other sections that may be missing from the spec.\r\n5. Increase the amount of detail in the compression and decompression sections to resolve any ambiguity.\r\n6. Increase the amount of detail in the encryption and decryption sections to resolve any ambiguity.\r\n",
       "createdAt": "2024-09-13T04:12:42Z",
-      "updatedAt": "2024-09-18T22:21:05Z",
+      "updatedAt": "2024-09-20T22:36:27Z",
       "baseRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
       "baseRefName": "main",
       "baseRefOid": "9e068afd23bc5c9cabaa1aa6097d23cf72399388",
       "headRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
       "headRefName": "dankocoj-details",
-      "headRefOid": "681566dced8cf0d74796089d927056a7364e035d",
+      "headRefOid": "e60ecd98240d72072296b3fa82c1c5d4283fcf4c",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -1283,8 +1283,298 @@
               "updatedAt": "2024-09-18T22:21:05Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6KCvou",
+          "commit": {
+            "abbreviatedOid": "bd4321d"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-19T15:58:33Z",
+          "updatedAt": "2024-09-19T15:58:33Z",
+          "comments": [
+            {
+              "originalPosition": 226,
+              "body": "@brusshamilton suggested this a few weeks ago, but Russ can I get an update on if we want this in the first draft? ",
+              "createdAt": "2024-09-19T15:58:33Z",
+              "updatedAt": "2024-09-19T15:58:33Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6KCyC5",
+          "commit": {
+            "abbreviatedOid": "bd4321d"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-19T15:59:31Z",
+          "updatedAt": "2024-09-19T15:59:31Z",
+          "comments": [
+            {
+              "originalPosition": 204,
+              "body": "makes sense, thanks for your thoughtful reviews Paul. Updated the context description and added a todo here for the next CL (it should be very quick IIUC)",
+              "createdAt": "2024-09-19T15:59:31Z",
+              "updatedAt": "2024-09-19T15:59:31Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6KCydR",
+          "commit": {
+            "abbreviatedOid": "bd4321d"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-19T15:59:49Z",
+          "updatedAt": "2024-09-19T15:59:49Z",
+          "comments": [
+            {
+              "originalPosition": 75,
+              "body": "ok, added a TODO and will update in the next CL.",
+              "createdAt": "2024-09-19T15:59:49Z",
+              "updatedAt": "2024-09-19T15:59:49Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6KCEZO",
+          "commit": {
+            "abbreviatedOid": "c6cb559"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-19T14:51:42Z",
+          "updatedAt": "2024-09-19T19:53:42Z",
+          "comments": [
+            {
+              "originalPosition": 134,
+              "body": ">Details on how to acquire [HPKE] keys are out of scope\r\n\r\nThese are inputs to the algorithm, so they seem in scope. Also there probably shouldn't be a requirement that the user of this API be a browser.",
+              "createdAt": "2024-09-19T14:51:42Z",
+              "updatedAt": "2024-09-19T19:53:42Z"
+            },
+            {
+              "originalPosition": 226,
+              "body": "Yes, we can include that modification for M131.",
+              "createdAt": "2024-09-19T17:15:42Z",
+              "updatedAt": "2024-09-19T19:53:42Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6KFruG",
+          "commit": {
+            "abbreviatedOid": "681566d"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-19T21:04:08Z",
+          "updatedAt": "2024-09-19T21:04:08Z",
+          "comments": [
+            {
+              "originalPosition": 134,
+              "body": "Do you or @JensenPaul have a recommendation on what to use other than browser? Is there an IETF standard word for 'entity that is using the spec'",
+              "createdAt": "2024-09-19T21:04:08Z",
+              "updatedAt": "2024-09-19T21:04:08Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6KFsru",
+          "commit": {
+            "abbreviatedOid": "681566d"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-19T21:06:57Z",
+          "updatedAt": "2024-09-19T21:06:57Z",
+          "comments": [
+            {
+              "originalPosition": 134,
+              "body": "Also re hpke, I'm not sure we generally want to prescribe how any browser/software should get them, just that they need to provide a [Key Configuration](https://www.rfc-editor.org/rfc/rfc9458#name-key-configuration) as input. Let me know if you disagree. ",
+              "createdAt": "2024-09-19T21:06:57Z",
+              "updatedAt": "2024-09-19T21:06:57Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6KM5sj",
+          "commit": {
+            "abbreviatedOid": "681566d"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-20T15:40:27Z",
+          "updatedAt": "2024-09-20T15:40:28Z",
+          "comments": [
+            {
+              "originalPosition": 134,
+              "body": "I think for now we can standardize the Key configuration (other than the key identifier and the public key, which are inputs). Currently Chrome and the server only handle a specific configuration, so it doesn't make sense for the standard to require more flexibility.\r\n\r\nA user of the spec would be called an implementation, though I would divide users of the spec into a client implementation and server implementation. The client generates the request, and parses the response. The server parses the request and generates the response.",
+              "createdAt": "2024-09-20T15:40:27Z",
+              "updatedAt": "2024-09-20T15:40:28Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6KN9St",
+          "commit": {
+            "abbreviatedOid": "681566d"
+          },
+          "author": "JensenPaul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-20T17:56:09Z",
+          "updatedAt": "2024-09-20T17:56:10Z",
+          "comments": [
+            {
+              "originalPosition": 134,
+              "body": "\"client\" and \"server\" sound good to me.",
+              "createdAt": "2024-09-20T17:56:09Z",
+              "updatedAt": "2024-09-20T17:56:10Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6KN_BE",
+          "commit": {
+            "abbreviatedOid": "681566d"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-20T17:58:30Z",
+          "updatedAt": "2024-09-20T17:58:30Z",
+          "comments": [
+            {
+              "originalPosition": 134,
+              "body": "ok, I'll update. I can add a blurb in {#common-definitions}\r\nthat makes sure the reader knows exactly what we mean by client and server.",
+              "createdAt": "2024-09-20T17:58:30Z",
+              "updatedAt": "2024-09-20T17:58:30Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6KOG9d",
+          "commit": {
+            "abbreviatedOid": "681566d"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-20T18:07:14Z",
+          "updatedAt": "2024-09-20T18:07:14Z",
+          "comments": [
+            {
+              "originalPosition": 134,
+              "body": "Typically those definitions are in the {#Terminology} section. ",
+              "createdAt": "2024-09-20T18:07:14Z",
+              "updatedAt": "2024-09-20T18:07:14Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6KN_h7",
+          "commit": {
+            "abbreviatedOid": "de5a7fd"
+          },
+          "author": "JensenPaul",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-20T17:58:58Z",
+          "updatedAt": "2024-09-20T19:32:54Z",
+          "comments": [
+            {
+              "originalPosition": 88,
+              "body": "This doesn't make sense to me.  I think # 1 here is the output of some steps we need to define in this spec, and # 2 here is the input to those steps.",
+              "createdAt": "2024-09-20T17:58:58Z",
+              "updatedAt": "2024-09-20T19:32:55Z"
+            },
+            {
+              "originalPosition": 94,
+              "body": "As I said in a previous comment, this context is not just an hpke-context, it needs to be an opaque object that has both the hpke-context and some other stuff (for now a copy of the map from IG owner to IGs.",
+              "createdAt": "2024-09-20T18:00:03Z",
+              "updatedAt": "2024-09-20T19:32:55Z"
+            },
+            {
+              "originalPosition": 168,
+              "body": "Should this link \"encryption context\" to the prior section?",
+              "createdAt": "2024-09-20T18:01:22Z",
+              "updatedAt": "2024-09-20T19:32:55Z"
+            },
+            {
+              "originalPosition": 147,
+              "body": "I don't think \"encryption context\" is the right name for this.  The IG map isn't used for encrypting; it's used for decoding the response.",
+              "createdAt": "2024-09-20T19:32:09Z",
+              "updatedAt": "2024-09-20T19:32:55Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6KQG1I",
+          "commit": {
+            "abbreviatedOid": "de5a7fd"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-20T22:36:27Z",
+          "updatedAt": "2024-09-20T22:36:27Z",
+          "comments": [
+            {
+              "originalPosition": 147,
+              "body": "Yeah, sorry this should be Request context (and updates are required to line 158). Request Context should be its own section outside of Encryption.",
+              "createdAt": "2024-09-20T22:36:27Z",
+              "updatedAt": "2024-09-20T22:36:27Z"
+            }
+          ]
         }
       ]
+    },
+    {
+      "number": 5,
+      "id": "PR_kwDOMnZLVc58OeOO",
+      "title": "Request serialization",
+      "url": "https://github.com/privacysandbox/draft-ietf-protected-audience-auction-service/pull/5",
+      "state": "OPEN",
+      "author": "brusshamilton",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Refactor request format - separate description from sample implementation of client.",
+      "createdAt": "2024-09-21T01:41:26Z",
+      "updatedAt": "2024-09-21T01:44:46Z",
+      "baseRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
+      "baseRefName": "dankocoj-details",
+      "baseRefOid": "e60ecd98240d72072296b3fa82c1c5d4283fcf4c",
+      "headRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
+      "headRefName": "requestSerialization",
+      "headRefOid": "a757e07773281ab446115dc14c2b0ff84fcea0ce",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
