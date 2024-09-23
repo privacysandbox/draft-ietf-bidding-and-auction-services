@@ -1044,12 +1044,15 @@ Table of Contents
        returning an empty response on compression failure.
 
    3.  Let encoded payload be the result of performing the message
-       framing as described in Section 2.3.2, returning an empty
-       response on failure.
+       framing as described in Section 2.3.2.  Return an empty response
+       on failure.  Set the framing version to 0 and set the the
+       compression type to 2.  Set the compressed data size to the size
+       of compressed payload.  You MAY add padding, as described in
+       Section 2.3.2.
 
    4.  Let response equal the result of the encryption and encapsulation
-       of encoded payload as described in Section 2.3.1, returning an
-       empty response on failure.
+       of encoded payload with rctxt, as described in Section 2.3.1.
+       Return an empty response on failure.
 
    5.  Return response.
 
