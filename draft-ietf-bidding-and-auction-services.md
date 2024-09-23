@@ -823,17 +823,17 @@ receiver context saved in {{request-parsing}}, `rctxt`.
 
 The output is a `response` to be sent to a Client.
 
-1. Let `cbor payload` equal the [CBOR] serialized `payload`. Return an empty
-   `response` on CBOR serialization failure.
+1. Let `cbor payload` equal the [deterministically encoded CBOR](https://www.rfc-editor.org/rfc/rfc8949.html#name-deterministically-encoded-c)
+   `payload`. Return an empty `response` on CBOR encoding failure.
 1. Let `compressed payload` equal the [GZIP] compressed `cbor payload`,
    returning an empty `response` on compression failure.
-1. Let `encoded payload` be the result of performing the message framing as
+1. Let `framed payload` be the result of performing the message framing as
    described in {{response-framing}}. Return an empty `response` on failure.
-    Set the framing version to 0 and set the the compression type to 2. Set the
-    compressed data size to the size of `compressed payload`. You MAY add
-    padding, as described in {{response-framing}}.
+   Set the framing version to 0 and set the the compression type to 2. Set the
+   compressed data size to the size of `compressed payload`. You MAY add
+   padding, as described in {{response-framing}}.
 1. Let `response` equal the result of the encryption and encapsulation of
-   `encoded payload` with `rctxt`, as described in {{response-encryption}}.
+   `framed payload` with `rctxt`, as described in {{response-encryption}}.
    Return an empty `response` on failure.
 1. Return `response`.
 
