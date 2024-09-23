@@ -465,98 +465,97 @@ tuple.
 
 ### Parsing a Request {#request-parsing}
 
-This section describes how the Bidding and Auction Services MAY deserialize
+This section describes how the Bidding and Auction Services MUST deserialize
 request messages from the client.
 
 The algorithm takes as input a serialized request message from the client
-({{request-generate}}) and an HPKE private key corresponding to `key_id` in
-{{request-encryption}}.
+({{request-generate}}) and a list of HPKE private keys (along with their
+corresponding key IDs).
 
-The output is a request message the Bidding and Auction services can consume or
-an error sent back to the client.
+The output is either an error sent back to the client, an empty message sent
+back to the client, or a request message the Bidding and Auction services can
+consume along with an HPKE context.
 
 1. Let `encrypted request` be the request received from the client.
 1. Let `error_msg` be an empty string.
-1. Define `ERROR` as: append an error message to `error_msg` and proceed directly
-   to {{request-parse-error}}.
 1. Decapsulate and decrypt `encrypted request` by using the `private key` as in
    {{request-encryption}} to get the decrypted message and `rctxt`.
-   1. If decapsulation or decryption fails, return an empty response.
+   1. If decapsulation or decryption fails, return failure.
    1. Else, save the decrypted output as `decrypted request` and save `rctxt`.
 1. As in {{framing}}, get the framing version and compression type by reading
    the first byte of `decrypted request`.
    1. If reading the byte fails, or the compression type or framing version are
-      unexpected values, `ERROR`. This document assumes framing version 0 and
+      unexpected values, return failure. This document assumes framing version 0 and
       compression type 2.
 1. Read the compressed data size as in {{framing}} and save the compressed data
    payload to `decodable request`.
-   1.  If reading the compressed data fails, `ERROR`.
+   1.  If reading the compressed data fails, return failure.
 1. [CBOR] decode `decodable request` into the message represented in {{request-message}}.
    Let this be `request`.
-1. If [CBOR] decoding fails, `ERROR`.
+1. If [CBOR] decoding fails, return failure.
 1. Let `processed request` be an empty struct.
-1. If `request` is not a map, `ERROR`.
-1. If `request["version"]` does not exist or is not 0, `ERROR`.
-1. If `request["publisher"]` does not exist or is not a string, `ERROR`.
+1. If `request` is not a map, return failure.
+1. If `request["version"]` does not exist or is not 0, return failure.
+1. If `request["publisher"]` does not exist or is not a string, return failure.
 1. Set `processed request["publisher"]` to `request["publisher"]`.
-1. If `request["generationId"]` does not exist or is not a string, `ERROR`.
+1. If `request["generationId"]` does not exist or is not a string, return failure.
 1. Set `processed request["generationId"]` to `request["generationId"]`.
 1. If `request["enableDebugReporting]` exists:
-   1. If `request["enableDebugReporting"]` is not a boolean, `ERROR`.
+   1. If `request["enableDebugReporting"]` is not a boolean, return failure.
    1. Set `processed request["enableDebugReporting"]` to
       `request["enableDebugReporting"]`.
-1. If `request["interestGroups]` does not exist or is not a map, `ERROR`.
+1. If `request["interestGroups]` does not exist or is not a map, return failure.
 1. Set `processed request["interestGroups"]` to an empty map.
 1. For each `key`, `value` map entry of `request["interestGroups"]`:
    1. If `key` is not a string, append an error message to
       `error_msg`. Proceed to {{request-parse-error}}.
    1. Set `processed request["interestGroups"]``[key]` to an empty list.
    1. [GZIP] decompress `value` and set as `buyer input cbor`. If
-      decompression fails, `ERROR`.
-   1. [CBOR] decode `buyer input cbor` into `buyer input`. If decoding fails, `ERROR`.
-   1. If `buyer input` is not an array, `ERROR`.
+      decompression fails, return failure.
+   1. [CBOR] decode `buyer input cbor` into `buyer input`. If decoding fails, return failure.
+   1. If `buyer input` is not an array, return failure.
    1. For each `interest group` in `buyer input`:
       1. If the `interest groups` is not a map, append an error message to
          `error_msg`. Proceed to {{request-parse-error}}.
       1. Let `ig` be an empty struct similar to {{request-groups}}.
-      1. If `interest group["name"] does not exist or is not a string, `ERROR`.
+      1. If `interest group["name"] does not exist or is not a string, return failure.
       1. Set `ig["name"]` to `interest group["name"]`.
       1. If `interest group["userBiddingSignals"]` exists:
-         1. If `interest group["userBiddingSignals"]` is not a string, `ERROR`.
+         1. If `interest group["userBiddingSignals"]` is not a string, return failure.
          1. Set `ig["userBiddingSignals"]` to `interest group["userBiddingSignals"]`.
       1. If `interest group["biddingSignalsKeys"]` exists:
          1. If `interest group["biddingSignalsKeys"]` is not an array of strings,
-            `ERROR`.
+            return failure.
          1. Set `ig["biddingSignalsKeys"]` to `interest group["biddingSignalsKeys"]`.
       1. If `interest group["ads"]` exists:
-         1. If `interest group["ads"]` is not an array of strings, `ERROR`.
+         1. If `interest group["ads"]` is not an array of strings, return failure.
          1. Set `ig["ads"]` to `interest group["ads"]`.
       1. If `interest group["component"]` exists:
          1. If `interest group["component"]` is not an array
-         of strings, `ERROR`.
+         of strings, return failure.
          1. Set `ig["component"]` to `interest group["component"]`.
       1. If `interest group["browserSignals"]` exists:
-         1. If `interest group["browserSignals"]` is not a map, `ERROR`.
+         1. If `interest group["browserSignals"]` is not a map, return failure.
          1. Let `igbs` be an empty struct similar to `browserSignals` as
             defined in {{request-groups}}.
          1. Let `signals` be `interest group["browserSignals"]`.
          1. If `signals["bidCount"]` exists:
-            1. If `signals["bidCount"]` is not an an int, `ERROR`.
+            1. If `signals["bidCount"]` is not an an int, return failure.
             1. Set `igbs["bidCount"]` to `signals["bidCount"]`.
          1. If `signals["joinCount"]` exists:
-            1. If `signals["joinCount"]` is not an an int, `ERROR`.
+            1. If `signals["joinCount"]` is not an an int, return failure.
             1. Set `igbs["joinCount"]` to `signals["joinCount"]`.
          1. If `signals["recencyMs"]` exists:
-            1. If `signals["recencyMs"]` is not an an int, `ERROR`.
+            1. If `signals["recencyMs"]` is not an an int, return failure.
             1. Set `igbs["recencyMs"]` to `signals["recencyMs"]`.
          1. If `signals["prevWins"]` exists:
             1. Let `pw` be an empty array.
-            1. If `signals["prevWins"]` is not an array, `ERROR`.
+            1. If `signals["prevWins"]` is not an array, return failure.
             1. For each `prevWinTuple` in `signals["prevWins"]`:
                1. Let `pwt` be an empty array.
-               1. If `prevWinTuple` is not an array of size 2, `ERROR`.
-               1. If `prevWinTuple[0]` is not an int, `ERROR`.
-               1. If `prevWinTuple[1]` is not a string, `ERROR`.
+               1. If `prevWinTuple` is not an array of size 2, return failure.
+               1. If `prevWinTuple[0]` is not an int, return failure.
+               1. If `prevWinTuple[1]` is not a string, return failure.
                1. Set `pwt` to `prevWinTuple`.
                1. Append `pwt` to `pw`.
             1. Set `igbs["prevWins"]` to `pw`.
@@ -567,21 +566,22 @@ an error sent back to the client.
 
 #### Request Parse Error Handling {#request-parse-error}
 
-[CBOR] encode `error_msg` via the following [CDDL] representation:
+If {{request-parsing}} returns with failure, the following algorithm describes
+how the Bidding and Auction Services MUST respond.
 
-~~~~~cddl
-response = {
-   error: {
-      ; Must be 400.
-      code: int,
-      ; Must be equal to error_msg.
-      error: tstr
-   }
-}
-~~~~~
+The input to this algorithm is `error_msg`, which MAY be returned from the point
+of failure in {{request-parsing}}.
 
+The output is a response to the client.
 
-Then, return the error as a client-decodable response, per {{services-to-client}}.
+1. If the failure happens before or during decryption, respond with an empty
+   message.
+1. Otherwise abort processing the request.
+1. Let `error` be a new map with key-value pairs:
+   `[("code", 400), ("error", error_msg)]`.
+1. Let `response` be a new {{response-message}}.
+1. Set `response["error"]` to `error`.
+1. Serialize and send `response` to the client per {{services-to-client}}.
 
 ## Response Format {#services-to-client}
 
