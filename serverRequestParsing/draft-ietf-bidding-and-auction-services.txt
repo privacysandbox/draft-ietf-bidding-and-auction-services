@@ -655,9 +655,12 @@ Table of Contents
    15.  Set processed request["generationId"] to
         request["generationId"].
 
-   16.  If request["enableDebugReporting] exists and is a boolean, set
-        processed request["enableDebugReporting"] to
-        request["enableDebugReporting"].
+   16.  If request["enableDebugReporting] exists:
+
+        1.  If request["enableDebugReporting"] is not a boolean, ERROR.
+
+        2.  Set processed request["enableDebugReporting"] to
+            request["enableDebugReporting"].
 
    17.  If request["interestGroups] does not exist or is not a map,
         ERROR.

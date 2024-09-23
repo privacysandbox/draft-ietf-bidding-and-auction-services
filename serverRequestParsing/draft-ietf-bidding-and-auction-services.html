@@ -1977,8 +1977,16 @@ Let this be <code>request</code>.<a href="#section-2.2.5-4.7.1" class="pilcrow">
               <p id="section-2.2.5-4.15.1">Set <code>processed request["generationId"]</code> to <code>request["generationId"]</code>.<a href="#section-2.2.5-4.15.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-2.2.5-4.16">
-              <p id="section-2.2.5-4.16.1">If <code>request["enableDebugReporting]</code> exists and is a boolean, set
-<code>processed request["enableDebugReporting"]</code> to <code>request["enableDebugReporting"]</code>.<a href="#section-2.2.5-4.16.1" class="pilcrow">¶</a></p>
+              <p id="section-2.2.5-4.16.1">If <code>request["enableDebugReporting]</code> exists:<a href="#section-2.2.5-4.16.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.16.2">
+<li id="section-2.2.5-4.16.2.1">
+                  <p id="section-2.2.5-4.16.2.1.1">If <code>request["enableDebugReporting"]</code> is not a boolean, <code>ERROR</code>.<a href="#section-2.2.5-4.16.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.2.5-4.16.2.2">
+                  <p id="section-2.2.5-4.16.2.2.1">Set <code>processed request["enableDebugReporting"]</code> to
+<code>request["enableDebugReporting"]</code>.<a href="#section-2.2.5-4.16.2.2.1" class="pilcrow">¶</a></p>
+</li>
+              </ol>
 </li>
             <li id="section-2.2.5-4.17">
               <p id="section-2.2.5-4.17.1">If <code>request["interestGroups]</code> does not exist or is not a map, <code>ERROR</code>.<a href="#section-2.2.5-4.17.1" class="pilcrow">¶</a></p>
@@ -2127,7 +2135,7 @@ defined in <a href="#request-groups" class="auto internal xref">Section 2.2.3.1<
                               <p id="section-2.2.5-4.19.2.6.2.9.2.7.2.3.1">For each <code>prevWinTuple</code> in <code>signals["prevWins"]</code>:<a href="#section-2.2.5-4.19.2.6.2.9.2.7.2.3.1" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.19.2.6.2.9.2.7.2.3.2">
 <li id="section-2.2.5-4.19.2.6.2.9.2.7.2.3.2.1">
-                                  <p id="section-2.2.5-4.19.2.6.2.9.2.7.2.3.2.1.1">Let pwt be an empty array.<a href="#section-2.2.5-4.19.2.6.2.9.2.7.2.3.2.1.1" class="pilcrow">¶</a></p>
+                                  <p id="section-2.2.5-4.19.2.6.2.9.2.7.2.3.2.1.1">Let <code>pwt</code> be an empty array.<a href="#section-2.2.5-4.19.2.6.2.9.2.7.2.3.2.1.1" class="pilcrow">¶</a></p>
 </li>
                                 <li id="section-2.2.5-4.19.2.6.2.9.2.7.2.3.2.2">
                                   <p id="section-2.2.5-4.19.2.6.2.9.2.7.2.3.2.2.1">If <code>prevWinTuple</code> is not an array of size 2, <code>ERROR</code>.<a href="#section-2.2.5-4.19.2.6.2.9.2.7.2.3.2.2.1" class="pilcrow">¶</a></p>
