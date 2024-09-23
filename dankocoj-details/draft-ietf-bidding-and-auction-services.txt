@@ -2,10 +2,10 @@
 
 
 
-Network Working Group                                           D. Kocoj
+TBD                                                             D. Kocoj
 Internet-Draft                                            B. R. Hamilton
 Intended status: Standards Track                                  Google
-Expires: 24 March 2025                                 20 September 2024
+Expires: 27 March 2025                                 23 September 2024
 
 
                       Bidding and Auction Services
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 24 March 2025.
+   This Internet-Draft will expire on 27 March 2025.
 
 Copyright Notice
 
@@ -64,16 +64,19 @@ Table of Contents
    2.  Message Format Specifications
      2.1.  Overview
        2.1.1.  Common Definitions
-     2.2.  Client to Bidding and Auction Services
-       2.2.1.  Request Payload Data
-       2.2.2.  Compression
-       2.2.3.  Framing and Padding
-       2.2.4.  Encryption
-       2.2.5.  Payload Optimization
-     2.3.  Bidding and Auction Services to Client
-       2.3.1.  Decryption
-       2.3.2.  Decompression
-       2.3.3.  Response Payload Data
+       2.1.2.  Message Framing and Padding
+     2.2.  Request Format
+       2.2.1.  Encryption
+       2.2.2.  Framing and Padding
+       2.2.3.  Request Message
+       2.2.4.  Generating a Request
+       2.2.5.  Parsing a Request
+     2.3.  Response Format
+       2.3.1.  Encryption
+       2.3.2.  Framing and Padding
+       2.3.3.  Response Message
+       2.3.4.  Generating a Response
+       2.3.5.  Parsing a Response
    3.  Security Considerations
    4.  IANA Considerations
    5.  Normative References
@@ -183,7 +186,7 @@ Table of Contents
         +=========================================+==============+
         | json = tstr                             | [JSON]       |
         +-----------------------------------------+--------------+
-        | uuid = tstr .regexp "[a-fA-F0-9]{8}-[a- | [RFC9562]    |
+        | uuid = tstr .regexp "[a-fA-F0-9]{8}-[a- | [UUID]       |
         | fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-       |              |
         | F0-9]{4}-[a-fA-F0-9]{12}"               |              |
         +-----------------------------------------+--------------+
@@ -202,40 +205,201 @@ Table of Contents
 
                                  Table 1
 
-2.2.  Client to Bidding and Auction Services
+2.1.2.  Message Framing and Padding
 
-   This section describes how the client MUST form and serialize request
-   messages in order to communicate with the Bidding and Auction
-   services.
+   Bidding and Auction Services requests and responses have the
+   following framing:
 
-   The required inputs from the client to the steps in Section 2.2 are:
+   +==========+=========+=============+========+=============+=========+
+   | Byte     | 0       | 0           | 1 to 4 | 5 to        | Size+5  |
+   |          |         |             |        | Size+4      | to end  |
+   +==========+=========+=============+========+=============+=========+
+   | Bits     | 7-5     | 4-0         | *      | *           | *       |
+   +----------+---------+-------------+--------+-------------+---------+
+   | Contents | Version | Compression | Size   | Request     | Padding |
+   |          |         |             |        | Payload     |         |
+   +----------+---------+-------------+--------+-------------+---------+
 
-   1.  A complete request payload, as defined in Section 2.2.1.2.
+                                  Table 2
 
-   2.  A map of interestGroupOwner to interest group names, as defined
-       in Section 2.2.4.1.2.
+   where the the first 3 bits of the frame header specify the payload
+   version and the following 5 bits specify the compression algorithm.
+   The format described in this document corresponds to version 0.
 
-   3.  An encryption Key Configuration (https://www.rfc-editor.org/rfc/
-       rfc9458#name-key-configuration).  See Section 2.2.4 for more
-       detail on this requirement.
+   The compression method's value in bits 4-0 in Section 2.2.2
+   corresponds to the below table:
 
-   The outputs of the steps in Section 2.2 will result in:
+                    +=============+==================+
+                    | Compression | Description      |
+                    +=============+==================+
+                    |      0      | No Compression   |
+                    +-------------+------------------+
+                    |      1      | Brotli [RFC7932] |
+                    +-------------+------------------+
+                    |      2      | GZIP [RFC1952]   |
+                    +-------------+------------------+
+                    |     3-31    | Reserved         |
+                    +-------------+------------------+
 
-   1.  The context blob (Section 2.2.4.1.1) used to encrypt the response
-       and to be later used in Section 2.3.1.
+                                 Table 3
 
-   2.  An encrypted byte string (Section 2.2.4.2) representing the
-       request to be sent to the Bidding and Auction Services.
+   The amount of padding depends on the type of message and will be
+   discussed for each message type separately.
 
-2.2.1.  Request Payload Data
+2.2.  Request Format
 
-   A request payload primarily consists of interest groups.  The
-   interest groups are then wrapped into a request object that contains
-   additional data.
+   This section discusses the request message sent from the client to
+   the Bidding and Auction Services endpoint.
 
-2.2.1.1.  Interest Groups
+   The request from the Client to Bidding and Auction Services consists
+   of an [HPKE] encrypted payload with attached header (see
+   Section 2.2.1).  The plaintext payload contains a framing header,
+   outer request, and padding (see Section 2.2.2).  The request message
+   Section 2.2.3 is a [CBOR] encoded message that contains one or more
+   compressed interest group lists Section 2.2.3.1.
 
-   A list of interest group is represented by the following [CDDL]:
+2.2.1.  Encryption
+
+   The request is encrypted with [HPKE].  The request uses a similar
+   encapsulated message format to that used by [OHTTP], with only an
+   additional version field.
+
+   Encapsulated Request {
+     Version (8),
+     Key Identifier (8),
+     HPKE KEM ID (16),
+     HPKE KDF ID (16),
+     HPKE AEAD ID (16),
+     Encapsulated KEM Shared Secret (8 * Nenc),
+     HPKE-Protected Request (..),
+   }
+
+   The Version for this message SHOULD be 0.  The HPKE KEM ID, HPKE KDF
+   ID, and HPKE AEAD ID are the key encapsulation mechanism, key
+   derivation function and authenticated encryption with associated data
+   function parameters for [HPKE].  For this protocol, a compliant
+   implementation MUST support HKDF-SHA256 (0x0010) for HPKE KEM ID,
+   HKDF-SHA256 (0x0001) for HPKE KDF ID, and AES-256-GCM (0x0002) for
+   HPKE AEAD ID.
+
+   Encryption of the request is similar to in [OHTTP] Section 4.3
+   (https://www.rfc-editor.org/rfc/rfc9458#name-encapsulation-of-
+   requests), only with a different media type and the Version prepended
+   to the encrypted message:
+
+   1.  Construct a message header (hdr) by concatenating the values of
+       the Key Identifier, HPKE KEM ID, HPKE KDF ID, and HPKE AEAD ID in
+       network byte order.
+
+   2.  Build a sequence of bytes (info) by concatenating the ASCII-
+       encoded string "message/auction request", a zero byte, and hdr.
+
+   3.  Create a sending HPKE context by invoking SetupBaseS()
+       (Section 5.1.1 (https://rfc-editor.org/rfc/rfc9180#section-5.1.1)
+       of [HPKE]) with the public key of the receiver pkR and info.
+       This yields the context sctxt and an encapsulation key enc.
+
+   4.  Encrypt request by invoking the Seal() method on sctxt
+       (Section 5.2 (https://rfc-editor.org/rfc/rfc9180#section-5.2) of
+       [HPKE]) with empty associated data aad, yielding ciphertext ct.
+
+   5.  Concatenate the values of Version, hdr, enc, and ct.
+
+   In pseudocode, this procedure is as follows:
+
+   hdr = concat(encode(1, key_id),
+                encode(2, kem_id),
+                encode(2, kdf_id),
+                encode(2, aead_id))
+   info = concat(encode_str("message/auction request"),
+                 encode(1, 0),
+                 hdr)
+   enc, sctxt = SetupBaseS(pkR, info)
+   ct = sctxt.Seal("", request)
+   enc_request = concat(encode(1, version), hdr, enc, ct)
+
+   A Bidding and Auction Services endpoint decrypts this encapsulated
+   message in a similar manner to [OHTTP] Section 4.3 (https://www.rfc-
+   editor.org/rfc/rfc9458#name-encapsulation-of-requests), or more
+   explicitly as follows:
+
+   1.  Parse enc_request into version, key_id, kem_id, kdf_id, aead_id,
+       enc, and ct.
+
+   2.  If version is not 0, return an error.
+
+   3.  Find the matching HPTK private key, skR, corresponding to key_id.
+       If there is no matching key, return an error.
+
+   4.  Build a sequence of bytes (info) by concatenating the ASCII-
+       encoded string "message/auction request"; a zero byte; key_id as
+       an 8-bit integer; plus kem_id, kdf_id, and aead_id as three
+       16-bit integers.
+
+   5.  Create a receiving HPKE context, rctxt, by invoking SetupBaseR()
+       (Section 5.1.1 (https://rfc-editor.org/rfc/rfc9180#section-5.1.1)
+       of [HPKE]) with skR, enc, and info.
+
+   6.  Decrypt ct by invoking the Open() method on rctxt (Section 5.2
+       (https://rfc-editor.org/rfc/rfc9180#section-5.2) of [HPKE]), with
+       an empty associated data aad, yielding request and returning an
+       error on failure.
+
+   In pseudocode, this procedure is as follows:
+
+  version, key_id, kem_id, kdf_id, aead_id, enc, ct = parse(enc_request)
+  if version != 0 then return error
+  info = concat(encode_str("message/auction request"),
+                encode(1, 0),
+                encode(1, key_id),
+                encode(2, kem_id),
+                encode(2, kdf_id),
+                encode(2, aead_id))
+  rctxt = SetupBaseR(enc, skR, info)
+  request, error = rctxt.Open("", ct)
+
+   Bidding and Auction Services retains the HPKE context, rctxt, so that
+   it can encapsulate a response.
+
+2.2.2.  Framing and Padding
+
+   The plaintext message uses the framing described in Section 2.1.2.
+
+   Messages MAY be zero padded so that the encrypted request is one of
+   the following bin sizes: 0KiB, 5KiB, 10KiB, 20KiB, 30KiB, 40KiB,
+   55KiB.  An implementation MAY need to remove some data from the
+   payload to fit inside the largest bucket.
+
+   A compatible implementation processing requests SHOULD NOT rely on a
+   specific padding scheme for requests.
+
+2.2.3.  Request Message
+
+   The request message is a [CBOR] encoded message with the following
+   [CDDL] schema:
+
+   request = {
+     // TODO description of all fields
+     version: int,
+     generationId: uuid,
+     publisher: origin,
+     interestGroups: {
+       ; Map of interest group owner to CBOR encoded list of interest
+       ; groups compressed using the method described in § Compression.
+       * interestGroupOwner => bstr
+     },
+     ? enableDebugReporting: bool
+   }
+
+   The version field SHOULD be set to 0 for this version of the
+   protocol.  The interestGroups field is a map from interest group
+   owner to a compressed, [CBOR]-encoded list of interest groups for
+   that owner.
+
+2.2.3.1.  List of Interest Groups
+
+   A list of interest group is encoded in [CBOR] with the following
+   [CDDL] schema:
 
    interestGroups = [ * interestGroup ]
    interestGroup = {
@@ -285,180 +449,51 @@ Table of Contents
      }
    }
 
-2.2.1.2.  Complete Request
+   Each list is separately compressed with the compression method
+   indicated in the Section 2.1.2 header.
 
-   A list of interest groups for each owner MUST first be represented as
-   [CBOR], and then the serialized list MUST be indiviudally compressed
-   according to the compression algorithm specified in the message
-   framing (Section 2.2.3).  This compressed interest group data MUST
-   then be aggregated into a map in the complete request, which MUST be
-   [CBOR] represented by the following [CDDL]:
+2.2.4.  Generating a Request
 
-   request = {
-     // TODO description of all fields
-     version: int,
-     generationId: uuid,
-     publisher: origin,
-     interestGroups: {
-       ; Map of interest group owner to CBOR encoded list of interest
-       ; groups compressed using the method described in § Compression.
-       * interestGroupOwner => bstr
-     },
-     ? enableDebugReporting: bool
-   }
+   This section describes how the client MAY form and serialize request
+   messages in order to communicate with the Bidding and Auction
+   services.
 
-   The complete request MUST also be compressed using the same
-   compression algorithm as specified in the message framing
-   (Section 2.2.3).
+   This algorithm takes as input the publisher, all of the relevant
+   interest groups, an optional desired total size, an optional list of
+   interest group owners to include each with an optional desired size,
+   and the [HPKE] public key and its associated key ID.  It returns an
+   encrypted request and a request context tuple.
 
-2.2.2.  Compression
+   1.   Let included_groups be an empty map.
 
-   The payload MAY undergo compression.
-
-   The compression method's value in bits 4-0 in Section 2.2.3
-   corresponds to the below table:
-
-                    +=============+==================+
-                    | Compression | Description      |
-                    +=============+==================+
-                    |      0      | No Compression   |
-                    +-------------+------------------+
-                    |      1      | Brotli [RFC7932] |
-                    +-------------+------------------+
-                    |      2      | GZIP [RFC1952]   |
-                    +-------------+------------------+
-                    |     3-31    | Reserved         |
-                    +-------------+------------------+
-
-                                 Table 2
-
-2.2.3.  Framing and Padding
-
-   The plaintext message has the following framing:
-
-   +==========+=========+=============+========+=============+=========+
-   | Byte     | 0       | 0           | 1 to 4 | 5 to        | Size+5  |
-   |          |         |             |        | Size+4      | to end  |
-   +==========+=========+=============+========+=============+=========+
-   | Bits     | 7-5     | 4-0         | *      | *           | *       |
-   +----------+---------+-------------+--------+-------------+---------+
-   | Contents | Version | Compression | Size   | Request     | Padding |
-   |          |         |             |        | Payload     |         |
-   +----------+---------+-------------+--------+-------------+---------+
-
-                                  Table 3
-
-   where the the first 3 bits of the frame header specify the payload
-   version and the following 5 bits specify the compression algorithm.
-   The format described in this document corresponds to version 0.
-
-   Messages MAY be zero padded so that the encrypted request is one of
-   the following bin sizes: 0KiB, 5KiB, 10KiB, 20KiB, 30KiB, 40KiB,
-   55KiB.  An implementation MAY need to remove some data from the
-   payload to fit inside the largest bucket.
-
-   A compatible implementation processing requests SHOULD NOT rely on a
-   specific padding scheme for requests.
-
-2.2.4.  Encryption
-
-   After framing and padding the compressed payload, the entire
-   plaintext message is encrypted using [HPKE] with the encapsulation
-   performed similarly to Section 4.3 (https://www.rfc-editor.org/rfc/
-   rfc9458#section-4.3) of [OHTTP].  Details on how to acquire [HPKE]
-   keys are out of scope for this document, however we assume they will
-   be provided by the client as a Key Configuration (https://www.rfc-
-   editor.org/rfc/rfc9458#name-key-configuration) and are required
-   inputs to the context formation (Section 2.2.4.1) and encapsulation
-   (Section 2.2.4.2) processes.
-
-2.2.4.1.  Encryption Context
-
-   The encryption context MUST be composed of two parts:
-
-   1.  HPKE Context (Section 2.2.4.1.1)
-
-   2.  A map storing interest group information (Section 2.2.4.1.2)
-
-   The two parts may be stored in whichever way is most convenient, as
-   long as they are provided to the client as a single opaque blob.
-
-2.2.4.1.1.  HPKE Context
-
-   Section 5.1 (https://www.rfc-editor.org/rfc/rfc9180.html#name-
-   creating-the-encryption-con) of [HPKE] describes how to create the
-   Context required for encryption.  This is considered the 'sending'
-   HPKE context, and the client MUST store it for later use when
-   decrypting the response, as described in Section 2.3.1.
-
-2.2.4.1.2.  Interest Group Map
-
-   The encryption context must include a map of interestGroupOwner
-   (Section 2.1.1) to a list of plaintext string interest group names
-   (the order of which MUST exactly match the request payload provided
-   in Section 2.2.1.1).  This map will be used by Section 2.3.3 to
-   deserialize the response into a a structure usable by the client.
-
-   This map may be represented in whichever way is most convenient for
-   use in Section 2.3.3.
-
-2.2.4.2.  Encapsulation
-
-   Instead of encapsulating Binary HTTP [BINARY] as per Step 1 in OHTTP
-   (https://www.rfc-editor.org/rfc/rfc9458#section-4.3-4.1.1), the
-   output from Section 2.2.3 MUST be used as-is.  This means that we are
-   repurposing the [OHTTP] encapsulation mechanism, so we are required
-   to define new media types (https://www.rfc-editor.org/rfc/
-   rfc9458.html#name-repurposing-the-encapsulati):
-
-   *  The OHTTP request media type is “message/auction request”
-
-   *  The OHTTP response media type is “message/auction response”
-
-   Note that these media types are concatenated with other fields when
-   creating the HPKE encryption context (https://www.rfc-editor.org/rfc/
-   rfc9458.html#name-encapsulation-of-requests), and are not HTTP
-   content or media types.  In order to perform the encapsulation, the
-   steps in the OHTTP encapsulation process (https://www.rfc-
-   editor.org/rfc/rfc9458#section-4.3-3) MUST be followed precisely,
-   except with an info equivalent to message/auction request.
-
-2.2.5.  Payload Optimization
-
-   A compatible implementation MAY support control over how interest
-   groups are serialized into a request and the size of the request.  An
-   example implementation for this feature is as follows:
-
-   This algorithm takes as input all of the relevant interest groups, an
-   optional desired total size, and an optional list of interest group
-   owners to include each with an optional desired size.
-
-   1.   If desired total size is not specified, but the list of interest
+   2.   If desired total size is not specified, but the list of interest
         group owners includes at least one entry with a specified
         desired size:
 
         1.  Set desired total size to the sum of all specified desired
             size in the list of interest group owners.
 
-   2.   Group the list of relevant interest groups by owner into a map
+   3.   Group the list of relevant interest groups by owner into a map
         of from interest group owner to a list of interest groups sorted
         by decreasing priority, interest group map.
 
-   3.   If the list of interest group owners is specified, remove
+   4.   If the list of interest group owners is specified, remove
         interest groups whose owner is not on the list.
 
-   4.   Construct a request, request, as normal only with the value of
-        the interestGroups field for each interest group owner as zero
-        length.
+   5.   Construct a request, request with request["publisher"] set to
+        publisher, request["version"] set to 0, request["generationId"]
+        set to a new [UUID] Version 4 (https://www.rfc-editor.org/rfc/
+        rfc9562.html#section-5.4), and request["enableDebugReporting"]
+        set to true.
 
-   5.   Set current_size to be the serialized size of the encrypted
+   6.   Set current_size to be the serialized size of the encrypted
         request created from request without padding.
 
-   6.   Set remaining_allocated_size to 0.
+   7.   Set remaining_allocated_size to 0.
 
-   7.   Set remaining_unsized_owners to 0.
+   8.   Set remaining_unsized_owners to 0.
 
-   8.   For each interest group owner, interest group list in interest
+   9.   For each interest group owner, interest group list in interest
         group map:
 
         1.  If there is a desired size for interest group owner:
@@ -469,7 +504,7 @@ Table of Contents
 
             1.  Increment remaining_unsized_owners by 1.
 
-   9.   For each interest group owner, interest group list in interest
+   10.  For each interest group owner, interest group list in interest
         group map where there is a desired size specified for interest
         group owner:
 
@@ -491,20 +526,26 @@ Table of Contents
         3.  Set remaining_allocated_size = remaining_allocated_size-
             current_size.
 
-        4.  Serialize the interest group list into serialized_group.
+        4.  [CBOR] encode the interest group list into serialized list.
 
-        5.  If adding the serialized_group to request would make it more
-            than allowed_interest_group_size larger than the current
-            size, then remove the lowest priority interest group and
-            repeat from the previous step.
+        5.  [GZIP] the serialized list into compressed list.
 
-        6.  Set request["interestGroups"][interest group owner] to
-            serialized_group.
+        6.  If setting request["interestGroups"][interest group owner]
+            to compressed list would make it's serialized size more than
+            allowed_interest_group_size larger than the current size,
+            then remove the lowest priority interest group and repeat
+            from the previous step.
 
-        7.  Set current_size to be the serialized size of the encrypted
+        7.  Set request["interestGroups"][interest group owner] to
+            compressed list.
+
+        8.  Set included_groups[interest group owner] to interest group
+            list.
+
+        9.  Set current_size to be the serialized size of the encrypted
             request created from request without padding.
 
-   10.  For each interest group owner, interest group list in interest
+   11.  For each interest group owner, interest group list in interest
         group map where there is not desired size specified for interest
         group owner:
 
@@ -517,87 +558,147 @@ Table of Contents
 
         3.  Decrement remaining_unsized_owners by 1.
 
-        4.  Serialize the interest group list into serialized_group.
+        4.  [CBOR] encode the interest group list into serialized list.
 
-        5.  If adding the serialized_group to request would make it more
+        5.  [GZIP] the serialized list into compressed list.
+
+        6.  If adding the compressed list to request would make it more
             than allowed_interest_group_size larger than the current
             size, then remove the lowest priority interest group and
             repeat from the previous step.
 
-        6.  Set request["interestGroups"][interest group owner] to
-            serialized_group.
+        7.  Set request["interestGroups"][interest group owner] to
+            compressed list.
 
-        7.  Set current_size to be the serialized size of the encrypted
+        8.  Set included_groups[interest group owner] to interest group
+            list.
+
+        9.  Set current_size to be the serialized size of the encrypted
             request created from request without padding.
 
-   11.  If there are no interest groups in the request, discard the
-        request and return an empty byte array.
+   12.  If there are no interest groups in the request, discard the
+        request and return failure.
 
-   12.  Frame request as in Section 2.2.3 and zero pad up to desired
-        total size.
+   13.  Prepend the framing header to request with Compression set to 2.
 
-   13.  Return the encrypted result (as in Section 2.2.4).
+   14.  If desired total size is set then zero pad request to desired
+        total size.  Otherwise zero pad request up to the smallest bin
+        size in Section 2.2.2 larger than request.
 
-2.3.  Bidding and Auction Services to Client
+   15.  Encrypt request using the public key and its key id as in
+        Section 2.2.1 to get the encrypted message and hpke context.
 
-   This section describes how the client MUST deserialize response
-   messages from the Bidding and Auction Services.  The steps MUST be
-   performed in the following order: decryption (Section 2.3.1),
-   decompression (Section 2.3.2), and finally parsing the response
-   payload as in Section 2.3.3.
+   16.  Let the request context be the tuple (included_groups, hpke
+        context)
 
-   The required inputs from the client to the steps in {#services-to-
-   client}:
+   17.  Return the request and the request context.
 
-   1.  The encrypted response byte string.
+2.2.5.  Parsing a Request
 
-   2.  The HPKE context created in Section 2.2.4.1.1.
+   This algorithm takes as input an encrypted request and an [HPKE]
+   private key.
 
-   The resulting output for the client is:
+2.3.  Response Format
 
-   1.  The decoded response data structure, as described in
-       Section 2.3.3.
+   This section discusses the request message sent from the Bidding and
+   Auction Services endpoint to the client in reply to a request.
 
-2.3.1.  Decryption
+   The response from the Bidding and Auction Services endpoint consists
+   of an [HPKE] encrypted payload with attached header (see
+   Section 2.3.1).  The plaintext payload contains a framing header,
+   response message, and padding (see Section 2.3.2).  The response
+   message Section 2.3.3 is a compressed [CBOR] encoded message.
 
-   The response message is encrypted using HPKE with the encapsulation
-   performed according to Section 4.4 (https://www.rfc-editor.org/rfc/
-   rfc9458.html#name-encapsulation-of-responses) of [OHTTP] as the
-   response to the request message.
+2.3.1.  Encryption
 
-   The client MUST decrypt the response by following the standard
-   [OHTTP] Encapsulated Response decryption procedure (https://www.rfc-
-   editor.org/rfc/rfc9458#section-4.4-5).  The context used for
-   decryption MUST be precisely the same context blob that was created
-   in Section 2.2.4.1.1, and should be provided by the client in
-   addition to the response byte string.
+   The response is encrypted with [HPKE] as a
 
-2.3.2.  Decompression
+   The response uses a similar encapsulated response format to that used
+   by [OHTTP].
 
-   The message framing is exactly as in Section 2.2.3, but the entire
-   response payload is compressed.  Starting with Byte 0, read bits 4-0
-   and use the chart in Section 2.2.2 to decode which decompression
-   algorithm MUST be applied to the response payload.
+   Encapsulated Response {
+     Nonce (8 * max(Nn, Nk)),
+     AEAD-Protected Response (..),
+   }
 
-   The output of the decompression process will be a payload equivalent
-   to the auction server response struct (https://wicg.github.io/
-   turtledove/#server-auction-response), as further described in
-   Section 2.3.3.
+   Encryption of the response is similar to in [OHTTP] Section 4.4
+   (https://www.rfc-editor.org/rfc/rfc9458.html#name-encapsulation-of-
+   responses), only with a different media type, repeated below for
+   clarity:
 
-2.3.3.  Response Payload Data
+   1.  Export a secret (secret) from context, using the string "message/
+       auction response" as the exporter_context parameter to
+       context.Export; see Section 5.3 (https://www.rfc-editor.org/rfc/
+       rfc9180.html#name-secret-export) of [HPKE].  The length of this
+       secret is max(Nn, Nk), where Nn and Nk are the length of the AEAD
+       key and nonce that are associated with context.
 
-   After decompression, the result will be a [CBOR] byte string
-   (described below).
+   2.  Generate a random value of length max(Nn, Nk) bytes, called
+       response_nonce.
 
-   The byte string MUST be decoded into a format usable by the client,
-   the server auction response structure (https://wicg.github.io/
-   turtledove/#server-auction-response).  The server auction response
-   structure is the final, consumable output of Section 2.3.
+   3.  Extract a pseudorandom key (prk) using the Extract function
+       provided by the KDF algorithm associated with context.  The ikm
+       input to this function is secret; the salt input is the
+       concatenation of enc (from enc_request) and response_nonce.
 
-   To perform this decoding, use a compliant [CBOR] decoder.  The
-   following [CDDL] describes the structure of the CBOR data.  Map the
-   decoded data to the server auction response structure according to
-   the instructions provided for each field.
+   4.  Use the Expand function provided by the same KDF to create an
+       AEAD key, key, of length Nk -- the length of the keys used by the
+       AEAD associated with context.  Generating aead_key uses a label
+       of "key".
+
+   5.  Use the same Expand function to create a nonce, nonce, of length
+       Nn -- the length of the nonce used by the AEAD.  Generating
+       aead_nonce uses a label of "nonce".
+
+   6.  Encrypt response, passing the AEAD function Seal the values of
+       aead_key, aead_nonce, an empty aad, and a pt input of response.
+       This yields ct.
+
+   7.  Concatenate response_nonce and ct, yielding an Encapsulated
+       Response, enc_response.  Note that response_nonce is of fixed
+       length, so there is no ambiguity in parsing either response_nonce
+       or ct.
+
+   In pseudocode, this procedure is as follows:
+
+   secret = context.Export("message/auction response", max(Nn, Nk))
+   response_nonce = random(max(Nn, Nk))
+   salt = concat(enc, response_nonce)
+   prk = Extract(salt, secret)
+   aead_key = Expand(prk, "key", Nk)
+   aead_nonce = Expand(prk, "nonce", Nn)
+   ct = Seal(aead_key, aead_nonce, "", response)
+   enc_response = concat(response_nonce, ct)
+
+   Clients decrypt an Encapsulated Response by reversing this process.
+   That is, Clients first parse enc_response into response_nonce and ct.
+   Then, they follow the same process to derive values for aead_key and
+   aead_nonce, using their sending HPKE context, sctxt, as the HPKE
+   context, context.
+
+   The Client uses these values to decrypt ct using the AEAD function
+   Open.  Decrypting might produce an error, as follows:
+
+   response, error = Open(aead_key, aead_nonce, "", ct)
+
+2.3.2.  Framing and Padding
+
+   The plaintext message uses the framing described in Section 2.1.2.
+
+   Messages MAY be exponentially padded so that the encrypted response
+   is a power of 2 in length.
+
+   A compatible implementation processing requests SHOULD NOT rely on a
+   specific padding scheme for requests.
+
+2.3.3.  Response Message
+
+   The response message is a [CBOR] encoded message, compressed using
+   the method indicated in {#request-framing}. The [CBOR] encoded
+   message SHOULD be serialized into deterministically encoded [CBOR]
+   (as defined in Section 4.2 (https://www.rfc-editor.org/rfc/
+   rfc8949.html#name-deterministically-encoded-c)) and follows the
+   following [CDDL] schema:
 
    response = {
      ; The ad to render.
@@ -722,6 +823,198 @@ Table of Contents
      ? interactionReportingUrls: { * tstr => tstr }
    }
 
+2.3.4.  Generating a Response
+
+   TODO
+
+2.3.5.  Parsing a Response
+
+   This algorithm describes how a conforming Client MUST parse and
+   validate a response from Bidding and Auction Services.  It takes as
+   input the request context tuple returned from Section 2.2.4 in
+   addition to the encrypted response.
+
+   1.   Use request context's hpke context as the context for decryption
+        and follow the decryption steps in Section 2.3.1 to decrypt
+        encrypted response and obtain framed response and error.
+
+   2.   If error is not null, return failure.
+
+   3.   Remove and extract the first 5 bytes from framed response as the
+        framing header (described in Section 2.1.2), removing them from
+        framed response.
+
+   4.   If the framing header's Version field is not 0, return failure.
+
+   5.   Let length be equal to the framing header's Size field.
+
+   6.   If length is greater than the length of the remaining bytes in
+        framed response, return failure.
+
+   7.   Take the first length remaining bytes in framed response as
+        compressed response, discarding the rest.
+
+   8.   Decompress the compressed response into serialized response
+        using the method indicated by framing header's Compression
+        field, returning failure if decompression fails.
+
+   9.   [CBOR] decode the serialized response into response, returning
+        failure if decompression fails.
+
+   10.  If response is not a map, return failure.
+
+   11.  If response["error"] exists, return failure.
+
+   12.  If response["isChaff"] exists and is either not a boolean or is
+        true, return failure.
+
+   13.  Let processed response be a new structure analogous to server
+        auction response (https://wicg.github.io/turtledove/#server-
+        auction-response).
+
+   14.  If response["adRenderURL"] does not exist, return failure.
+
+   15.  Set processed response["ad render url"] to
+        response["adRenderURL"] parsed as a [URL], returning failure if
+        there is an error.
+
+   16.  If response["components"] exists:
+
+   17.  If response["components"] is not an array, return failure.
+
+   18.  For each component in response["components"]: 1.  Append
+        component parsed as a [URL] to processed response["ad
+        components"], returning failure if there is an error.
+
+   19.  If response["interestGroupName"] does not exist or is not a
+        string, return failure.
+
+   20.  Set processed response["interest group name"] to
+        response["interestGroupName"].
+
+   21.  If response["interestGroupOwner"] does not exist or is not a
+        string, return failure.
+
+   22.  Set processed response["interest group owner"] to
+        response["interestGroupOwner"] parsed as an [ORIGIN], returning
+        failure if there is an error.
+
+   23.  If response["biddingGroups"] does not exist or is not a map,
+        return failure.
+
+   24.  For each key, value in response["biddingGroups"]:
+
+   25.  Let owner be equal to key parsed as an [ORIGIN], returning
+        failure if there is an error.
+
+   26.  request context's included_groups does not contain owner as a
+        key, return failure.
+
+   27.  If value is not a list, return failure.
+
+   28.  For each element in value: 1.  If element is not an integer or
+        element < 0, return failure.  1.  If element is greater than or
+        equal to the length of included_groups[owner], return failure.
+        1.  Let name be the interest group name for
+        included_groups[owner][element].  1.  Append the tuple (owner,
+        name) to processed response["bidding groups"].
+
+   29.  If response["score"] exists:
+
+   30.  If response["score"] is not a floating point value, return
+        failure.
+
+   31.  Set processed response["score"] to response["score"].
+
+   32.  If response["bid"] exists:
+
+   33.  If response["bid"] is not a floating point value, return
+        failure.
+
+   34.  Let bid be a new structure analogous to bid with currency
+        (https://wicg.github.io/turtledove/#bid-with-currency).
+
+   35.  Set bids value field to response["bid"].
+
+   36.  If response["bidCurrency"] exists: 1.  If
+        response["bidCurrency"] is not a string, return failure.  1.  If
+        response["bidCUrrency"] is not 3 bytes long or contains
+        characters other than upper case ASCII letters, return failure.
+        1.  Set bid's currency field to response["bidCurrency"].
+
+   37.  Set processed response["bid"] to bid.
+
+   38.  If response["winReportingURLs"] exists and is a map:
+
+   39.  If response["winReportingURLs"]["buyerReportingURLs"] exists: 1.
+        Let buyer reporting be the result of Section 2.3.5.1 on
+        response["winReportingURLs"]["buyerReportingURLs"].  1.  Set
+        processed response["buyer reporting"] to buyer reporting.
+
+   40.  If response["winReportingURLs"]["topLevelSellerReportingURLs"]
+        exists: 1.  Let top level seller reporting be the result of
+        Section 2.3.5.1 on
+        response["winReportingURLs"]["topLevelSellerReportingURLs"].  1.
+        Set processed response["top level seller reporting"] to top
+        level seller reporting.
+
+   41.  If response["winReportingURLs"]["componentSellerReportingURLs"]
+        exists: 1.  Let component seller reporting be the result of
+        Section 2.3.5.1 on
+        response["winReportingURLs"]["componentSellerReportingURLs"].
+        1.  Set processed response["component seller reporting" to
+        component seller reporting.
+
+   42.  If response["topLevelSeller"] exists:
+
+   43.  If response["topLevelSeller"] is not a string, return failure.
+
+   44.  Set processed response["top level seller"] to
+        response["topLevelSeller"] parsed as a [URL], returning failure
+        if there is an error.
+
+   45.  If response["adMetadata"] exists and is a string set processed
+        response["ad metadata"] to response["adMetadata"].
+
+   46.  If response["buyerReportingId"] exists and is a string set
+        processed response["buyer reporting id"] to
+        response["buyerReportingId"].
+
+   47.  If response["buyerAndSellerReportingId"] exists and is a string
+        set processed response["buyer and seller reporting id"] to
+        response["buyerAndSellerReportingId"].
+
+   48.  Return processed response.
+
+2.3.5.1.  Parsing reporting URLs
+
+   To parse reporting URLs on a [CBOR] map reporting URLs with a schema
+   like reportingUrls from Section 2.3.3:
+
+   1.  Let processed reporting URLs be a new structure analogous to
+       server auction reporting info (https://wicg.github.io/
+       turtledove/#server-auction-reporting-info).
+
+   2.  If reporting URLs["reportingURL"] exists and is a string:
+
+   3.  Let reporting URL be reporting URLs["reportingURL"] parsed as a
+       [URL], or null if there is an error.
+
+   4.  If reporting URL is not null, set processed reporting
+       URLs["reporting url"] to reporting URL.
+
+   5.  If reporting URLs["interactionReportingURLs"] exists and is a
+       map:
+
+   6.  For each key, value in reporting
+       URLs["interactionReportingURLs"]: 1.  If key is not a string,
+       continue with the next iteration.  1.  Let reporting URL be value
+       parsed as a [URL].  If there is an error, continue with the next
+       iteration.  1.  Set processed reporting URLs["beacon urls"][key]
+       to reporting URL.
+
+   7.  Return processed reporting URLs.
+
 3.  Security Considerations
 
    TODO
@@ -750,6 +1043,10 @@ Table of Contents
               Express Concise Binary Object Representation (CBOR) and
               JSON Data Structures", RFC 8610, DOI 10.17487/RFC8610,
               June 2019, <https://www.rfc-editor.org/rfc/rfc8610>.
+
+   [GZIP]     Deutsch, P., "GZIP file format specification version 4.3",
+              RFC 1952, DOI 10.17487/RFC1952, May 1996,
+              <https://www.rfc-editor.org/rfc/rfc1952>.
 
    [HPKE]     Barnes, R., Bhargavan, K., Lipp, B., and C. Wood, "Hybrid
               Public Key Encryption", RFC 9180, DOI 10.17487/RFC9180,
@@ -788,10 +1085,6 @@ Table of Contents
               2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
               May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
 
-   [RFC9562]  Davis, K., Peabody, B., and P. Leach, "Universally Unique
-              IDentifiers (UUIDs)", RFC 9562, DOI 10.17487/RFC9562, May
-              2024, <https://www.rfc-editor.org/rfc/rfc9562>.
-
    [SHA-256]  Eastlake 3rd, D. and T. Hansen, "US Secure Hash Algorithms
               (SHA and SHA-based HMAC and HKDF)", RFC 6234,
               DOI 10.17487/RFC6234, May 2011,
@@ -799,6 +1092,10 @@ Table of Contents
 
    [URL]      "URL Living Standard", 2024,
               <https://url.spec.whatwg.org/#concept-url>.
+
+   [UUID]     Davis, K., Peabody, B., and P. Leach, "Universally Unique
+              IDentifiers (UUIDs)", RFC 9562, DOI 10.17487/RFC9562, May
+              2024, <https://www.rfc-editor.org/rfc/rfc9562>.
 
 Acknowledgments
 
