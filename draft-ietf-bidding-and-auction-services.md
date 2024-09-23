@@ -51,6 +51,10 @@ normative:
     target: https://wicg.github.io/turtledove/#server-auction-previous-win-ad-render-id
     title: Protected Audience
     date: 2024
+  IGOWNER:
+    target: https://wicg.github.io/turtledove/#server-auction-response-interest-group-owner
+    title: Protected Audience
+    date: 2024
 
 informative:
 
@@ -147,7 +151,7 @@ about the seller and buyer services can be found in the [server-side system desi
 | `currency = tstr .size 3 .regexp /^[A-Z]{3}$/` | [ISO4217] |
 | `adRenderUrl = tstr` | [URL] |
 | `adRenderId = tstr` | [ADRENDERID] |
-| `interestGroupOwner = origin` | TODO |
+| `interestGroupOwner = origin` | [IGOWNER] |
 
 ### Message Framing and Padding {#framing}
 
@@ -253,8 +257,8 @@ or more explicitly as follows:
 1. Parse `enc_request` into `version`, `key_id`, `kem_id`, `kdf_id`, `aead_id`,
    `enc`, and `ct`.
 1. If `version` is not 0, return an error.
-1. Find the matching HPTK private key, `skR`, corresponding to `key_id`. If there
-   is no matching key, return an error.
+1. Find the matching HPKE private key, `skR`, corresponding to `key_id`. If
+   there is no matching key, return an error.
 1. Build a sequence of bytes (`info`) by concatenating the ASCII-encoded string
    "message/auction request"; a zero byte; `key_id` as an 8-bit integer; plus
    `kem_id`, `kdf_id`, and `aead_id` as three 16-bit integers.
@@ -302,13 +306,19 @@ The request message is a [CBOR] encoded message with the following [CDDL] schema
 
 ~~~~~ cddl
 request = {
-  // TODO description of all fields
+  ; Current version of the protocol.
+  ; In this document, it must be 0.
   version: int,
+  ; Used by the Bidding and Auction Services to
+  ; keep track of a request (and corresponding response)
+  ; over its lifetime.
+  ; Must be a [UUID][Version 4].
   generationId: uuid,
+  ; Represents the publisher initiating the request.
   publisher: origin,
   interestGroups: {
     ; Map of interest group owner to CBOR encoded list of interest
-    ; groups compressed using the method described in § Compression.
+    ; groups compressed as described in § Generating a Request.
     * interestGroupOwner => bstr
   },
   ? enableDebugReporting: bool
@@ -479,8 +489,6 @@ plaintext payload contains a framing header, response message, and padding (see
 [CBOR] encoded message.
 
 ### Encryption {#response-encryption}
-
-The response is encrypted with [HPKE] as a
 
 The response uses a similar encapsulated response format to that used by
 [OHTTP].
