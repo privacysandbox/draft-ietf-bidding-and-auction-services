@@ -1918,13 +1918,13 @@ to <a href="#request-parse-error" class="auto internal xref">Section 2.2.5.1</a>
 </li>
             <li id="section-2.2.5-4.4">
               <p id="section-2.2.5-4.4.1">Decapsulate and decrypt <code>encrypted request</code> by using the <code>private key</code> as in
-<a href="#request-encryption" class="auto internal xref">Section 2.2.1</a> to get the decrypted message and <code>receiver hpke context</code>.<a href="#section-2.2.5-4.4.1" class="pilcrow">¶</a></p>
+<a href="#request-encryption" class="auto internal xref">Section 2.2.1</a> to get the decrypted message and <code>rctxt</code>.<a href="#section-2.2.5-4.4.1" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.4.2">
 <li id="section-2.2.5-4.4.2.1">
                   <p id="section-2.2.5-4.4.2.1.1">If decapsulation or decryption fails, return an empty response.<a href="#section-2.2.5-4.4.2.1.1" class="pilcrow">¶</a></p>
 </li>
                 <li id="section-2.2.5-4.4.2.2">
-                  <p id="section-2.2.5-4.4.2.2.1">Else, save the decrypted output as <code>decrypted request</code>.<a href="#section-2.2.5-4.4.2.2.1" class="pilcrow">¶</a></p>
+                  <p id="section-2.2.5-4.4.2.2.1">Else, save the decrypted output as <code>decrypted request</code> and save <code>rctxt</code>.<a href="#section-2.2.5-4.4.2.2.1" class="pilcrow">¶</a></p>
 </li>
               </ol>
 </li>
@@ -1971,7 +1971,7 @@ Let this be <code>request</code>.<a href="#section-2.2.5-4.7.1" class="pilcrow">
               <p id="section-2.2.5-4.13.1">Set <code>processed request["publisher"]</code> to <code>request["publisher"]</code>.<a href="#section-2.2.5-4.13.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-2.2.5-4.14">
-              <p id="section-2.2.5-4.14.1">If <code>request["generationId]</code> does not exist or is not a string, <code>ERROR</code>.<a href="#section-2.2.5-4.14.1" class="pilcrow">¶</a></p>
+              <p id="section-2.2.5-4.14.1">If <code>request["generationId"]</code> does not exist or is not a string, <code>ERROR</code>.<a href="#section-2.2.5-4.14.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-2.2.5-4.15">
               <p id="section-2.2.5-4.15.1">Set <code>processed request["generationId"]</code> to <code>request["generationId"]</code>.<a href="#section-2.2.5-4.15.1" class="pilcrow">¶</a></p>
@@ -1990,7 +1990,7 @@ Let this be <code>request</code>.<a href="#section-2.2.5-4.7.1" class="pilcrow">
               <p id="section-2.2.5-4.19.1">For each <code>key</code>, <code>value</code> map entry of <code>request["interestGroups"]</code>:<a href="#section-2.2.5-4.19.1" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.19.2">
 <li id="section-2.2.5-4.19.2.1">
-                  <p id="section-2.2.5-4.19.2.1.1">If the <code>key</code> is not a string, append an error message to
+                  <p id="section-2.2.5-4.19.2.1.1">If <code>key</code> is not a string, append an error message to
 <code>error_msg</code>. Proceed to <a href="#request-parse-error" class="auto internal xref">Section 2.2.5.1</a>.<a href="#section-2.2.5-4.19.2.1.1" class="pilcrow">¶</a></p>
 </li>
                 <li id="section-2.2.5-4.19.2.2">
@@ -2164,8 +2164,8 @@ defined in <a href="#request-groups" class="auto internal xref">Section 2.2.3.1<
               </ol>
 </li>
             <li id="section-2.2.5-4.20">
-              <p id="section-2.2.5-4.20.1">Return <code>processed request</code> and <code>receiver hpke context</code> to the
-Bidding and Auction Services.<a href="#section-2.2.5-4.20.1" class="pilcrow">¶</a></p>
+              <p id="section-2.2.5-4.20.1">Return <code>processed request</code> and <code>rctxt</code> to the Bidding and Auction
+Services.<a href="#section-2.2.5-4.20.1" class="pilcrow">¶</a></p>
 </li>
           </ol>
 <div id="request-parse-error">

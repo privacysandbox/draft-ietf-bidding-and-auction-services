@@ -613,13 +613,13 @@ Table of Contents
         proceed directly to Section 2.2.5.1.
 
    4.   Decapsulate and decrypt encrypted request by using the private
-        key as in Section 2.2.1 to get the decrypted message and
-        receiver hpke context.
+        key as in Section 2.2.1 to get the decrypted message and rctxt.
 
         1.  If decapsulation or decryption fails, return an empty
             response.
 
-        2.  Else, save the decrypted output as decrypted request.
+        2.  Else, save the decrypted output as decrypted request and
+            save rctxt.
 
    5.   As in Section 2.1.2, get the framing version and compression
         type by reading the first byte of decrypted request.
@@ -649,7 +649,7 @@ Table of Contents
 
    13.  Set processed request["publisher"] to request["publisher"].
 
-   14.  If request["generationId] does not exist or is not a string,
+   14.  If request["generationId"] does not exist or is not a string,
         ERROR.
 
    15.  Set processed request["generationId"] to
@@ -666,7 +666,7 @@ Table of Contents
 
    19.  For each key, value map entry of request["interestGroups"]:
 
-        1.  If the key is not a string, append an error message to
+        1.  If key is not a string, append an error message to
             error_msg.  Proceed to Section 2.2.5.1.
 
         2.  Set processed request["interestGroups"][key] to an empty
@@ -780,8 +780,8 @@ Table of Contents
             10.  Append ig to processed request["interestGroups"][ key
                  ].
 
-   20.  Return processed request and receiver hpke context to the
-        Bidding and Auction Services.
+   20.  Return processed request and rctxt to the Bidding and Auction
+        Services.
 
 2.2.5.1.  Request Parse Error Handling
 
