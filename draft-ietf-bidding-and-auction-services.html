@@ -1381,7 +1381,9 @@ about the seller and buyer services can be found in the <a href="https://github.
                 <td class="text-left" rowspan="1" colspan="1">
                   <code>interestGroupOwner = origin</code>
 </td>
-                <td class="text-left" rowspan="1" colspan="1">TODO</td>
+                <td class="text-left" rowspan="1" colspan="1">
+                  <span>[<a href="#IGOWNER" class="cite xref">IGOWNER</a>]</span>
+</td>
               </tr>
             </tbody>
           </table>
@@ -1559,8 +1561,8 @@ or more explicitly as follows:<a href="#section-2.2.1-8" class="pilcrow">¶</a><
               <p id="section-2.2.1-9.2.1">If <code>version</code> is not 0, return an error.<a href="#section-2.2.1-9.2.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-2.2.1-9.3">
-              <p id="section-2.2.1-9.3.1">Find the matching HPTK private key, <code>skR</code>, corresponding to <code>key_id</code>. If there
-is no matching key, return an error.<a href="#section-2.2.1-9.3.1" class="pilcrow">¶</a></p>
+              <p id="section-2.2.1-9.3.1">Find the matching HPKE private key, <code>skR</code>, corresponding to <code>key_id</code>. If
+there is no matching key, return an error.<a href="#section-2.2.1-9.3.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-2.2.1-9.4">
               <p id="section-2.2.1-9.4.1">Build a sequence of bytes (<code>info</code>) by concatenating the ASCII-encoded string
@@ -1621,13 +1623,19 @@ padding scheme for requests.<a href="#section-2.2.2-3" class="pilcrow">¶</a></p
 <div class="lang-cddl sourcecode" id="section-2.2.3-2">
 <pre>
 request = {
-  // TODO description of all fields
+  ; Current version of the protocol.
+  ; In this document, it must be 0.
   version: int,
+  ; Used by the Bidding and Auction Services to
+  ; keep track of a request (and corresponding response)
+  ; over its lifetime.
+  ; Must be a [UUID][Version 4].
   generationId: uuid,
+  ; Represents the publisher initiating the request.
   publisher: origin,
   interestGroups: {
     ; Map of interest group owner to CBOR encoded list of interest
-    ; groups compressed using the method described in § Compression.
+    ; groups compressed as described in § Generating a Request.
     * interestGroupOwner =&gt; bstr
   },
   ? enableDebugReporting: bool
@@ -1920,58 +1928,57 @@ plaintext payload contains a framing header, response message, and padding (see
           <h4 id="name-encryption-2">
 <a href="#section-2.3.1" class="section-number selfRef">2.3.1. </a><a href="#name-encryption-2" class="section-name selfRef">Encryption</a>
           </h4>
-<p id="section-2.3.1-1">The response is encrypted with <span>[<a href="#HPKE" class="cite xref">HPKE</a>]</span> as a<a href="#section-2.3.1-1" class="pilcrow">¶</a></p>
-<p id="section-2.3.1-2">The response uses a similar encapsulated response format to that used by
-<span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span>.<a href="#section-2.3.1-2" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-2.3.1-3">
+<p id="section-2.3.1-1">The response uses a similar encapsulated response format to that used by
+<span>[<a href="#OHTTP" class="cite xref">OHTTP</a>]</span>.<a href="#section-2.3.1-1" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-2.3.1-2">
 <pre>
 Encapsulated Response {
   Nonce (8 * max(Nn, Nk)),
   AEAD-Protected Response (..),
 }
-</pre><a href="#section-2.3.1-3" class="pilcrow">¶</a>
+</pre><a href="#section-2.3.1-2" class="pilcrow">¶</a>
 </div>
-<p id="section-2.3.1-4">Encryption of the response is similar to in [OHTTP] <a href="https://www.rfc-editor.org/rfc/rfc9458.html#name-encapsulation-of-responses">Section 4.4</a>, only with a different media type,
-repeated below for clarity:<a href="#section-2.3.1-4" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.3.1-5">
-<li id="section-2.3.1-5.1">
-              <p id="section-2.3.1-5.1.1">Export a secret (<code>secret</code>) from <code>context</code>, using the string
+<p id="section-2.3.1-3">Encryption of the response is similar to in [OHTTP] <a href="https://www.rfc-editor.org/rfc/rfc9458.html#name-encapsulation-of-responses">Section 4.4</a>, only with a different media type,
+repeated below for clarity:<a href="#section-2.3.1-3" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.1-4">
+<li id="section-2.3.1-4.1">
+              <p id="section-2.3.1-4.1.1">Export a secret (<code>secret</code>) from <code>context</code>, using the string
 "message/auction response" as the <code>exporter_context</code> parameter to
 <code>context.Export</code>; see <a href="https://www.rfc-editor.org/rfc/rfc9180.html#name-secret-export">Section 5.3</a>
 of <span>[<a href="#HPKE" class="cite xref">HPKE</a>]</span>. The length of this secret is <code>max(Nn, Nk)</code>, where <code>Nn</code> and <code>Nk</code> are
-the length of the AEAD key and nonce that are associated with <code>context</code>.<a href="#section-2.3.1-5.1.1" class="pilcrow">¶</a></p>
+the length of the AEAD key and nonce that are associated with <code>context</code>.<a href="#section-2.3.1-4.1.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-2.3.1-5.2">
-              <p id="section-2.3.1-5.2.1">Generate a random value of length <code>max(Nn, Nk)</code> bytes, called <code>response_nonce</code>.<a href="#section-2.3.1-5.2.1" class="pilcrow">¶</a></p>
+            <li id="section-2.3.1-4.2">
+              <p id="section-2.3.1-4.2.1">Generate a random value of length <code>max(Nn, Nk)</code> bytes, called <code>response_nonce</code>.<a href="#section-2.3.1-4.2.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-2.3.1-5.3">
-              <p id="section-2.3.1-5.3.1">Extract a pseudorandom key (<code>prk</code>) using the <code>Extract</code> function provided by
+            <li id="section-2.3.1-4.3">
+              <p id="section-2.3.1-4.3.1">Extract a pseudorandom key (<code>prk</code>) using the <code>Extract</code> function provided by
 the KDF algorithm associated with context. The <code>ikm</code> input to this function
 is <code>secret</code>; the <code>salt</code> input is the concatenation of <code>enc</code> (from
-  <code>enc_request</code>) and <code>response_nonce</code>.<a href="#section-2.3.1-5.3.1" class="pilcrow">¶</a></p>
+  <code>enc_request</code>) and <code>response_nonce</code>.<a href="#section-2.3.1-4.3.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-2.3.1-5.4">
-              <p id="section-2.3.1-5.4.1">Use the <code>Expand</code> function provided by the same KDF to create an AEAD key,
+            <li id="section-2.3.1-4.4">
+              <p id="section-2.3.1-4.4.1">Use the <code>Expand</code> function provided by the same KDF to create an AEAD key,
 <code>key</code>, of length <code>Nk</code> -- the length of the keys used by the AEAD associated
-with <code>context</code>. Generating <code>aead_key</code> uses a label of "key".<a href="#section-2.3.1-5.4.1" class="pilcrow">¶</a></p>
+with <code>context</code>. Generating <code>aead_key</code> uses a label of "key".<a href="#section-2.3.1-4.4.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-2.3.1-5.5">
-              <p id="section-2.3.1-5.5.1">Use the same <code>Expand</code> function to create a nonce, <code>nonce</code>, of length <code>Nn</code>
+            <li id="section-2.3.1-4.5">
+              <p id="section-2.3.1-4.5.1">Use the same <code>Expand</code> function to create a nonce, <code>nonce</code>, of length <code>Nn</code>
 -- the length of the nonce used by the AEAD. Generating <code>aead_nonce</code> uses a
-  label of "nonce".<a href="#section-2.3.1-5.5.1" class="pilcrow">¶</a></p>
+  label of "nonce".<a href="#section-2.3.1-4.5.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-2.3.1-5.6">
-              <p id="section-2.3.1-5.6.1">Encrypt <code>response</code>, passing the AEAD function <code>Seal</code> the values of <code>aead_key</code>,
-<code>aead_nonce</code>, an empty <code>aad</code>, and a <code>pt</code> input of <code>response</code>. This yields <code>ct</code>.<a href="#section-2.3.1-5.6.1" class="pilcrow">¶</a></p>
+            <li id="section-2.3.1-4.6">
+              <p id="section-2.3.1-4.6.1">Encrypt <code>response</code>, passing the AEAD function <code>Seal</code> the values of <code>aead_key</code>,
+<code>aead_nonce</code>, an empty <code>aad</code>, and a <code>pt</code> input of <code>response</code>. This yields <code>ct</code>.<a href="#section-2.3.1-4.6.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-2.3.1-5.7">
-              <p id="section-2.3.1-5.7.1">Concatenate <code>response_nonce</code> and <code>ct</code>, yielding an Encapsulated Response,
+            <li id="section-2.3.1-4.7">
+              <p id="section-2.3.1-4.7.1">Concatenate <code>response_nonce</code> and <code>ct</code>, yielding an Encapsulated Response,
 <code>enc_response</code>. Note that <code>response_nonce</code> is of fixed length, so there is no
-  ambiguity in parsing either <code>response_nonce</code> or <code>ct</code>.<a href="#section-2.3.1-5.7.1" class="pilcrow">¶</a></p>
+  ambiguity in parsing either <code>response_nonce</code> or <code>ct</code>.<a href="#section-2.3.1-4.7.1" class="pilcrow">¶</a></p>
 </li>
           </ol>
-<p id="section-2.3.1-6">In pseudocode, this procedure is as follows:<a href="#section-2.3.1-6" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-2.3.1-7">
+<p id="section-2.3.1-5">In pseudocode, this procedure is as follows:<a href="#section-2.3.1-5" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-2.3.1-6">
 <pre>
 secret = context.Export("message/auction response", max(Nn, Nk))
 response_nonce = random(max(Nn, Nk))
@@ -1981,18 +1988,18 @@ aead_key = Expand(prk, "key", Nk)
 aead_nonce = Expand(prk, "nonce", Nn)
 ct = Seal(aead_key, aead_nonce, "", response)
 enc_response = concat(response_nonce, ct)
-</pre><a href="#section-2.3.1-7" class="pilcrow">¶</a>
+</pre><a href="#section-2.3.1-6" class="pilcrow">¶</a>
 </div>
-<p id="section-2.3.1-8">Clients decrypt an Encapsulated Response by reversing this process. That is,
+<p id="section-2.3.1-7">Clients decrypt an Encapsulated Response by reversing this process. That is,
 Clients first parse <code>enc_response</code> into <code>response_nonce</code> and <code>ct</code>. Then, they
 follow the same process to derive values for <code>aead_key</code> and <code>aead_nonce</code>, using
-their sending HPKE context, <code>sctxt</code>, as the HPKE context, <code>context</code>.<a href="#section-2.3.1-8" class="pilcrow">¶</a></p>
-<p id="section-2.3.1-9">The Client uses these values to decrypt <code>ct</code> using the AEAD function <code>Open</code>.
-Decrypting might produce an error, as follows:<a href="#section-2.3.1-9" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-2.3.1-10">
+their sending HPKE context, <code>sctxt</code>, as the HPKE context, <code>context</code>.<a href="#section-2.3.1-7" class="pilcrow">¶</a></p>
+<p id="section-2.3.1-8">The Client uses these values to decrypt <code>ct</code> using the AEAD function <code>Open</code>.
+Decrypting might produce an error, as follows:<a href="#section-2.3.1-8" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-2.3.1-9">
 <pre>
 response, error = Open(aead_key, aead_nonce, "", ct)
-</pre><a href="#section-2.3.1-10" class="pilcrow">¶</a>
+</pre><a href="#section-2.3.1-9" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
@@ -2442,6 +2449,10 @@ or null if there is an error.<a href="#section-2.3.5.1-2.3.1" class="pilcrow">¶
 <dt id="HPKE">[HPKE]</dt>
       <dd>
 <span class="refAuthor">Barnes, R.</span>, <span class="refAuthor">Bhargavan, K.</span>, <span class="refAuthor">Lipp, B.</span>, and <span class="refAuthor">C. Wood</span>, <span class="refTitle">"Hybrid Public Key Encryption"</span>, <span class="seriesInfo">RFC 9180</span>, <span class="seriesInfo">DOI 10.17487/RFC9180</span>, <time datetime="2022-02" class="refDate">February 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9180">https://www.rfc-editor.org/rfc/rfc9180</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="IGOWNER">[IGOWNER]</dt>
+      <dd>
+<span class="refTitle">"Protected Audience"</span>, <time datetime="2024" class="refDate">2024</time>, <span>&lt;<a href="https://wicg.github.io/turtledove/#server-auction-response-interest-group-owner">https://wicg.github.io/turtledove/#server-auction-response-interest-group-owner</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="ISO4217">[ISO4217]</dt>
       <dd>

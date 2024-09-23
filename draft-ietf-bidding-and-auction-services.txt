@@ -200,7 +200,7 @@ Table of Contents
         +-----------------------------------------+--------------+
         | adRenderId = tstr                       | [ADRENDERID] |
         +-----------------------------------------+--------------+
-        | interestGroupOwner = origin             | TODO         |
+        | interestGroupOwner = origin             | [IGOWNER]    |
         +-----------------------------------------+--------------+
 
                                  Table 1
@@ -328,7 +328,7 @@ Table of Contents
 
    2.  If version is not 0, return an error.
 
-   3.  Find the matching HPTK private key, skR, corresponding to key_id.
+   3.  Find the matching HPKE private key, skR, corresponding to key_id.
        If there is no matching key, return an error.
 
    4.  Build a sequence of bytes (info) by concatenating the ASCII-
@@ -379,13 +379,19 @@ Table of Contents
    [CDDL] schema:
 
    request = {
-     // TODO description of all fields
+     ; Current version of the protocol.
+     ; In this document, it must be 0.
      version: int,
+     ; Used by the Bidding and Auction Services to
+     ; keep track of a request (and corresponding response)
+     ; over its lifetime.
+     ; Must be a [UUID][Version 4].
      generationId: uuid,
+     ; Represents the publisher initiating the request.
      publisher: origin,
      interestGroups: {
        ; Map of interest group owner to CBOR encoded list of interest
-       ; groups compressed using the method described in § Compression.
+       ; groups compressed as described in § Generating a Request.
        * interestGroupOwner => bstr
      },
      ? enableDebugReporting: bool
@@ -610,8 +616,6 @@ Table of Contents
    message Section 2.3.3 is a compressed [CBOR] encoded message.
 
 2.3.1.  Encryption
-
-   The response is encrypted with [HPKE] as a
 
    The response uses a similar encapsulated response format to that used
    by [OHTTP].
@@ -1051,6 +1055,9 @@ Table of Contents
    [HPKE]     Barnes, R., Bhargavan, K., Lipp, B., and C. Wood, "Hybrid
               Public Key Encryption", RFC 9180, DOI 10.17487/RFC9180,
               February 2022, <https://www.rfc-editor.org/rfc/rfc9180>.
+
+   [IGOWNER]  "Protected Audience", 2024, <https://wicg.github.io/
+              turtledove/#server-auction-response-interest-group-owner>.
 
    [ISO4217]  "ISO 4217 Currency codes", 2024,
               <https://www.iso.org/iso-4217-currency-codes.html>.
