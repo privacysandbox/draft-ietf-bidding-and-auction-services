@@ -246,6 +246,9 @@ Table of Contents
    The amount of padding depends on the type of message and will be
    discussed for each message type separately.
 
+   GZIP MUST be implemented by the Client and the Bidding and Auction
+   Services, while Brotli MAY be.
+
 2.2.  Request Format
 
    This section discusses the request message sent from the client to
@@ -610,50 +613,57 @@ Table of Contents
 
    2.   Let error_msg be an empty string.
 
-   3.   Decapsulate and decrypt encrypted request by using the private
-        key as in Section 2.2.1 to get the decrypted message and rctxt.
+   3.   De-encapsulate and decrypt encrypted request by using the input
+        private key corresponding to key_id, as described in
+        Section 2.2.1, to get the decrypted message and rctxt.
 
         1.  If decapsulation or decryption fails, return failure.
 
-        2.  Else, save the decrypted output as decrypted request and
-            save rctxt.
+        2.  Else, save the decrypted output as framed request and save
+            rctxt.
 
-   4.   As in Section 2.1.2, get the framing version and compression
-        type by reading the first byte of decrypted request.
+   4.   Remove and extract the first 5 bytes from framed request as the
+        framing header (described in Section 2.1.2), removing them from
+        framed request.
 
-        1.  If reading the byte fails, or the compression type or
-            framing version are unexpected values, return failure.  This
-            document assumes framing version 0 and compression type 2.
+   5.   If the framing header's Version field is not 0, return failure.
 
-   5.   Read the compressed data size as in Section 2.1.2 and save the
-        compressed data payload to decodable request.
+   6.   If the framing header's Compression field is not supported,
+        return failure.  Otherwise, save the Compression field value as
+        compression type.
 
-        1.  If reading the compressed data fails, return failure.
+   7.   Let length be equal to the framing header's Size field.
 
-   6.   [CBOR] decode decodable request into the message represented in
+   8.   If length is greater than the length of the remaining bytes in
+        framed request, return failure.
+
+   9.   Take the first length remaining bytes in framed response as
+        decodable request, discarding the rest.
+
+   10.  [CBOR] decode decodable request into the message represented in
         Section 2.2.3.  Let this be request.
 
-   7.   If [CBOR] decoding fails, return failure.
+   11.  If [CBOR] decoding fails, return failure.
 
-   8.   Let processed request be an empty struct.
+   12.  Let processed request be an empty struct.
 
-   9.   If request is not a map, return failure.
+   13.  If request is not a map, return failure.
 
-   10.  If request["version"] does not exist or is not 0, return
+   14.  If request["version"] does not exist or is not 0, return
         failure.
 
-   11.  If request["publisher"] does not exist or is not a string,
+   15.  If request["publisher"] does not exist or is not a string,
         return failure.
 
-   12.  Set processed request["publisher"] to request["publisher"].
+   16.  Set processed request["publisher"] to request["publisher"].
 
-   13.  If request["generationId"] does not exist or is not a string,
+   17.  If request["generationId"] does not exist or is not a string,
         return failure.
 
-   14.  Set processed request["generationId"] to
+   18.  Set processed request["generationId"] to
         request["generationId"].
 
-   15.  If request["enableDebugReporting] exists:
+   19.  If request["enableDebugReporting] exists:
 
         1.  If request["enableDebugReporting"] is not a boolean, return
             failure.
@@ -661,12 +671,12 @@ Table of Contents
         2.  Set processed request["enableDebugReporting"] to
             request["enableDebugReporting"].
 
-   16.  If request["interestGroups] does not exist or is not a map,
+   20.  If request["interestGroups] does not exist or is not a map,
         return failure.
 
-   17.  Set processed request["interestGroups"] to an empty map.
+   21.  Set processed request["interestGroups"] to an empty map.
 
-   18.  For each key, value map entry of request["interestGroups"]:
+   22.  For each key, value map entry of request["interestGroups"]:
 
         1.  If key is not a string, append an error message to
             error_msg.  Proceed to Section 2.2.5.1.
@@ -674,8 +684,8 @@ Table of Contents
         2.  Set processed request["interestGroups"][key] to an empty
             list.
 
-        3.  [GZIP] decompress value and set as buyer input cbor.  If
-            decompression fails, return failure.
+        3.  Decompress value according to compression type and set as
+            buyer input cbor.  If decompression fails, return failure.
 
         4.  [CBOR] decode buyer input cbor into buyer input.  If
             decoding fails, return failure.
@@ -786,7 +796,7 @@ Table of Contents
             10.  Append ig to processed request["interestGroups"][ key
                  ].
 
-   19.  Return processed request and rctxt to the Bidding and Auction
+   23.  Return processed request and rctxt to the Bidding and Auction
         Services.
 
 2.2.5.1.  Request Parse Error Handling
