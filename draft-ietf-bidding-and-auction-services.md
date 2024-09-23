@@ -828,10 +828,13 @@ The output is a `response` to be sent to a Client.
 1. Let `compressed payload` equal the [GZIP] compressed `cbor payload`,
    returning an empty `response` on compression failure.
 1. Let `encoded payload` be the result of performing the message framing as
-   described in {{response-framing}}, returning an empty `response` on failure.
+   described in {{response-framing}}. Return an empty `response` on failure.
+    Set the framing version to 0 and set the the compression type to 2. Set the
+    compressed data size to the size of `compressed payload`. You MAY add
+    padding, as described in {{response-framing}}.
 1. Let `response` equal the result of the encryption and encapsulation of
-   `encoded payload` as described in {{response-encryption}}, returning an
-   empty `response` on failure.
+   `encoded payload` with `rctxt`, as described in {{response-encryption}}.
+   Return an empty `response` on failure.
 1. Return `response`.
 
 ### Parsing a Response {#response-parse}
