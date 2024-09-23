@@ -211,8 +211,10 @@ and authenticated encryption with associated data function parameters for
 HKDF-SHA256 (0x0010) for `HPKE KEM ID`, HKDF-SHA256 (0x0001) for
 `HPKE KDF ID`, and AES-256-GCM (0x0002) for `HPKE AEAD ID`.
 
-Encryption of the request is similar to in [OHTTP] [Section 4.3](https://www.rfc-editor.org/rfc/rfc9458#name-encapsulation-of-requests), only with a different media type
-and the `Version` prepended to the encrypted message:
+Encryption of the request is similar to in [OHTTP]
+[Section 4.3](https://www.rfc-editor.org/rfc/rfc9458#name-encapsulation-of-requests),
+only with a different media type and the `Version` prepended to the encrypted
+message:
 
 1. Construct a message header (`hdr`) by concatenating the values of the
    `Key Identifier`, `HPKE KEM ID`, `HPKE KDF ID`, and `HPKE AEAD ID` in network
@@ -242,6 +244,45 @@ enc, sctxt = SetupBaseS(pkR, info)
 ct = sctxt.Seal("", request)
 enc_request = concat(encode(1, version), hdr, enc, ct)
 ~~~~~
+
+A Bidding and Auction Services endpoint decrypts this encapsulated message in a
+similar manner to [OHTTP]
+[Section 4.3](https://www.rfc-editor.org/rfc/rfc9458#name-encapsulation-of-requests),
+or more explicitly as follows:
+
+1. Parse `enc_request` into `version`, `key_id`, `kem_id`, `kdf_id`, `aead_id`,
+   `enc`, and `ct`.
+1. If `version` is not 0, return an error.
+1. Find the matching HPTK private key, `skR`, corresponding to `key_id`. If there
+   is no matching key, return an error.
+1. Build a sequence of bytes (`info`) by concatenating the ASCII-encoded string
+   "message/auction request"; a zero byte; `key_id` as an 8-bit integer; plus
+   `kem_id`, `kdf_id`, and `aead_id` as three 16-bit integers.
+1. Create a receiving HPKE context, `rctxt`, by invoking `SetupBaseR()`
+   ([Section 5.1.1](https://rfc-editor.org/rfc/rfc9180#section-5.1.1) of [HPKE])
+   with `skR`, `enc`, and `info`.
+1. Decrypt `ct` by invoking the `Open()` method on `rctxt`
+   ([Section 5.2](https://rfc-editor.org/rfc/rfc9180#section-5.2) of [HPKE]),
+   with an empty associated data `aad`, yielding `request` and returning an
+   error on failure.
+
+In pseudocode, this procedure is as follows:
+
+~~~~~
+version, key_id, kem_id, kdf_id, aead_id, enc, ct = parse(enc_request)
+if version != 0 then return error
+info = concat(encode_str("message/auction request"),
+              encode(1, 0),
+              encode(1, key_id),
+              encode(2, kem_id),
+              encode(2, kdf_id),
+              encode(2, aead_id))
+rctxt = SetupBaseR(enc, skR, info)
+request, error = rctxt.Open("", ct)
+~~~~~
+
+Bidding and Auction Services retains the HPKE context, `rctxt`, so that it can
+encapsulate a response.
 
 ### Framing and Padding {#request-framing}
 
@@ -426,58 +467,99 @@ tuple.
 
 This algorithm takes as input an `encrypted request` and an [HPKE] `private key`.
 
-## Response Format
+## Response Format {#services-to-client}
 
-### Bidding and Auction Services to Client {#services-to-client}
+This section discusses the request message sent from the Bidding and Auction
+Services endpoint to the client in reply to a request.
 
-This section describes how the client MUST deserialize response messages from
-the Bidding and Auction Services. The steps MUST be performed in the following
-order: decryption ({{decryption}}), decompression ({{decompression}}), and
-finally parsing the response payload as in {{response-payload}}.
+The response from the Bidding and Auction Services endpoint consists of an
+[HPKE] encrypted payload with attached header (see {{response-encryption}}). The
+plaintext payload contains a framing header, response message, and padding (see
+{{response-framing}}). The response message {{response-message}} is a compressed
+[CBOR] encoded message.
 
-The required inputs from the client to the steps in {#services-to-client}:
+### Encryption {#response-encryption}
 
-1. The encrypted response byte string.
-2. The request context created while generating the request in {{request-generate}}.
+The response is encrypted with [HPKE] as a
 
-The resulting output for the client is:
+The response uses a similar encapsulated response format to that used by
+[OHTTP].
 
-1. The decoded response data structure, as described in {{response-payload}}.
+~~~~~
+Encapsulated Response {
+  Nonce (8 * max(Nn, Nk)),
+  AEAD-Protected Response (..),
+}
+~~~~~
 
-### Decryption {#decryption}
+Encryption of the response is similar to in [OHTTP] [Section 4.4](https://www.rfc-editor.org/rfc/rfc9458.html#name-encapsulation-of-responses), only with a different media type,
+repeated below for clarity:
 
-The response message is encrypted using HPKE with the encapsulation performed
-according to [Section 4.4](https://www.rfc-editor.org/rfc/rfc9458.html#name-encapsulation-of-responses)
-of {{OHTTP}} as the response to the request message.
+1. Export a secret (`secret`) from `context`, using the string
+   "message/auction response" as the `exporter_context` parameter to
+   `context.Export`; see [Section 5.3](https://www.rfc-editor.org/rfc/rfc9180.html#name-secret-export)
+   of [HPKE]. The length of this secret is `max(Nn, Nk)`, where `Nn` and `Nk` are
+   the length of the AEAD key and nonce that are associated with `context`.
+1. Generate a random value of length `max(Nn, Nk)` bytes, called `response_nonce`.
+1. Extract a pseudorandom key (`prk`) using the `Extract` function provided by
+   the KDF algorithm associated with context. The `ikm` input to this function
+   is `secret`; the `salt` input is the concatenation of `enc` (from
+  `enc_request`) and `response_nonce`.
+1. Use the `Expand` function provided by the same KDF to create an AEAD key,
+   `key`, of length `Nk` -- the length of the keys used by the AEAD associated
+   with `context`. Generating `aead_key` uses a label of "key".
+1. Use the same `Expand` function to create a nonce, `nonce`, of length `Nn`
+   -- the length of the nonce used by the AEAD. Generating `aead_nonce` uses a
+  label of "nonce".
+1. Encrypt `response`, passing the AEAD function `Seal` the values of `aead_key`,
+   `aead_nonce`, an empty `aad`, and a `pt` input of `response`. This yields `ct`.
+1. Concatenate `response_nonce` and `ct`, yielding an Encapsulated Response,
+   `enc_response`. Note that `response_nonce` is of fixed length, so there is no
+  ambiguity in parsing either `response_nonce` or `ct`.
 
-The client MUST decrypt the response by following the standard {{OHTTP}} [Encapsulated Response
-decryption procedure](https://www.rfc-editor.org/rfc/rfc9458#section-4.4-5). The
-context used for decryption MUST be precisely the same context blob that was
-created when generating the request {{request-generate}}.
+In pseudocode, this procedure is as follows:
 
-### Decompression {#decompression}
+~~~~~
+secret = context.Export("message/auction response", max(Nn, Nk))
+response_nonce = random(max(Nn, Nk))
+salt = concat(enc, response_nonce)
+prk = Extract(salt, secret)
+aead_key = Expand(prk, "key", Nk)
+aead_nonce = Expand(prk, "nonce", Nn)
+ct = Seal(aead_key, aead_nonce, "", response)
+enc_response = concat(response_nonce, ct)
+~~~~~
 
-The message framing is exactly as in {{request-framing}}, but the entire
-response payload is compressed. Starting with Byte 0, read bits 4-0 and use
-the chart in {{framing}} to decode which decompression algorithm
-MUST be applied to the response payload.
+Clients decrypt an Encapsulated Response by reversing this process. That is,
+Clients first parse `enc_response` into `response_nonce` and `ct`. Then, they
+follow the same process to derive values for `aead_key` and `aead_nonce`, using
+their sending HPKE context, `sctxt`, as the HPKE context, `context`.
 
-The output of the decompression process will be a payload equivalent to the
-[auction server response struct](https://wicg.github.io/turtledove/#server-auction-response),
-as further described in {{response-payload}}.
+The Client uses these values to decrypt `ct` using the AEAD function `Open`.
+Decrypting might produce an error, as follows:
 
-### Response Payload Data {#response-payload}
+~~~~~
+response, error = Open(aead_key, aead_nonce, "", ct)
+~~~~~
 
-After decompression, the result will be a {{CBOR}} byte string (described below).
+### Framing and Padding {#response-framing}
 
-The byte string MUST be decoded into a format usable by the client,
-the [server auction response structure](https://wicg.github.io/turtledove/#server-auction-response).
-The `server auction response structure` is the final, consumable output of {{services-to-client}}.
+The plaintext message uses the framing described in {{framing}}.
 
-To perform this decoding, use a compliant [CBOR] decoder. The following [CDDL]
-describes the structure of the CBOR data. Map the decoded data
-to the `server auction response structure` according to the instructions
-provided for each field.
+Messages MAY be exponentially padded so that the encrypted response is a power
+of 2 in length.
+
+A compatible implementation processing requests SHOULD NOT rely on a specific
+padding scheme for requests.
+
+
+### Response Message {#response-message}
+
+The response message is a [CBOR] encoded message, compressed using the method
+indicated in {#request-framing}. The [CBOR] encoded message SHOULD be
+serialized into deterministically encoded [CBOR] (as defined in
+[Section 4.2](https://www.rfc-editor.org/rfc/rfc8949.html#name-deterministically-encoded-c))
+and follows the following [CDDL] schema:
 
 ~~~~~cddl
 response = {
@@ -604,6 +686,128 @@ reportingUrls = {
 }
 
 ~~~~~
+
+### Generating a Response {#response-generate}
+
+TODO
+
+### Parsing a Response {#response-parse}
+
+This algorithm describes how a conforming Client MUST parse and validate a
+response from Bidding and Auction Services. It takes as input the
+`request context` tuple returned from {{request-generate}} in addition to the
+`encrypted response`.
+
+1. Use `request context`'s `hpke context` as the `context` for decryption and
+   follow the decryption steps in {{response-encryption}} to decrypt
+   `encrypted response` and obtain `framed response` and `error`.
+1. If `error` is not null, return failure.
+1. Remove and extract the first 5 bytes from `framed response` as the
+   `framing header` (described in {{framing}}), removing them from
+   `framed response`.
+1. If the `framing header`'s `Version` field is not 0, return failure.
+1. Let `length` be equal to the `framing header`'s `Size` field.
+1. If `length` is greater than the length of the remaining bytes in
+   `framed response`, return failure.
+1. Take the first `length` remaining bytes in `framed response` as
+   `compressed response`, discarding the rest.
+1. Decompress the `compressed response` into `serialized response` using the
+   method indicated by `framing header`'s `Compression` field, returning
+   failure if decompression fails.
+1. [CBOR] decode the `serialized response` into `response`, returning failure
+   if decompression fails.
+1. If `response` is not a map, return failure.
+1. If `response["error"]` exists, return failure.
+1. If `response["isChaff"]` exists and is either not a boolean or is true,
+   return failure.
+1. Let `processed response` be a new structure analogous to
+   [server auction response](https://wicg.github.io/turtledove/#server-auction-response).
+1. If `response["adRenderURL"]` does not exist, return failure.
+1. Set `processed response["ad render url"]` to `response["adRenderURL"]` parsed
+   as a [URL], returning failure if there is an error.
+1. If `response["components"]` exists:
+  1. If `response["components"]` is not an array, return failure.
+  1. For each `component` in `response["components"]`:
+    1. Append `component` parsed as a [URL] to
+       `processed response["ad components"]`, returning failure if there is an
+       error.
+1. If `response["interestGroupName"]` does not exist or is not a string, return failure.
+1. Set `processed response["interest group name"]` to `response["interestGroupName"]`.
+1. If `response["interestGroupOwner"]` does not exist or is not a string, return failure.
+1. Set `processed response["interest group owner"]` to `response["interestGroupOwner"]`
+   parsed as an [ORIGIN], returning failure if there is an error.
+1. If `response["biddingGroups"]` does not exist or is not a map, return failure.
+1. For each `key`, `value` in `response["biddingGroups"]`:
+  1. Let `owner` be equal to `key` parsed as an [ORIGIN], returning failure if
+     there is an error.
+  1. `request context`'s `included_groups` does not contain `owner` as a key, return failure.
+  1. If `value` is not a list, return failure.
+  1. For each `element` in `value`:
+    1. If `element` is not an integer or `element < 0`, return failure.
+    1. If `element` is greater than or equal to the length of
+       `included_groups[owner]`, return failure.
+    1. Let `name` be the `interest group name` for `included_groups[owner][element]`.
+    1. Append the tuple (`owner`, `name`) to `processed response["bidding groups"]`.
+1. If `response["score"]` exists:
+  1. If `response["score"]` is not a floating point value, return failure.
+  1. Set `processed response["score"]` to `response["score"]`.
+1. If `response["bid"]` exists:
+  1. If `response["bid"]` is not a floating point value, return failure.
+  1. Let `bid` be a new structure analogous to [bid with currency](https://wicg.github.io/turtledove/#bid-with-currency).
+  1. Set `bid`s `value` field to `response["bid"]`.
+  1. If `response["bidCurrency"]` exists:
+    1. If `response["bidCurrency"]` is not a string, return failure.
+    1. If `response["bidCUrrency"]` is not 3 bytes long or contains characters
+       other than upper case ASCII letters, return failure.
+    1. Set `bid`'s `currency` field to `response["bidCurrency"]`.
+  1. Set `processed response["bid"]` to `bid`.
+1. If `response["winReportingURLs"]` exists and is a map:
+  1. If `response["winReportingURLs"]["buyerReportingURLs"]` exists:
+    1. Let `buyer reporting` be the result of {{response-parsing-reporting}} on
+       `response["winReportingURLs"]["buyerReportingURLs"]`.
+    1. Set `processed response["buyer reporting"]` to `buyer reporting`.
+  1. If `response["winReportingURLs"]["topLevelSellerReportingURLs"]` exists:
+    1. Let `top level seller reporting` be the result of {{response-parsing-reporting}}
+       on  `response["winReportingURLs"]["topLevelSellerReportingURLs"]`.
+    1. Set `processed response["top level seller reporting"]` to
+       `top level seller reporting`.
+  1. If `response["winReportingURLs"]["componentSellerReportingURLs"]` exists:
+    1. Let `component seller reporting` be the result of {{response-parsing-reporting}}
+       on `response["winReportingURLs"]["componentSellerReportingURLs"]`.
+    1. Set `processed response["component seller reporting"` to
+       `component seller reporting`.
+1. If `response["topLevelSeller"]` exists:
+  1. If `response["topLevelSeller"]` is not a string, return failure.
+  1. Set `processed response["top level seller"]` to `response["topLevelSeller"]`
+     parsed as a [URL], returning failure if there is an error.
+1. If `response["adMetadata"]` exists and is a string set
+   `processed response["ad metadata"]` to `response["adMetadata"]`.
+1. If `response["buyerReportingId"]` exists and is a string set
+   `processed response["buyer reporting id"]` to `response["buyerReportingId"]`.
+1. If `response["buyerAndSellerReportingId"]` exists and is a string set
+   `processed response["buyer and seller reporting id"]` to
+   `response["buyerAndSellerReportingId"]`.
+1. Return `processed response`.
+
+#### Parsing reporting URLs {#response-parsing-reporting}
+
+To parse reporting URLs on a [CBOR] map `reporting URLs` with a schema like
+`reportingUrls` from {{response-message}}:
+
+1. Let `processed reporting URLs` be a new structure analogous to
+   [server auction reporting info](https://wicg.github.io/turtledove/#server-auction-reporting-info).
+1. If `reporting URLs["reportingURL"]` exists and is a string:
+  1. Let `reporting URL` be `reporting URLs["reportingURL"]` parsed as a [URL],
+     or null if there is an error.
+  1. If `reporting URL` is not null, set
+     `processed reporting URLs["reporting url"]` to `reporting URL`.
+1. If `reporting URLs["interactionReportingURLs"]` exists and is a map:
+  1. For each `key`, `value` in `reporting URLs["interactionReportingURLs"]`:
+    1. If `key` is not a string, continue with the next iteration.
+    1. Let `reporting URL` be `value` parsed as a [URL]. If there is an error,
+       continue with the next iteration.
+    1. Set `processed reporting URLs["beacon urls"][key]` to `reporting URL`.
+1. Return `processed reporting URLs`.
 
 # Security Considerations
 
