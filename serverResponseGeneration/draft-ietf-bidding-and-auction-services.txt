@@ -1037,13 +1037,15 @@ Table of Contents
 
    The output is a response to be sent to a Client.
 
-   1.  Let cbor payload equal the [CBOR] serialized payload.  Return an
-       empty response on CBOR serialization failure.
+   1.  Let cbor payload equal the deterministically encoded CBOR
+       (https://www.rfc-editor.org/rfc/rfc8949.html#name-
+       deterministically-encoded-c) payload.  Return an empty response
+       on CBOR encoding failure.
 
    2.  Let compressed payload equal the [GZIP] compressed cbor payload,
        returning an empty response on compression failure.
 
-   3.  Let encoded payload be the result of performing the message
+   3.  Let framed payload be the result of performing the message
        framing as described in Section 2.3.2.  Return an empty response
        on failure.  Set the framing version to 0 and set the the
        compression type to 2.  Set the compressed data size to the size
@@ -1051,7 +1053,7 @@ Table of Contents
        Section 2.3.2.
 
    4.  Let response equal the result of the encryption and encapsulation
-       of encoded payload with rctxt, as described in Section 2.3.1.
+       of framed payload with rctxt, as described in Section 2.3.1.
        Return an empty response on failure.
 
    5.  Return response.
