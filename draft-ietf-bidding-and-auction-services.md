@@ -176,6 +176,9 @@ corresponds to the below table:
 The amount of padding depends on the type of message and will be discussed for
 each message type separately.
 
+GZIP MUST be implemented by the Client and the Bidding and Auction Services,
+while Brotli MAY be.
+
 ## Request Format {#client-to-services}
 
 This section discusses the request message sent from the client to the Bidding
@@ -478,18 +481,22 @@ consume along with an HPKE context.
 
 1. Let `encrypted request` be the request received from the client.
 1. Let `error_msg` be an empty string.
-1. Decapsulate and decrypt `encrypted request` by using the `private key` as in
-   {{request-encryption}} to get the decrypted message and `rctxt`.
+1. De-encapsulate and decrypt `encrypted request` by using the input private key
+   corresponding to `key_id`, as described in {{request-encryption}}, to get the
+   decrypted message and `rctxt`.
    1. If decapsulation or decryption fails, return failure.
-   1. Else, save the decrypted output as `decrypted request` and save `rctxt`.
-1. As in {{framing}}, get the framing version and compression type by reading
-   the first byte of `decrypted request`.
-   1. If reading the byte fails, or the compression type or framing version are
-      unexpected values, return failure. This document assumes framing version 0 and
-      compression type 2.
-1. Read the compressed data size as in {{framing}} and save the compressed data
-   payload to `decodable request`.
-   1.  If reading the compressed data fails, return failure.
+   1. Else, save the decrypted output as `framed request` and save `rctxt`.
+1. Remove and extract the first 5 bytes from `framed request` as the
+   `framing header` (described in {{framing}}), removing them from
+   `framed request`.
+1. If the `framing header`'s `Version` field is not 0, return failure.
+1. If the `framing header`'s `Compression` field is not supported, return
+   failure. Otherwise, save the `Compression` field value as `compression type`.
+1. Let `length` be equal to the `framing header`'s `Size` field.
+1. If `length` is greater than the length of the remaining bytes in
+   `framed request`, return failure.
+1. Take the first `length` remaining bytes in `framed response` as
+   `decodable request`, discarding the rest.
 1. [CBOR] decode `decodable request` into the message represented in {{request-message}}.
    Let this be `request`.
 1. If [CBOR] decoding fails, return failure.
@@ -510,8 +517,8 @@ consume along with an HPKE context.
    1. If `key` is not a string, append an error message to
       `error_msg`. Proceed to {{request-parse-error}}.
    1. Set `processed request["interestGroups"]``[key]` to an empty list.
-   1. [GZIP] decompress `value` and set as `buyer input cbor`. If
-      decompression fails, return failure.
+   1. Decompress `value` according to `compression type` and set as
+      `buyer input cbor`. If decompression fails, return failure.
    1. [CBOR] decode `buyer input cbor` into `buyer input`. If decoding fails, return failure.
    1. If `buyer input` is not an array, return failure.
    1. For each `interest group` in `buyer input`:
