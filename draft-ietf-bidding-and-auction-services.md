@@ -827,11 +827,16 @@ The output is a `response` to be sent to a Client.
    `payload`. Return an empty `response` on CBOR encoding failure.
 1. Let `compressed payload` equal the [GZIP] compressed `cbor payload`,
    returning an empty `response` on compression failure.
-1. Let `framed payload` be the result of performing the message framing as
-   described in {{response-framing}}. Return an empty `response` on failure.
-   Set the framing version to 0 and set the the compression type to 2. Set the
-   compressed data size to the size of `compressed payload`. You MAY add
-   padding, as described in {{response-framing}}.
+1. Create a framed payload, as described in {{response-framing}}:
+   1. Create a `framing header`.
+   1. Set the `framing header` `Compression` to 2.
+   1. Set the `framing header` `Version` to 0.
+   1. Set the `framing header` `Size` to the size of `compressed payload`.
+   1. Let `framed payload` equal the result of prepend the framing header
+      to `compressed payload`.
+   1. Padding MAY be added to `framing header`, as described in
+      {{response-framing}}.
+   1. Return an empty `response` on failure of any of the previous steps.
 1. Let `response` equal the result of the encryption and encapsulation of
    `framed payload` with `rctxt`, as described in {{response-encryption}}.
    Return an empty `response` on failure.
