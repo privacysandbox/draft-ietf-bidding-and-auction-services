@@ -32,7 +32,6 @@ normative:
   OHTTP: RFC9458
   SHA-256: RFC6234
   HPKE: RFC9180
-  BINARY: RFC9292
   GZIP: RFC1952
   UUID: RFC9562
   ISO4217:
@@ -179,6 +178,9 @@ corresponds to the below table:
 
 The amount of padding depends on the type of message and will be discussed for
 each message type separately.
+
+GZIP MUST be implemented by the Client and the Bidding and Auction Services,
+while Brotli MAY be.
 
 ## Request Format {#client-to-services}
 
@@ -475,7 +477,131 @@ tuple.
 
 ### Parsing a Request {#request-parsing}
 
-This algorithm takes as input an `encrypted request` and an [HPKE] `private key`.
+This section describes how the Bidding and Auction Services MUST deserialize
+request messages from the client.
+
+The algorithm takes as input a serialized request message from the client
+({{request-generate}}) and a list of HPKE private keys (along with their
+corresponding key IDs).
+
+The output is either an error sent back to the client, an empty message sent
+back to the client, or a request message the Bidding and Auction services can
+consume along with an HPKE context.
+
+1. Let `encrypted request` be the request received from the client.
+1. Let `error_msg` be an empty string.
+1. De-encapsulate and decrypt `encrypted request` by using the input private key
+   corresponding to `key_id`, as described in {{request-encryption}}, to get the
+   decrypted message and `rctxt`.
+   1. If decapsulation or decryption fails, return failure.
+   1. Else, save the decrypted output as `framed request` and save `rctxt`.
+1. Remove and extract the first 5 bytes from `framed request` as the
+   `framing header` (described in {{framing}}), removing them from
+   `framed request`.
+1. If the `framing header`'s `Version` field is not 0, return failure.
+1. If the `framing header`'s `Compression` field is not supported, return
+   failure. Otherwise, save the `Compression` field value as `compression type`.
+1. Let `length` be equal to the `framing header`'s `Size` field.
+1. If `length` is greater than the length of the remaining bytes in
+   `framed request`, return failure.
+1. Take the first `length` remaining bytes in `framed response` as
+   `decodable request`, discarding the rest.
+1. [CBOR] decode `decodable request` into the message represented in {{request-message}}.
+   Let this be `request`.
+1. If [CBOR] decoding fails, return failure.
+1. Let `processed request` be an empty struct.
+1. If `request` is not a map, return failure.
+1. If `request["version"]` does not exist or is not 0, return failure.
+1. If `request["publisher"]` does not exist or is not a string, return failure.
+1. Set `processed request["publisher"]` to `request["publisher"]`.
+1. If `request["generationId"]` does not exist or is not a string, return failure.
+1. Set `processed request["generationId"]` to `request["generationId"]`.
+1. If `request["enableDebugReporting]` exists:
+   1. If `request["enableDebugReporting"]` is not a boolean, return failure.
+   1. Set `processed request["enableDebugReporting"]` to
+      `request["enableDebugReporting"]`.
+1. If `request["interestGroups]` does not exist or is not a map, return failure.
+1. Set `processed request["interestGroups"]` to an empty map.
+1. For each `key`, `value` map entry of `request["interestGroups"]`:
+   1. If `key` is not a string, append an error message to
+      `error_msg`. Proceed to {{request-parse-error}}.
+   1. Set `processed request["interestGroups"]``[key]` to an empty list.
+   1. Decompress `value` according to `compression type` and set as
+      `buyer input cbor`. If decompression fails, return failure.
+   1. [CBOR] decode `buyer input cbor` into `buyer input`. If decoding fails, return failure.
+   1. If `buyer input` is not an array, return failure.
+   1. For each `interest group` in `buyer input`:
+      1. If the `interest groups` is not a map, append an error message to
+         `error_msg`. Proceed to {{request-parse-error}}.
+      1. Let `ig` be an empty struct similar to {{request-groups}}.
+      1. If `interest group["name"]` does not exist or is not a string, return failure.
+      1. Set `ig["name"]` to `interest group["name"]`.
+      1. If `interest group["userBiddingSignals"]` exists:
+         1. If `interest group["userBiddingSignals"]` is not a string, return failure.
+         1. Set `ig["userBiddingSignals"]` to `interest group["userBiddingSignals"]`.
+      1. If `interest group["biddingSignalsKeys"]` exists:
+         1. If `interest group["biddingSignalsKeys"]` is not an array of strings,
+            return failure.
+         1. Set `ig["biddingSignalsKeys"]` to `interest group["biddingSignalsKeys"]`.
+      1. If `interest group["ads"]` exists:
+         1. If `interest group["ads"]` is not an array of strings, return failure.
+         1. Set `ig["ads"]` to `interest group["ads"]`.
+      1. If `interest group["component"]` exists:
+         1. If `interest group["component"]` is not an array
+         of strings, return failure.
+         1. Set `ig["component"]` to `interest group["component"]`.
+      1. If `interest group["browserSignals"]` exists:
+         1. If `interest group["browserSignals"]` is not a map, return failure.
+         1. Let `igbs` be an empty struct similar to `browserSignals` as
+            defined in {{request-groups}}.
+         1. Let `signals` be `interest group["browserSignals"]`.
+         1. If `signals["bidCount"]` exists:
+            1. If `signals["bidCount"]` is not a valid 64-bit unsigned integer,
+               return failure.
+            1. Set `igbs["bidCount"]` to `signals["bidCount"]`.
+         1. If `signals["joinCount"]` exists:
+            1. If `signals["joinCount"]` is not a valid 64-bit unsigned integer,
+               return failure.
+            1. Set `igbs["joinCount"]` to `signals["joinCount"]`.
+         1. If `signals["recencyMs"]` exists:
+            1. If `signals["recencyMs"]` is not a valid 64-bit unsigned integer,
+               return failure.
+            1. Set `igbs["recencyMs"]` to `signals["recencyMs"]`.
+         1. If `signals["prevWins"]` exists:
+            1. Let `pw` be an empty array.
+            1. If `signals["prevWins"]` is not an array, return failure.
+            1. For each `prevWinTuple` in `signals["prevWins"]`:
+               1. Let `pwt` be an empty array.
+               1. If `prevWinTuple` is not an array of size 2, return failure.
+               1. If `prevWinTuple[0]` is not a valid 64-bit unsigned integer,
+                  return failure.
+               1. If `prevWinTuple[1]` is not a string, return failure.
+               1. Set `pwt` to `prevWinTuple`.
+               1. Append `pwt` to `pw`.
+            1. Set `igbs["prevWins"]` to `pw`.
+         1. Set `ig["browserSignals"]` to `igbs`.
+      1. Append `ig` to `processed request["interestGroups"]``[ key ]`.
+1. Return `processed request` and `rctxt` to the Bidding and Auction
+   Services.
+
+#### Request Parse Error Handling {#request-parse-error}
+
+If {{request-parsing}} returns with failure, the following algorithm describes
+how the Bidding and Auction Services MUST respond.
+
+The input to this algorithm is `error_msg`, which MAY be returned from the point
+of failure in {{request-parsing}}.
+
+The output is a response to the client.
+
+1. If the failure happens before or during decryption, respond with an empty
+   message.
+1. Otherwise abort processing the request.
+1. Let `error` be a new map with key-value pairs:
+   `[("code", 400), ("error", error_msg)]`.
+1. Let `response` be a new {{response-message}}.
+1. Set `response["error"]` to `error`.
+1. Serialize and send `response` to the client per {{services-to-client}}.
 
 ## Response Format {#services-to-client}
 
@@ -697,7 +823,32 @@ reportingUrls = {
 
 ### Generating a Response {#response-generate}
 
-TODO
+This algorithm describes how conforming Bidding and Auction Services MAY
+generate a response to a request.
+
+The input is a `payload` corresponding to {{response-message}} and the HPKE
+receiver context saved in {{request-parsing}}, `rctxt`.
+
+The output is a `response` to be sent to a Client.
+
+1. Let `cbor payload` equal the [deterministically encoded CBOR](https://www.rfc-editor.org/rfc/rfc8949.html#name-deterministically-encoded-c)
+   `payload`. Return an empty `response` on CBOR encoding failure.
+1. Let `compressed payload` equal the [GZIP] compressed `cbor payload`,
+   returning an empty `response` on compression failure.
+1. Create a framed payload, as described in {{response-framing}}:
+   1. Create a `framing header`.
+   1. Set the `framing header` `Compression` to 2.
+   1. Set the `framing header` `Version` to 0.
+   1. Set the `framing header` `Size` to the size of `compressed payload`.
+   1. Let `framed payload` equal the result of prepend the framing header
+      to `compressed payload`.
+   1. Padding MAY be added to `framing header`, as described in
+      {{response-framing}}.
+   1. Return an empty `response` on failure of any of the previous steps.
+1. Let `response` equal the result of the encryption and encapsulation of
+   `framed payload` with `rctxt`, as described in {{response-encryption}}.
+   Return an empty `response` on failure.
+1. Return `response`.
 
 ### Parsing a Response {#response-parse}
 
