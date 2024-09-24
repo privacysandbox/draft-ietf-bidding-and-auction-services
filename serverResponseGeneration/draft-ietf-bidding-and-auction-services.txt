@@ -1072,10 +1072,10 @@ Table of Contents
 
        2.  Set the framing header Compression to 2.
 
-       3.  Set the framing header version to 0.
+       3.  Set the framing header Version to 0.
 
-       4.  Set the framing header compressed data size to the size of
-           compressed payload.
+       4.  Set the framing header Size to the size of compressed
+           payload.
 
        5.  Let framed payload equal the result of prepend the framing
            header to compressed payload.
