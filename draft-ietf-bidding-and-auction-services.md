@@ -32,7 +32,6 @@ normative:
   OHTTP: RFC9458
   SHA-256: RFC6234
   HPKE: RFC9180
-  BINARY: RFC9292
   GZIP: RFC1952
   UUID: RFC9562
   ISO4217:
@@ -547,13 +546,16 @@ consume along with an HPKE context.
             defined in {{request-groups}}.
          1. Let `signals` be `interest group["browserSignals"]`.
          1. If `signals["bidCount"]` exists:
-            1. If `signals["bidCount"]` is not an an int, return failure.
+            1. If `signals["bidCount"]` is not a valid 64-bit unsigned integer,
+               return failure.
             1. Set `igbs["bidCount"]` to `signals["bidCount"]`.
          1. If `signals["joinCount"]` exists:
-            1. If `signals["joinCount"]` is not an an int, return failure.
+            1. If `signals["joinCount"]` is not a valid 64-bit unsigned integer,
+               return failure.
             1. Set `igbs["joinCount"]` to `signals["joinCount"]`.
          1. If `signals["recencyMs"]` exists:
-            1. If `signals["recencyMs"]` is not an an int, return failure.
+            1. If `signals["recencyMs"]` is not a valid 64-bit unsigned integer,
+               return failure.
             1. Set `igbs["recencyMs"]` to `signals["recencyMs"]`.
          1. If `signals["prevWins"]` exists:
             1. Let `pw` be an empty array.
@@ -561,7 +563,8 @@ consume along with an HPKE context.
             1. For each `prevWinTuple` in `signals["prevWins"]`:
                1. Let `pwt` be an empty array.
                1. If `prevWinTuple` is not an array of size 2, return failure.
-               1. If `prevWinTuple[0]` is not an int, return failure.
+               1. If `prevWinTuple[0]` is not a valid 64-bit unsigned integer,
+                  return failure.
                1. If `prevWinTuple[1]` is not a string, return failure.
                1. Set `pwt` to `prevWinTuple`.
                1. Append `pwt` to `pw`.
