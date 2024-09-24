@@ -1030,7 +1030,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Kocoj &amp; Hamilton</td>
-<td class="center">Expires 27 March 2025</td>
+<td class="center">Expires 28 March 2025</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1043,12 +1043,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-ietf-bidding-and-auction-services-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-09-23" class="published">23 September 2024</time>
+<time datetime="2024-09-24" class="published">24 September 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2025-03-27">27 March 2025</time></dd>
+<dd class="expires"><time datetime="2025-03-28">28 March 2025</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1095,7 +1095,7 @@ remote environments while preserving user privacy.<a href="#section-abstract-1" 
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 27 March 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 28 March 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1462,6 +1462,8 @@ corresponds to the below table:<a href="#section-2.1.2-4" class="pilcrow">¶</a>
           </table>
 <p id="section-2.1.2-6">The amount of padding depends on the type of message and will be discussed for
 each message type separately.<a href="#section-2.1.2-6" class="pilcrow">¶</a></p>
+<p id="section-2.1.2-7">GZIP MUST be implemented by the Client and the Bidding and Auction Services,
+while Brotli MAY be.<a href="#section-2.1.2-7" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1906,7 +1908,323 @@ larger than request.<a href="#section-2.2.4-3.14.1" class="pilcrow">¶</a></p>
           <h4 id="name-parsing-a-request">
 <a href="#section-2.2.5" class="section-number selfRef">2.2.5. </a><a href="#name-parsing-a-request" class="section-name selfRef">Parsing a Request</a>
           </h4>
-<p id="section-2.2.5-1">This algorithm takes as input an <code>encrypted request</code> and an <span>[<a href="#HPKE" class="cite xref">HPKE</a>]</span> <code>private key</code>.<a href="#section-2.2.5-1" class="pilcrow">¶</a></p>
+<p id="section-2.2.5-1">This section describes how the Bidding and Auction Services MUST deserialize
+request messages from the client.<a href="#section-2.2.5-1" class="pilcrow">¶</a></p>
+<p id="section-2.2.5-2">The algorithm takes as input a serialized request message from the client
+(<a href="#request-generate" class="auto internal xref">Section 2.2.4</a>) and a list of HPKE private keys (along with their
+corresponding key IDs).<a href="#section-2.2.5-2" class="pilcrow">¶</a></p>
+<p id="section-2.2.5-3">The output is either an error sent back to the client, an empty message sent
+back to the client, or a request message the Bidding and Auction services can
+consume along with an HPKE context.<a href="#section-2.2.5-3" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4">
+<li id="section-2.2.5-4.1">
+              <p id="section-2.2.5-4.1.1">Let <code>encrypted request</code> be the request received from the client.<a href="#section-2.2.5-4.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.2.5-4.2">
+              <p id="section-2.2.5-4.2.1">Let <code>error_msg</code> be an empty string.<a href="#section-2.2.5-4.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.2.5-4.3">
+              <p id="section-2.2.5-4.3.1">De-encapsulate and decrypt <code>encrypted request</code> by using the input private key
+corresponding to <code>key_id</code>, as described in <a href="#request-encryption" class="auto internal xref">Section 2.2.1</a>, to get the
+decrypted message and <code>rctxt</code>.<a href="#section-2.2.5-4.3.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.3.2">
+<li id="section-2.2.5-4.3.2.1">
+                  <p id="section-2.2.5-4.3.2.1.1">If decapsulation or decryption fails, return failure.<a href="#section-2.2.5-4.3.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.2.5-4.3.2.2">
+                  <p id="section-2.2.5-4.3.2.2.1">Else, save the decrypted output as <code>framed request</code> and save <code>rctxt</code>.<a href="#section-2.2.5-4.3.2.2.1" class="pilcrow">¶</a></p>
+</li>
+              </ol>
+</li>
+            <li id="section-2.2.5-4.4">
+              <p id="section-2.2.5-4.4.1">Remove and extract the first 5 bytes from <code>framed request</code> as the
+<code>framing header</code> (described in <a href="#framing" class="auto internal xref">Section 2.1.2</a>), removing them from
+<code>framed request</code>.<a href="#section-2.2.5-4.4.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.2.5-4.5">
+              <p id="section-2.2.5-4.5.1">If the <code>framing header</code>'s <code>Version</code> field is not 0, return failure.<a href="#section-2.2.5-4.5.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.2.5-4.6">
+              <p id="section-2.2.5-4.6.1">If the <code>framing header</code>'s <code>Compression</code> field is not supported, return
+failure. Otherwise, save the <code>Compression</code> field value as <code>compression type</code>.<a href="#section-2.2.5-4.6.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.2.5-4.7">
+              <p id="section-2.2.5-4.7.1">Let <code>length</code> be equal to the <code>framing header</code>'s <code>Size</code> field.<a href="#section-2.2.5-4.7.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.2.5-4.8">
+              <p id="section-2.2.5-4.8.1">If <code>length</code> is greater than the length of the remaining bytes in
+<code>framed request</code>, return failure.<a href="#section-2.2.5-4.8.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.2.5-4.9">
+              <p id="section-2.2.5-4.9.1">Take the first <code>length</code> remaining bytes in <code>framed response</code> as
+<code>decodable request</code>, discarding the rest.<a href="#section-2.2.5-4.9.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.2.5-4.10">
+              <p id="section-2.2.5-4.10.1"><span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span> decode <code>decodable request</code> into the message represented in <a href="#request-message" class="auto internal xref">Section 2.2.3</a>.
+Let this be <code>request</code>.<a href="#section-2.2.5-4.10.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.2.5-4.11">
+              <p id="section-2.2.5-4.11.1">If <span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span> decoding fails, return failure.<a href="#section-2.2.5-4.11.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.2.5-4.12">
+              <p id="section-2.2.5-4.12.1">Let <code>processed request</code> be an empty struct.<a href="#section-2.2.5-4.12.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.2.5-4.13">
+              <p id="section-2.2.5-4.13.1">If <code>request</code> is not a map, return failure.<a href="#section-2.2.5-4.13.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.2.5-4.14">
+              <p id="section-2.2.5-4.14.1">If <code>request["version"]</code> does not exist or is not 0, return failure.<a href="#section-2.2.5-4.14.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.2.5-4.15">
+              <p id="section-2.2.5-4.15.1">If <code>request["publisher"]</code> does not exist or is not a string, return failure.<a href="#section-2.2.5-4.15.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.2.5-4.16">
+              <p id="section-2.2.5-4.16.1">Set <code>processed request["publisher"]</code> to <code>request["publisher"]</code>.<a href="#section-2.2.5-4.16.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.2.5-4.17">
+              <p id="section-2.2.5-4.17.1">If <code>request["generationId"]</code> does not exist or is not a string, return failure.<a href="#section-2.2.5-4.17.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.2.5-4.18">
+              <p id="section-2.2.5-4.18.1">Set <code>processed request["generationId"]</code> to <code>request["generationId"]</code>.<a href="#section-2.2.5-4.18.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.2.5-4.19">
+              <p id="section-2.2.5-4.19.1">If <code>request["enableDebugReporting]</code> exists:<a href="#section-2.2.5-4.19.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.19.2">
+<li id="section-2.2.5-4.19.2.1">
+                  <p id="section-2.2.5-4.19.2.1.1">If <code>request["enableDebugReporting"]</code> is not a boolean, return failure.<a href="#section-2.2.5-4.19.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.2.5-4.19.2.2">
+                  <p id="section-2.2.5-4.19.2.2.1">Set <code>processed request["enableDebugReporting"]</code> to
+<code>request["enableDebugReporting"]</code>.<a href="#section-2.2.5-4.19.2.2.1" class="pilcrow">¶</a></p>
+</li>
+              </ol>
+</li>
+            <li id="section-2.2.5-4.20">
+              <p id="section-2.2.5-4.20.1">If <code>request["interestGroups]</code> does not exist or is not a map, return failure.<a href="#section-2.2.5-4.20.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.2.5-4.21">
+              <p id="section-2.2.5-4.21.1">Set <code>processed request["interestGroups"]</code> to an empty map.<a href="#section-2.2.5-4.21.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.2.5-4.22">
+              <p id="section-2.2.5-4.22.1">For each <code>key</code>, <code>value</code> map entry of <code>request["interestGroups"]</code>:<a href="#section-2.2.5-4.22.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.22.2">
+<li id="section-2.2.5-4.22.2.1">
+                  <p id="section-2.2.5-4.22.2.1.1">If <code>key</code> is not a string, append an error message to
+<code>error_msg</code>. Proceed to <a href="#request-parse-error" class="auto internal xref">Section 2.2.5.1</a>.<a href="#section-2.2.5-4.22.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.2.5-4.22.2.2">
+                  <p id="section-2.2.5-4.22.2.2.1">Set <code>processed request["interestGroups"]</code><code>[key]</code> to an empty list.<a href="#section-2.2.5-4.22.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.2.5-4.22.2.3">
+                  <p id="section-2.2.5-4.22.2.3.1">Decompress <code>value</code> according to <code>compression type</code> and set as
+<code>buyer input cbor</code>. If decompression fails, return failure.<a href="#section-2.2.5-4.22.2.3.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.2.5-4.22.2.4">
+                  <p id="section-2.2.5-4.22.2.4.1"><span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span> decode <code>buyer input cbor</code> into <code>buyer input</code>. If decoding fails, return failure.<a href="#section-2.2.5-4.22.2.4.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.2.5-4.22.2.5">
+                  <p id="section-2.2.5-4.22.2.5.1">If <code>buyer input</code> is not an array, return failure.<a href="#section-2.2.5-4.22.2.5.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.2.5-4.22.2.6">
+                  <p id="section-2.2.5-4.22.2.6.1">For each <code>interest group</code> in <code>buyer input</code>:<a href="#section-2.2.5-4.22.2.6.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.22.2.6.2">
+<li id="section-2.2.5-4.22.2.6.2.1">
+                      <p id="section-2.2.5-4.22.2.6.2.1.1">If the <code>interest groups</code> is not a map, append an error message to
+<code>error_msg</code>. Proceed to <a href="#request-parse-error" class="auto internal xref">Section 2.2.5.1</a>.<a href="#section-2.2.5-4.22.2.6.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                    <li id="section-2.2.5-4.22.2.6.2.2">
+                      <p id="section-2.2.5-4.22.2.6.2.2.1">Let <code>ig</code> be an empty struct similar to <a href="#request-groups" class="auto internal xref">Section 2.2.3.1</a>.<a href="#section-2.2.5-4.22.2.6.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                    <li id="section-2.2.5-4.22.2.6.2.3">
+                      <p id="section-2.2.5-4.22.2.6.2.3.1">If <code>interest group["name"]</code> does not exist or is not a string, return failure.<a href="#section-2.2.5-4.22.2.6.2.3.1" class="pilcrow">¶</a></p>
+</li>
+                    <li id="section-2.2.5-4.22.2.6.2.4">
+                      <p id="section-2.2.5-4.22.2.6.2.4.1">Set <code>ig["name"]</code> to <code>interest group["name"]</code>.<a href="#section-2.2.5-4.22.2.6.2.4.1" class="pilcrow">¶</a></p>
+</li>
+                    <li id="section-2.2.5-4.22.2.6.2.5">
+                      <p id="section-2.2.5-4.22.2.6.2.5.1">If <code>interest group["userBiddingSignals"]</code> exists:<a href="#section-2.2.5-4.22.2.6.2.5.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.22.2.6.2.5.2">
+<li id="section-2.2.5-4.22.2.6.2.5.2.1">
+                          <p id="section-2.2.5-4.22.2.6.2.5.2.1.1">If <code>interest group["userBiddingSignals"]</code> is not a string, return failure.<a href="#section-2.2.5-4.22.2.6.2.5.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                        <li id="section-2.2.5-4.22.2.6.2.5.2.2">
+                          <p id="section-2.2.5-4.22.2.6.2.5.2.2.1">Set <code>ig["userBiddingSignals"]</code> to <code>interest group["userBiddingSignals"]</code>.<a href="#section-2.2.5-4.22.2.6.2.5.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                      </ol>
+</li>
+                    <li id="section-2.2.5-4.22.2.6.2.6">
+                      <p id="section-2.2.5-4.22.2.6.2.6.1">If <code>interest group["biddingSignalsKeys"]</code> exists:<a href="#section-2.2.5-4.22.2.6.2.6.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.22.2.6.2.6.2">
+<li id="section-2.2.5-4.22.2.6.2.6.2.1">
+                          <p id="section-2.2.5-4.22.2.6.2.6.2.1.1">If <code>interest group["biddingSignalsKeys"]</code> is not an array of strings,
+return failure.<a href="#section-2.2.5-4.22.2.6.2.6.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                        <li id="section-2.2.5-4.22.2.6.2.6.2.2">
+                          <p id="section-2.2.5-4.22.2.6.2.6.2.2.1">Set <code>ig["biddingSignalsKeys"]</code> to <code>interest group["biddingSignalsKeys"]</code>.<a href="#section-2.2.5-4.22.2.6.2.6.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                      </ol>
+</li>
+                    <li id="section-2.2.5-4.22.2.6.2.7">
+                      <p id="section-2.2.5-4.22.2.6.2.7.1">If <code>interest group["ads"]</code> exists:<a href="#section-2.2.5-4.22.2.6.2.7.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.22.2.6.2.7.2">
+<li id="section-2.2.5-4.22.2.6.2.7.2.1">
+                          <p id="section-2.2.5-4.22.2.6.2.7.2.1.1">If <code>interest group["ads"]</code> is not an array of strings, return failure.<a href="#section-2.2.5-4.22.2.6.2.7.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                        <li id="section-2.2.5-4.22.2.6.2.7.2.2">
+                          <p id="section-2.2.5-4.22.2.6.2.7.2.2.1">Set <code>ig["ads"]</code> to <code>interest group["ads"]</code>.<a href="#section-2.2.5-4.22.2.6.2.7.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                      </ol>
+</li>
+                    <li id="section-2.2.5-4.22.2.6.2.8">
+                      <p id="section-2.2.5-4.22.2.6.2.8.1">If <code>interest group["component"]</code> exists:<a href="#section-2.2.5-4.22.2.6.2.8.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.22.2.6.2.8.2">
+<li id="section-2.2.5-4.22.2.6.2.8.2.1">
+                          <p id="section-2.2.5-4.22.2.6.2.8.2.1.1">If <code>interest group["component"]</code> is not an array
+of strings, return failure.<a href="#section-2.2.5-4.22.2.6.2.8.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                        <li id="section-2.2.5-4.22.2.6.2.8.2.2">
+                          <p id="section-2.2.5-4.22.2.6.2.8.2.2.1">Set <code>ig["component"]</code> to <code>interest group["component"]</code>.<a href="#section-2.2.5-4.22.2.6.2.8.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                      </ol>
+</li>
+                    <li id="section-2.2.5-4.22.2.6.2.9">
+                      <p id="section-2.2.5-4.22.2.6.2.9.1">If <code>interest group["browserSignals"]</code> exists:<a href="#section-2.2.5-4.22.2.6.2.9.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.22.2.6.2.9.2">
+<li id="section-2.2.5-4.22.2.6.2.9.2.1">
+                          <p id="section-2.2.5-4.22.2.6.2.9.2.1.1">If <code>interest group["browserSignals"]</code> is not a map, return failure.<a href="#section-2.2.5-4.22.2.6.2.9.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                        <li id="section-2.2.5-4.22.2.6.2.9.2.2">
+                          <p id="section-2.2.5-4.22.2.6.2.9.2.2.1">Let <code>igbs</code> be an empty struct similar to <code>browserSignals</code> as
+defined in <a href="#request-groups" class="auto internal xref">Section 2.2.3.1</a>.<a href="#section-2.2.5-4.22.2.6.2.9.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                        <li id="section-2.2.5-4.22.2.6.2.9.2.3">
+                          <p id="section-2.2.5-4.22.2.6.2.9.2.3.1">Let <code>signals</code> be <code>interest group["browserSignals"]</code>.<a href="#section-2.2.5-4.22.2.6.2.9.2.3.1" class="pilcrow">¶</a></p>
+</li>
+                        <li id="section-2.2.5-4.22.2.6.2.9.2.4">
+                          <p id="section-2.2.5-4.22.2.6.2.9.2.4.1">If <code>signals["bidCount"]</code> exists:<a href="#section-2.2.5-4.22.2.6.2.9.2.4.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.22.2.6.2.9.2.4.2">
+<li id="section-2.2.5-4.22.2.6.2.9.2.4.2.1">
+                              <p id="section-2.2.5-4.22.2.6.2.9.2.4.2.1.1">If <code>signals["bidCount"]</code> is not a valid 64-bit unsigned integer,
+return failure.<a href="#section-2.2.5-4.22.2.6.2.9.2.4.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                            <li id="section-2.2.5-4.22.2.6.2.9.2.4.2.2">
+                              <p id="section-2.2.5-4.22.2.6.2.9.2.4.2.2.1">Set <code>igbs["bidCount"]</code> to <code>signals["bidCount"]</code>.<a href="#section-2.2.5-4.22.2.6.2.9.2.4.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                          </ol>
+</li>
+                        <li id="section-2.2.5-4.22.2.6.2.9.2.5">
+                          <p id="section-2.2.5-4.22.2.6.2.9.2.5.1">If <code>signals["joinCount"]</code> exists:<a href="#section-2.2.5-4.22.2.6.2.9.2.5.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.22.2.6.2.9.2.5.2">
+<li id="section-2.2.5-4.22.2.6.2.9.2.5.2.1">
+                              <p id="section-2.2.5-4.22.2.6.2.9.2.5.2.1.1">If <code>signals["joinCount"]</code> is not a valid 64-bit unsigned integer,
+return failure.<a href="#section-2.2.5-4.22.2.6.2.9.2.5.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                            <li id="section-2.2.5-4.22.2.6.2.9.2.5.2.2">
+                              <p id="section-2.2.5-4.22.2.6.2.9.2.5.2.2.1">Set <code>igbs["joinCount"]</code> to <code>signals["joinCount"]</code>.<a href="#section-2.2.5-4.22.2.6.2.9.2.5.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                          </ol>
+</li>
+                        <li id="section-2.2.5-4.22.2.6.2.9.2.6">
+                          <p id="section-2.2.5-4.22.2.6.2.9.2.6.1">If <code>signals["recencyMs"]</code> exists:<a href="#section-2.2.5-4.22.2.6.2.9.2.6.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.22.2.6.2.9.2.6.2">
+<li id="section-2.2.5-4.22.2.6.2.9.2.6.2.1">
+                              <p id="section-2.2.5-4.22.2.6.2.9.2.6.2.1.1">If <code>signals["recencyMs"]</code> is not a valid 64-bit unsigned integer,
+return failure.<a href="#section-2.2.5-4.22.2.6.2.9.2.6.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                            <li id="section-2.2.5-4.22.2.6.2.9.2.6.2.2">
+                              <p id="section-2.2.5-4.22.2.6.2.9.2.6.2.2.1">Set <code>igbs["recencyMs"]</code> to <code>signals["recencyMs"]</code>.<a href="#section-2.2.5-4.22.2.6.2.9.2.6.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                          </ol>
+</li>
+                        <li id="section-2.2.5-4.22.2.6.2.9.2.7">
+                          <p id="section-2.2.5-4.22.2.6.2.9.2.7.1">If <code>signals["prevWins"]</code> exists:<a href="#section-2.2.5-4.22.2.6.2.9.2.7.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.22.2.6.2.9.2.7.2">
+<li id="section-2.2.5-4.22.2.6.2.9.2.7.2.1">
+                              <p id="section-2.2.5-4.22.2.6.2.9.2.7.2.1.1">Let <code>pw</code> be an empty array.<a href="#section-2.2.5-4.22.2.6.2.9.2.7.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                            <li id="section-2.2.5-4.22.2.6.2.9.2.7.2.2">
+                              <p id="section-2.2.5-4.22.2.6.2.9.2.7.2.2.1">If <code>signals["prevWins"]</code> is not an array, return failure.<a href="#section-2.2.5-4.22.2.6.2.9.2.7.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                            <li id="section-2.2.5-4.22.2.6.2.9.2.7.2.3">
+                              <p id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.1">For each <code>prevWinTuple</code> in <code>signals["prevWins"]</code>:<a href="#section-2.2.5-4.22.2.6.2.9.2.7.2.3.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.2">
+<li id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.1">
+                                  <p id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.1.1">Let <code>pwt</code> be an empty array.<a href="#section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                                <li id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.2">
+                                  <p id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.2.1">If <code>prevWinTuple</code> is not an array of size 2, return failure.<a href="#section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                                <li id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.3">
+                                  <p id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.3.1">If <code>prevWinTuple[0]</code> is not a valid 64-bit unsigned integer,
+return failure.<a href="#section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.3.1" class="pilcrow">¶</a></p>
+</li>
+                                <li id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.4">
+                                  <p id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.4.1">If <code>prevWinTuple[1]</code> is not a string, return failure.<a href="#section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.4.1" class="pilcrow">¶</a></p>
+</li>
+                                <li id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.5">
+                                  <p id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.5.1">Set <code>pwt</code> to <code>prevWinTuple</code>.<a href="#section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.5.1" class="pilcrow">¶</a></p>
+</li>
+                                <li id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.6">
+                                  <p id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.6.1">Append <code>pwt</code> to <code>pw</code>.<a href="#section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.6.1" class="pilcrow">¶</a></p>
+</li>
+                              </ol>
+</li>
+                            <li id="section-2.2.5-4.22.2.6.2.9.2.7.2.4">
+                              <p id="section-2.2.5-4.22.2.6.2.9.2.7.2.4.1">Set <code>igbs["prevWins"]</code> to <code>pw</code>.<a href="#section-2.2.5-4.22.2.6.2.9.2.7.2.4.1" class="pilcrow">¶</a></p>
+</li>
+                          </ol>
+</li>
+                        <li id="section-2.2.5-4.22.2.6.2.9.2.8">
+                          <p id="section-2.2.5-4.22.2.6.2.9.2.8.1">Set <code>ig["browserSignals"]</code> to <code>igbs</code>.<a href="#section-2.2.5-4.22.2.6.2.9.2.8.1" class="pilcrow">¶</a></p>
+</li>
+                      </ol>
+</li>
+                    <li id="section-2.2.5-4.22.2.6.2.10">
+                      <p id="section-2.2.5-4.22.2.6.2.10.1">Append <code>ig</code> to <code>processed request["interestGroups"]</code><code>[ key ]</code>.<a href="#section-2.2.5-4.22.2.6.2.10.1" class="pilcrow">¶</a></p>
+</li>
+                  </ol>
+</li>
+              </ol>
+</li>
+            <li id="section-2.2.5-4.23">
+              <p id="section-2.2.5-4.23.1">Return <code>processed request</code> and <code>rctxt</code> to the Bidding and Auction
+Services.<a href="#section-2.2.5-4.23.1" class="pilcrow">¶</a></p>
+</li>
+          </ol>
+<div id="request-parse-error">
+<section id="section-2.2.5.1">
+            <h5 id="name-request-parse-error-handlin">
+<a href="#section-2.2.5.1" class="section-number selfRef">2.2.5.1. </a><a href="#name-request-parse-error-handlin" class="section-name selfRef">Request Parse Error Handling</a>
+            </h5>
+<p id="section-2.2.5.1-1">If <a href="#request-parsing" class="auto internal xref">Section 2.2.5</a> returns with failure, the following algorithm describes
+how the Bidding and Auction Services MUST respond.<a href="#section-2.2.5.1-1" class="pilcrow">¶</a></p>
+<p id="section-2.2.5.1-2">The input to this algorithm is <code>error_msg</code>, which MAY be returned from the point
+of failure in <a href="#request-parsing" class="auto internal xref">Section 2.2.5</a>.<a href="#section-2.2.5.1-2" class="pilcrow">¶</a></p>
+<p id="section-2.2.5.1-3">The output is a response to the client.<a href="#section-2.2.5.1-3" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5.1-4">
+<li id="section-2.2.5.1-4.1">
+                <p id="section-2.2.5.1-4.1.1">If the failure happens before or during decryption, respond with an empty
+message.<a href="#section-2.2.5.1-4.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li id="section-2.2.5.1-4.2">
+                <p id="section-2.2.5.1-4.2.1">Otherwise abort processing the request.<a href="#section-2.2.5.1-4.2.1" class="pilcrow">¶</a></p>
+</li>
+              <li id="section-2.2.5.1-4.3">
+                <p id="section-2.2.5.1-4.3.1">Let <code>error</code> be a new map with key-value pairs:
+<code>[("code", 400), ("error", error_msg)]</code>.<a href="#section-2.2.5.1-4.3.1" class="pilcrow">¶</a></p>
+</li>
+              <li id="section-2.2.5.1-4.4">
+                <p id="section-2.2.5.1-4.4.1">Let <code>response</code> be a new <a href="#response-message" class="auto internal xref">Section 2.3.3</a>.<a href="#section-2.2.5.1-4.4.1" class="pilcrow">¶</a></p>
+</li>
+              <li id="section-2.2.5.1-4.5">
+                <p id="section-2.2.5.1-4.5.1">Set <code>response["error"]</code> to <code>error</code>.<a href="#section-2.2.5.1-4.5.1" class="pilcrow">¶</a></p>
+</li>
+              <li id="section-2.2.5.1-4.6">
+                <p id="section-2.2.5.1-4.6.1">Serialize and send <code>response</code> to the client per <a href="#services-to-client" class="auto internal xref">Section 2.3</a>.<a href="#section-2.2.5.1-4.6.1" class="pilcrow">¶</a></p>
+</li>
+            </ol>
+</section>
+</div>
 </section>
 </div>
 </section>
@@ -2159,7 +2477,57 @@ reportingUrls = {
           <h4 id="name-generating-a-response">
 <a href="#section-2.3.4" class="section-number selfRef">2.3.4. </a><a href="#name-generating-a-response" class="section-name selfRef">Generating a Response</a>
           </h4>
-<p id="section-2.3.4-1">TODO<a href="#section-2.3.4-1" class="pilcrow">¶</a></p>
+<p id="section-2.3.4-1">This algorithm describes how conforming Bidding and Auction Services MAY
+generate a response to a request.<a href="#section-2.3.4-1" class="pilcrow">¶</a></p>
+<p id="section-2.3.4-2">The input is a <code>payload</code> corresponding to <a href="#response-message" class="auto internal xref">Section 2.3.3</a> and the HPKE
+receiver context saved in <a href="#request-parsing" class="auto internal xref">Section 2.2.5</a>, <code>rctxt</code>.<a href="#section-2.3.4-2" class="pilcrow">¶</a></p>
+<p id="section-2.3.4-3">The output is a <code>response</code> to be sent to a Client.<a href="#section-2.3.4-3" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.4-4">
+<li id="section-2.3.4-4.1">
+              <p id="section-2.3.4-4.1.1">Let <code>cbor payload</code> equal the <a href="https://www.rfc-editor.org/rfc/rfc8949.html#name-deterministically-encoded-c">deterministically encoded CBOR</a>
+                <code>payload</code>. Return an empty <code>response</code> on CBOR encoding failure.<a href="#section-2.3.4-4.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.3.4-4.2">
+              <p id="section-2.3.4-4.2.1">Let <code>compressed payload</code> equal the <span>[<a href="#GZIP" class="cite xref">GZIP</a>]</span> compressed <code>cbor payload</code>,
+returning an empty <code>response</code> on compression failure.<a href="#section-2.3.4-4.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.3.4-4.3">
+              <p id="section-2.3.4-4.3.1">Create a framed payload, as described in <a href="#response-framing" class="auto internal xref">Section 2.3.2</a>:<a href="#section-2.3.4-4.3.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.4-4.3.2">
+<li id="section-2.3.4-4.3.2.1">
+                  <p id="section-2.3.4-4.3.2.1.1">Create a <code>framing header</code>.<a href="#section-2.3.4-4.3.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.4-4.3.2.2">
+                  <p id="section-2.3.4-4.3.2.2.1">Set the <code>framing header</code> <code>Compression</code> to 2.<a href="#section-2.3.4-4.3.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.4-4.3.2.3">
+                  <p id="section-2.3.4-4.3.2.3.1">Set the <code>framing header</code> <code>Version</code> to 0.<a href="#section-2.3.4-4.3.2.3.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.4-4.3.2.4">
+                  <p id="section-2.3.4-4.3.2.4.1">Set the <code>framing header</code> <code>Size</code> to the size of <code>compressed payload</code>.<a href="#section-2.3.4-4.3.2.4.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.4-4.3.2.5">
+                  <p id="section-2.3.4-4.3.2.5.1">Let <code>framed payload</code> equal the result of prepend the framing header
+to <code>compressed payload</code>.<a href="#section-2.3.4-4.3.2.5.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.4-4.3.2.6">
+                  <p id="section-2.3.4-4.3.2.6.1">Padding MAY be added to <code>framing header</code>, as described in
+<a href="#response-framing" class="auto internal xref">Section 2.3.2</a>.<a href="#section-2.3.4-4.3.2.6.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.4-4.3.2.7">
+                  <p id="section-2.3.4-4.3.2.7.1">Return an empty <code>response</code> on failure of any of the previous steps.<a href="#section-2.3.4-4.3.2.7.1" class="pilcrow">¶</a></p>
+</li>
+              </ol>
+</li>
+            <li id="section-2.3.4-4.4">
+              <p id="section-2.3.4-4.4.1">Let <code>response</code> equal the result of the encryption and encapsulation of
+<code>framed payload</code> with <code>rctxt</code>, as described in <a href="#response-encryption" class="auto internal xref">Section 2.3.1</a>.
+Return an empty <code>response</code> on failure.<a href="#section-2.3.4-4.4.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.3.4-4.5">
+              <p id="section-2.3.4-4.5.1">Return <code>response</code>.<a href="#section-2.3.4-4.5.1" class="pilcrow">¶</a></p>
+</li>
+          </ol>
 </section>
 </div>
 <div id="response-parse">
@@ -2429,10 +2797,6 @@ or null if there is an error.<a href="#section-2.3.5.1-2.3.1" class="pilcrow">¶
 <dt id="ADRENDERID">[ADRENDERID]</dt>
       <dd>
 <span class="refTitle">"Protected Audience"</span>, <time datetime="2024" class="refDate">2024</time>, <span>&lt;<a href="https://wicg.github.io/turtledove/#server-auction-previous-win-ad-render-id">https://wicg.github.io/turtledove/#server-auction-previous-win-ad-render-id</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="BINARY">[BINARY]</dt>
-      <dd>
-<span class="refAuthor">Thomson, M.</span> and <span class="refAuthor">C. A. Wood</span>, <span class="refTitle">"Binary Representation of HTTP Messages"</span>, <span class="seriesInfo">RFC 9292</span>, <span class="seriesInfo">DOI 10.17487/RFC9292</span>, <time datetime="2022-08" class="refDate">August 2022</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc9292">https://www.rfc-editor.org/rfc/rfc9292</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="CBOR">[CBOR]</dt>
       <dd>

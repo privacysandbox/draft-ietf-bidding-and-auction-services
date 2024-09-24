@@ -5,7 +5,7 @@
 TBD                                                             D. Kocoj
 Internet-Draft                                            B. R. Hamilton
 Intended status: Standards Track                                  Google
-Expires: 27 March 2025                                 23 September 2024
+Expires: 28 March 2025                                 24 September 2024
 
 
                       Bidding and Auction Services
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 27 March 2025.
+   This Internet-Draft will expire on 28 March 2025.
 
 Copyright Notice
 
@@ -245,6 +245,9 @@ Table of Contents
 
    The amount of padding depends on the type of message and will be
    discussed for each message type separately.
+
+   GZIP MUST be implemented by the Client and the Bidding and Auction
+   Services, while Brotli MAY be.
 
 2.2.  Request Format
 
@@ -601,8 +604,230 @@ Table of Contents
 
 2.2.5.  Parsing a Request
 
-   This algorithm takes as input an encrypted request and an [HPKE]
-   private key.
+   This section describes how the Bidding and Auction Services MUST
+   deserialize request messages from the client.
+
+   The algorithm takes as input a serialized request message from the
+   client (Section 2.2.4) and a list of HPKE private keys (along with
+   their corresponding key IDs).
+
+   The output is either an error sent back to the client, an empty
+   message sent back to the client, or a request message the Bidding and
+   Auction services can consume along with an HPKE context.
+
+   1.   Let encrypted request be the request received from the client.
+
+   2.   Let error_msg be an empty string.
+
+   3.   De-encapsulate and decrypt encrypted request by using the input
+        private key corresponding to key_id, as described in
+        Section 2.2.1, to get the decrypted message and rctxt.
+
+        1.  If decapsulation or decryption fails, return failure.
+
+        2.  Else, save the decrypted output as framed request and save
+            rctxt.
+
+   4.   Remove and extract the first 5 bytes from framed request as the
+        framing header (described in Section 2.1.2), removing them from
+        framed request.
+
+   5.   If the framing header's Version field is not 0, return failure.
+
+   6.   If the framing header's Compression field is not supported,
+        return failure.  Otherwise, save the Compression field value as
+        compression type.
+
+   7.   Let length be equal to the framing header's Size field.
+
+   8.   If length is greater than the length of the remaining bytes in
+        framed request, return failure.
+
+   9.   Take the first length remaining bytes in framed response as
+        decodable request, discarding the rest.
+
+   10.  [CBOR] decode decodable request into the message represented in
+        Section 2.2.3.  Let this be request.
+
+   11.  If [CBOR] decoding fails, return failure.
+
+   12.  Let processed request be an empty struct.
+
+   13.  If request is not a map, return failure.
+
+   14.  If request["version"] does not exist or is not 0, return
+        failure.
+
+   15.  If request["publisher"] does not exist or is not a string,
+        return failure.
+
+   16.  Set processed request["publisher"] to request["publisher"].
+
+   17.  If request["generationId"] does not exist or is not a string,
+        return failure.
+
+   18.  Set processed request["generationId"] to
+        request["generationId"].
+
+   19.  If request["enableDebugReporting] exists:
+
+        1.  If request["enableDebugReporting"] is not a boolean, return
+            failure.
+
+        2.  Set processed request["enableDebugReporting"] to
+            request["enableDebugReporting"].
+
+   20.  If request["interestGroups] does not exist or is not a map,
+        return failure.
+
+   21.  Set processed request["interestGroups"] to an empty map.
+
+   22.  For each key, value map entry of request["interestGroups"]:
+
+        1.  If key is not a string, append an error message to
+            error_msg.  Proceed to Section 2.2.5.1.
+
+        2.  Set processed request["interestGroups"][key] to an empty
+            list.
+
+        3.  Decompress value according to compression type and set as
+            buyer input cbor.  If decompression fails, return failure.
+
+        4.  [CBOR] decode buyer input cbor into buyer input.  If
+            decoding fails, return failure.
+
+        5.  If buyer input is not an array, return failure.
+
+        6.  For each interest group in buyer input:
+
+            1.   If the interest groups is not a map, append an error
+                 message to error_msg.  Proceed to Section 2.2.5.1.
+
+            2.   Let ig be an empty struct similar to Section 2.2.3.1.
+
+            3.   If interest group["name"] does not exist or is not a
+                 string, return failure.
+
+            4.   Set ig["name"] to interest group["name"].
+
+            5.   If interest group["userBiddingSignals"] exists:
+
+                 1.  If interest group["userBiddingSignals"] is not a
+                     string, return failure.
+
+                 2.  Set ig["userBiddingSignals"] to interest
+                     group["userBiddingSignals"].
+
+            6.   If interest group["biddingSignalsKeys"] exists:
+
+                 1.  If interest group["biddingSignalsKeys"] is not an
+                     array of strings, return failure.
+
+                 2.  Set ig["biddingSignalsKeys"] to interest
+                     group["biddingSignalsKeys"].
+
+            7.   If interest group["ads"] exists:
+
+                 1.  If interest group["ads"] is not an array of
+                     strings, return failure.
+
+                 2.  Set ig["ads"] to interest group["ads"].
+
+            8.   If interest group["component"] exists:
+
+                 1.  If interest group["component"] is not an array of
+                     strings, return failure.
+
+                 2.  Set ig["component"] to interest group["component"].
+
+            9.   If interest group["browserSignals"] exists:
+
+                 1.  If interest group["browserSignals"] is not a map,
+                     return failure.
+
+                 2.  Let igbs be an empty struct similar to
+                     browserSignals as defined in Section 2.2.3.1.
+
+                 3.  Let signals be interest group["browserSignals"].
+
+                 4.  If signals["bidCount"] exists:
+
+                     1.  If signals["bidCount"] is not a valid 64-bit
+                         unsigned integer, return failure.
+
+                     2.  Set igbs["bidCount"] to signals["bidCount"].
+
+                 5.  If signals["joinCount"] exists:
+
+                     1.  If signals["joinCount"] is not a valid 64-bit
+                         unsigned integer, return failure.
+
+                     2.  Set igbs["joinCount"] to signals["joinCount"].
+
+                 6.  If signals["recencyMs"] exists:
+
+                     1.  If signals["recencyMs"] is not a valid 64-bit
+                         unsigned integer, return failure.
+
+                     2.  Set igbs["recencyMs"] to signals["recencyMs"].
+
+                 7.  If signals["prevWins"] exists:
+
+                     1.  Let pw be an empty array.
+
+                     2.  If signals["prevWins"] is not an array, return
+                         failure.
+
+                     3.  For each prevWinTuple in signals["prevWins"]:
+
+                         1.  Let pwt be an empty array.
+
+                         2.  If prevWinTuple is not an array of size 2,
+                             return failure.
+
+                         3.  If prevWinTuple[0] is not a valid 64-bit
+                             unsigned integer, return failure.
+
+                         4.  If prevWinTuple[1] is not a string, return
+                             failure.
+
+                         5.  Set pwt to prevWinTuple.
+
+                         6.  Append pwt to pw.
+
+                     4.  Set igbs["prevWins"] to pw.
+
+                 8.  Set ig["browserSignals"] to igbs.
+
+            10.  Append ig to processed request["interestGroups"][ key
+                 ].
+
+   23.  Return processed request and rctxt to the Bidding and Auction
+        Services.
+
+2.2.5.1.  Request Parse Error Handling
+
+   If Section 2.2.5 returns with failure, the following algorithm
+   describes how the Bidding and Auction Services MUST respond.
+
+   The input to this algorithm is error_msg, which MAY be returned from
+   the point of failure in Section 2.2.5.
+
+   The output is a response to the client.
+
+   1.  If the failure happens before or during decryption, respond with
+       an empty message.
+
+   2.  Otherwise abort processing the request.
+
+   3.  Let error be a new map with key-value pairs: [("code", 400),
+       ("error", error_msg)].
+
+   4.  Let response be a new Section 2.3.3.
+
+   5.  Set response["error"] to error.
+
+   6.  Serialize and send response to the client per Section 2.3.
 
 2.3.  Response Format
 
@@ -829,7 +1054,47 @@ Table of Contents
 
 2.3.4.  Generating a Response
 
-   TODO
+   This algorithm describes how conforming Bidding and Auction Services
+   MAY generate a response to a request.
+
+   The input is a payload corresponding to Section 2.3.3 and the HPKE
+   receiver context saved in Section 2.2.5, rctxt.
+
+   The output is a response to be sent to a Client.
+
+   1.  Let cbor payload equal the deterministically encoded CBOR
+       (https://www.rfc-editor.org/rfc/rfc8949.html#name-
+       deterministically-encoded-c) payload.  Return an empty response
+       on CBOR encoding failure.
+
+   2.  Let compressed payload equal the [GZIP] compressed cbor payload,
+       returning an empty response on compression failure.
+
+   3.  Create a framed payload, as described in Section 2.3.2:
+
+       1.  Create a framing header.
+
+       2.  Set the framing header Compression to 2.
+
+       3.  Set the framing header Version to 0.
+
+       4.  Set the framing header Size to the size of compressed
+           payload.
+
+       5.  Let framed payload equal the result of prepend the framing
+           header to compressed payload.
+
+       6.  Padding MAY be added to framing header, as described in
+           Section 2.3.2.
+
+       7.  Return an empty response on failure of any of the previous
+           steps.
+
+   4.  Let response equal the result of the encryption and encapsulation
+       of framed payload with rctxt, as described in Section 2.3.1.
+       Return an empty response on failure.
+
+   5.  Return response.
 
 2.3.5.  Parsing a Response
 
@@ -1032,10 +1297,6 @@ Table of Contents
    [ADRENDERID]
               "Protected Audience", 2024, <https://wicg.github.io/
               turtledove/#server-auction-previous-win-ad-render-id>.
-
-   [BINARY]   Thomson, M. and C. A. Wood, "Binary Representation of HTTP
-              Messages", RFC 9292, DOI 10.17487/RFC9292, August 2022,
-              <https://www.rfc-editor.org/rfc/rfc9292>.
 
    [CBOR]     Bormann, C. and P. Hoffman, "Concise Binary Object
               Representation (CBOR)", STD 94, RFC 8949,
