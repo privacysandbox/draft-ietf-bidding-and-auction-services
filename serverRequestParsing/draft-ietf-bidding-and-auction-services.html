@@ -2470,7 +2470,57 @@ reportingUrls = {
           <h4 id="name-generating-a-response">
 <a href="#section-2.3.4" class="section-number selfRef">2.3.4. </a><a href="#name-generating-a-response" class="section-name selfRef">Generating a Response</a>
           </h4>
-<p id="section-2.3.4-1">TODO<a href="#section-2.3.4-1" class="pilcrow">¶</a></p>
+<p id="section-2.3.4-1">This algorithm describes how conforming Bidding and Auction Services MAY
+generate a response to a request.<a href="#section-2.3.4-1" class="pilcrow">¶</a></p>
+<p id="section-2.3.4-2">The input is a <code>payload</code> corresponding to <a href="#response-message" class="auto internal xref">Section 2.3.3</a> and the HPKE
+receiver context saved in <a href="#request-parsing" class="auto internal xref">Section 2.2.5</a>, <code>rctxt</code>.<a href="#section-2.3.4-2" class="pilcrow">¶</a></p>
+<p id="section-2.3.4-3">The output is a <code>response</code> to be sent to a Client.<a href="#section-2.3.4-3" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.4-4">
+<li id="section-2.3.4-4.1">
+              <p id="section-2.3.4-4.1.1">Let <code>cbor payload</code> equal the <a href="https://www.rfc-editor.org/rfc/rfc8949.html#name-deterministically-encoded-c">deterministically encoded CBOR</a>
+                <code>payload</code>. Return an empty <code>response</code> on CBOR encoding failure.<a href="#section-2.3.4-4.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.3.4-4.2">
+              <p id="section-2.3.4-4.2.1">Let <code>compressed payload</code> equal the <span>[<a href="#GZIP" class="cite xref">GZIP</a>]</span> compressed <code>cbor payload</code>,
+returning an empty <code>response</code> on compression failure.<a href="#section-2.3.4-4.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.3.4-4.3">
+              <p id="section-2.3.4-4.3.1">Create a framed payload, as described in <a href="#response-framing" class="auto internal xref">Section 2.3.2</a>:<a href="#section-2.3.4-4.3.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.4-4.3.2">
+<li id="section-2.3.4-4.3.2.1">
+                  <p id="section-2.3.4-4.3.2.1.1">Create a <code>framing header</code>.<a href="#section-2.3.4-4.3.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.4-4.3.2.2">
+                  <p id="section-2.3.4-4.3.2.2.1">Set the <code>framing header</code> <code>Compression</code> to 2.<a href="#section-2.3.4-4.3.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.4-4.3.2.3">
+                  <p id="section-2.3.4-4.3.2.3.1">Set the <code>framing header</code> <code>Version</code> to 0.<a href="#section-2.3.4-4.3.2.3.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.4-4.3.2.4">
+                  <p id="section-2.3.4-4.3.2.4.1">Set the <code>framing header</code> <code>Size</code> to the size of <code>compressed payload</code>.<a href="#section-2.3.4-4.3.2.4.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.4-4.3.2.5">
+                  <p id="section-2.3.4-4.3.2.5.1">Let <code>framed payload</code> equal the result of prepend the framing header
+to <code>compressed payload</code>.<a href="#section-2.3.4-4.3.2.5.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.4-4.3.2.6">
+                  <p id="section-2.3.4-4.3.2.6.1">Padding MAY be added to <code>framing header</code>, as described in
+<a href="#response-framing" class="auto internal xref">Section 2.3.2</a>.<a href="#section-2.3.4-4.3.2.6.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.4-4.3.2.7">
+                  <p id="section-2.3.4-4.3.2.7.1">Return an empty <code>response</code> on failure of any of the previous steps.<a href="#section-2.3.4-4.3.2.7.1" class="pilcrow">¶</a></p>
+</li>
+              </ol>
+</li>
+            <li id="section-2.3.4-4.4">
+              <p id="section-2.3.4-4.4.1">Let <code>response</code> equal the result of the encryption and encapsulation of
+<code>framed payload</code> with <code>rctxt</code>, as described in <a href="#response-encryption" class="auto internal xref">Section 2.3.1</a>.
+Return an empty <code>response</code> on failure.<a href="#section-2.3.4-4.4.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.3.4-4.5">
+              <p id="section-2.3.4-4.5.1">Return <code>response</code>.<a href="#section-2.3.4-4.5.1" class="pilcrow">¶</a></p>
+</li>
+          </ol>
 </section>
 </div>
 <div id="response-parse">

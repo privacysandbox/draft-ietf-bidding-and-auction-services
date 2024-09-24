@@ -1050,7 +1050,47 @@ Table of Contents
 
 2.3.4.  Generating a Response
 
-   TODO
+   This algorithm describes how conforming Bidding and Auction Services
+   MAY generate a response to a request.
+
+   The input is a payload corresponding to Section 2.3.3 and the HPKE
+   receiver context saved in Section 2.2.5, rctxt.
+
+   The output is a response to be sent to a Client.
+
+   1.  Let cbor payload equal the deterministically encoded CBOR
+       (https://www.rfc-editor.org/rfc/rfc8949.html#name-
+       deterministically-encoded-c) payload.  Return an empty response
+       on CBOR encoding failure.
+
+   2.  Let compressed payload equal the [GZIP] compressed cbor payload,
+       returning an empty response on compression failure.
+
+   3.  Create a framed payload, as described in Section 2.3.2:
+
+       1.  Create a framing header.
+
+       2.  Set the framing header Compression to 2.
+
+       3.  Set the framing header Version to 0.
+
+       4.  Set the framing header Size to the size of compressed
+           payload.
+
+       5.  Let framed payload equal the result of prepend the framing
+           header to compressed payload.
+
+       6.  Padding MAY be added to framing header, as described in
+           Section 2.3.2.
+
+       7.  Return an empty response on failure of any of the previous
+           steps.
+
+   4.  Let response equal the result of the encryption and encapsulation
+       of framed payload with rctxt, as described in Section 2.3.1.
+       Return an empty response on failure.
+
+   5.  Return response.
 
 2.3.5.  Parsing a Response
 
