@@ -524,7 +524,7 @@ consume along with an HPKE context.
       1. If the `interest groups` is not a map, append an error message to
          `error_msg`. Proceed to {{request-parse-error}}.
       1. Let `ig` be an empty struct similar to {{request-groups}}.
-      1. If `interest group["name"] does not exist or is not a string, return failure.
+      1. If `interest group["name"]` does not exist or is not a string, return failure.
       1. Set `ig["name"]` to `interest group["name"]`.
       1. If `interest group["userBiddingSignals"]` exists:
          1. If `interest group["userBiddingSignals"]` is not a string, return failure.
