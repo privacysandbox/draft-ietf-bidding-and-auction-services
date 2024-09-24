@@ -2485,11 +2485,33 @@ receiver context saved in <a href="#request-parsing" class="auto internal xref">
 returning an empty <code>response</code> on compression failure.<a href="#section-2.3.4-4.2.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-2.3.4-4.3">
-              <p id="section-2.3.4-4.3.1">Let <code>framed payload</code> be the result of performing the message framing as
-described in <a href="#response-framing" class="auto internal xref">Section 2.3.2</a>. Return an empty <code>response</code> on failure.
-Set the framing version to 0 and set the the compression type to 2. Set the
-compressed data size to the size of <code>compressed payload</code>. You MAY add
-padding, as described in <a href="#response-framing" class="auto internal xref">Section 2.3.2</a>.<a href="#section-2.3.4-4.3.1" class="pilcrow">¶</a></p>
+              <p id="section-2.3.4-4.3.1">Create a framed payload, as described in <a href="#response-framing" class="auto internal xref">Section 2.3.2</a>:<a href="#section-2.3.4-4.3.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.4-4.3.2">
+<li id="section-2.3.4-4.3.2.1">
+                  <p id="section-2.3.4-4.3.2.1.1">Create a <code>framing header</code>.<a href="#section-2.3.4-4.3.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.4-4.3.2.2">
+                  <p id="section-2.3.4-4.3.2.2.1">Set the <code>framing header</code> <code>Compression</code> to 2.<a href="#section-2.3.4-4.3.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.4-4.3.2.3">
+                  <p id="section-2.3.4-4.3.2.3.1">Set the <code>framing header</code> <code>version</code> to 0.<a href="#section-2.3.4-4.3.2.3.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.4-4.3.2.4">
+                  <p id="section-2.3.4-4.3.2.4.1">Set the <code>framing header</code> <code>compressed data size</code> to the size of
+<code>compressed payload</code>.<a href="#section-2.3.4-4.3.2.4.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.4-4.3.2.5">
+                  <p id="section-2.3.4-4.3.2.5.1">Let <code>framed payload</code> equal the result of prepend the framing header
+to <code>compressed payload</code>.<a href="#section-2.3.4-4.3.2.5.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.4-4.3.2.6">
+                  <p id="section-2.3.4-4.3.2.6.1">Padding MAY be added to <code>framing header</code>, as described in
+<a href="#response-framing" class="auto internal xref">Section 2.3.2</a>.<a href="#section-2.3.4-4.3.2.6.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.4-4.3.2.7">
+                  <p id="section-2.3.4-4.3.2.7.1">Return an empty <code>response</code> on failure of any of the previous steps.<a href="#section-2.3.4-4.3.2.7.1" class="pilcrow">¶</a></p>
+</li>
+              </ol>
 </li>
             <li id="section-2.3.4-4.4">
               <p id="section-2.3.4-4.4.1">Let <code>response</code> equal the result of the encryption and encapsulation of

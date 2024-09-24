@@ -1066,12 +1066,25 @@ Table of Contents
    2.  Let compressed payload equal the [GZIP] compressed cbor payload,
        returning an empty response on compression failure.
 
-   3.  Let framed payload be the result of performing the message
-       framing as described in Section 2.3.2.  Return an empty response
-       on failure.  Set the framing version to 0 and set the the
-       compression type to 2.  Set the compressed data size to the size
-       of compressed payload.  You MAY add padding, as described in
-       Section 2.3.2.
+   3.  Create a framed payload, as described in Section 2.3.2:
+
+       1.  Create a framing header.
+
+       2.  Set the framing header Compression to 2.
+
+       3.  Set the framing header version to 0.
+
+       4.  Set the framing header compressed data size to the size of
+           compressed payload.
+
+       5.  Let framed payload equal the result of prepend the framing
+           header to compressed payload.
+
+       6.  Padding MAY be added to framing header, as described in
+           Section 2.3.2.
+
+       7.  Return an empty response on failure of any of the previous
+           steps.
 
    4.  Let response equal the result of the encryption and encapsulation
        of framed payload with rctxt, as described in Section 2.3.1.
