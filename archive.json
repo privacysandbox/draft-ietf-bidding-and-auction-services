@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-09-22T00:55:32.868794+00:00",
+  "timestamp": "2024-09-24T00:52:11.393316+00:00",
   "repo": "privacysandbox/draft-ietf-protected-audience-auction-service",
   "labels": [
     {
@@ -826,24 +826,26 @@
       "id": "PR_kwDOMnZLVc57YbFI",
       "title": "Update response payload and misc serialization details",
       "url": "https://github.com/privacysandbox/draft-ietf-protected-audience-auction-service/pull/4",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "dankocoj-google",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "The major work items left:\r\n1. Work through all of the TODOs in the W3C spec that mention this document and make sure that the W3C spec has clear sections that it can reference.\r\n2. Verify that the request and response message structures are in-sync with the W3C spec.\r\n3. Resolve remaining TODOs in this spec.\r\n4. Solicit feedback for any other sections that may be missing from the spec.\r\n5. Increase the amount of detail in the compression and decompression sections to resolve any ambiguity.\r\n6. Increase the amount of detail in the encryption and decryption sections to resolve any ambiguity.\r\n",
       "createdAt": "2024-09-13T04:12:42Z",
-      "updatedAt": "2024-09-20T22:36:27Z",
+      "updatedAt": "2024-09-23T14:37:16Z",
       "baseRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
       "baseRefName": "main",
       "baseRefOid": "9e068afd23bc5c9cabaa1aa6097d23cf72399388",
       "headRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
       "headRefName": "dankocoj-details",
-      "headRefOid": "e60ecd98240d72072296b3fa82c1c5d4283fcf4c",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "6567b446dafac41e33fab8e17829881ca093b85a",
+      "closedAt": "2024-09-23T14:36:28Z",
+      "mergedAt": "2024-09-23T14:36:28Z",
+      "mergedBy": "dankocoj-google",
+      "mergeCommit": {
+        "oid": "5eea62211ca123ebcd5645c76c360babb6406cc4"
+      },
       "comments": [],
       "reviews": [
         {
@@ -1547,6 +1549,26 @@
               "updatedAt": "2024-09-20T22:36:27Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6Kbl0K",
+          "commit": {
+            "abbreviatedOid": "de5a7fd"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-23T14:37:16Z",
+          "updatedAt": "2024-09-23T14:37:16Z",
+          "comments": [
+            {
+              "originalPosition": 94,
+              "body": "See Russ's updates.",
+              "createdAt": "2024-09-23T14:37:16Z",
+              "updatedAt": "2024-09-23T14:37:16Z"
+            }
+          ]
         }
       ]
     },
@@ -1555,26 +1577,476 @@
       "id": "PR_kwDOMnZLVc58OeOO",
       "title": "Request serialization",
       "url": "https://github.com/privacysandbox/draft-ietf-protected-audience-auction-service/pull/5",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "brusshamilton",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "Refactor request format - separate description from sample implementation of client.",
       "createdAt": "2024-09-21T01:41:26Z",
-      "updatedAt": "2024-09-21T01:44:46Z",
+      "updatedAt": "2024-09-23T14:35:43Z",
       "baseRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
       "baseRefName": "dankocoj-details",
       "baseRefOid": "e60ecd98240d72072296b3fa82c1c5d4283fcf4c",
       "headRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
       "headRefName": "requestSerialization",
-      "headRefOid": "a757e07773281ab446115dc14c2b0ff84fcea0ce",
+      "headRefOid": "72be092d5b2c0e50a96b2fe1b6b3d49e5ff6f5b0",
+      "closedAt": "2024-09-23T14:35:40Z",
+      "mergedAt": "2024-09-23T14:35:40Z",
+      "mergedBy": "dankocoj-google",
+      "mergeCommit": {
+        "oid": "6567b446dafac41e33fab8e17829881ca093b85a"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 6,
+      "id": "PR_kwDOMnZLVc58S2za",
+      "title": "Add response processing steps",
+      "url": "https://github.com/privacysandbox/draft-ietf-protected-audience-auction-service/pull/6",
+      "state": "MERGED",
+      "author": "brusshamilton",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-09-22T19:56:09Z",
+      "updatedAt": "2024-09-23T14:35:00Z",
+      "baseRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
+      "baseRefName": "requestSerialization",
+      "baseRefOid": "a757e07773281ab446115dc14c2b0ff84fcea0ce",
+      "headRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
+      "headRefName": "responseParsing",
+      "headRefOid": "ab9ae8726f099fa1ea12325aca7aa6025fb43625",
+      "closedAt": "2024-09-23T14:34:58Z",
+      "mergedAt": "2024-09-23T14:34:58Z",
+      "mergedBy": "dankocoj-google",
+      "mergeCommit": {
+        "oid": "72be092d5b2c0e50a96b2fe1b6b3d49e5ff6f5b0"
+      },
+      "comments": [],
+      "reviews": []
+    },
+    {
+      "number": 7,
+      "id": "PR_kwDOMnZLVc58TNc0",
+      "title": "add server parsing request steps",
+      "url": "https://github.com/privacysandbox/draft-ietf-protected-audience-auction-service/pull/7",
+      "state": "OPEN",
+      "author": "dankocoj-google",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-09-23T00:35:28Z",
+      "updatedAt": "2024-09-24T00:31:45Z",
+      "baseRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
+      "baseRefName": "main",
+      "baseRefOid": "5eea62211ca123ebcd5645c76c360babb6406cc4",
+      "headRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
+      "headRefName": "serverRequestParsing",
+      "headRefOid": "37446f283858c46ba8cbef44283d797ab9bf058d",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
       "comments": [],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDOMnZLVc6KdzG7",
+          "commit": {
+            "abbreviatedOid": "cc4a040"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-23T18:50:58Z",
+          "updatedAt": "2024-09-23T20:04:28Z",
+          "comments": [
+            {
+              "originalPosition": 5,
+              "body": "We probably want to use MUST here, since parsing behavior is very important for interoperability.",
+              "createdAt": "2024-09-23T18:50:59Z",
+              "updatedAt": "2024-09-23T20:04:28Z"
+            },
+            {
+              "originalPosition": 12,
+              "body": "Also the HPKE context is an output.",
+              "createdAt": "2024-09-23T18:51:44Z",
+              "updatedAt": "2024-09-23T20:04:28Z"
+            },
+            {
+              "originalPosition": 9,
+              "body": "\\`private key\\`",
+              "createdAt": "2024-09-23T18:53:19Z",
+              "updatedAt": "2024-09-23T20:04:28Z"
+            },
+            {
+              "originalPosition": 9,
+              "body": "Though, actually the input should be a list of private keys (and the corresponding key ID). The decryption has a step where it looks up the key by the key ID (which is extracted from the request).",
+              "createdAt": "2024-09-23T18:55:25Z",
+              "updatedAt": "2024-09-23T20:04:28Z"
+            },
+            {
+              "originalPosition": 17,
+              "body": "I'm not sure about defining a macro here. Maybe it would make sense to describe how failures during parsing are handled in a different section. Then through here you could just \"return failure\" on error.\r\n\r\n```\r\n#### Request error handling\r\n\r\nIf {{request-parsing}} returns with failure, the server MUST respond as follows:\r\n1. If the failure happens before or during decryption, then...\r\n2. Otherwise abort processing this request and instead response with...\r\n```",
+              "createdAt": "2024-09-23T19:24:59Z",
+              "updatedAt": "2024-09-23T20:04:28Z"
+            },
+            {
+              "originalPosition": 19,
+              "body": "De-encapsulate (or unwrap, extract, etc).",
+              "createdAt": "2024-09-23T19:27:01Z",
+              "updatedAt": "2024-09-23T20:04:28Z"
+            },
+            {
+              "originalPosition": 21,
+              "body": "Does it make sense to return a \"response\" here? Maybe just return failure.",
+              "createdAt": "2024-09-23T19:30:40Z",
+              "updatedAt": "2024-09-23T20:04:28Z"
+            },
+            {
+              "originalPosition": 25,
+              "body": ">If reading the byte fails\r\n\r\nWhy would reading the byte fail? Typically we write this as if handling a buffer, not reading a file. I guess you could check that the received message is longer than the framing header.",
+              "createdAt": "2024-09-23T19:41:39Z",
+              "updatedAt": "2024-09-23T20:04:28Z"
+            },
+            {
+              "originalPosition": 26,
+              "body": "I think it's okay to assume version=0, but I'm not sure why we would define a compression type (Brotli) that we don't support.\r\n\r\nIt may be better to say \"verify the compression is one of the types supported\" and then in the compression section specify that GZIP MUST be implemented and Brotli MAY be implemented.",
+              "createdAt": "2024-09-23T19:43:42Z",
+              "updatedAt": "2024-09-23T20:04:28Z"
+            },
+            {
+              "originalPosition": 25,
+              "body": "Feel free to copy the way I wrote the client's response parsing for framing:\r\n```\r\nRemove and extract the first 5 bytes from `framed response` as the\r\n`framing header` (described in {{framing}}), removing them from\r\n`framed response`.\r\n```",
+              "createdAt": "2024-09-23T19:46:19Z",
+              "updatedAt": "2024-09-23T20:04:28Z"
+            },
+            {
+              "originalPosition": 38,
+              "body": "So the publisher does not have to be a URL or ORIGIN? You don't check for that here.",
+              "createdAt": "2024-09-23T19:47:11Z",
+              "updatedAt": "2024-09-23T20:04:28Z"
+            },
+            {
+              "originalPosition": 39,
+              "body": "Do you check if the generationId is a valid UUID?",
+              "createdAt": "2024-09-23T19:47:34Z",
+              "updatedAt": "2024-09-23T20:04:28Z"
+            },
+            {
+              "originalPosition": 50,
+              "body": "Do you check if key is a valid Origin?",
+              "createdAt": "2024-09-23T19:48:25Z",
+              "updatedAt": "2024-09-23T20:04:28Z"
+            },
+            {
+              "originalPosition": 62,
+              "body": "What happens if this string is not valid JSON? Are you checking it anywhere?",
+              "createdAt": "2024-09-23T19:51:43Z",
+              "updatedAt": "2024-09-23T20:04:28Z"
+            },
+            {
+              "originalPosition": 81,
+              "body": "Is there a limit to the range of this integer? I thought B&A only supported 32 bit values here. (likewise for other integer fields)",
+              "createdAt": "2024-09-23T19:54:25Z",
+              "updatedAt": "2024-09-23T20:04:28Z"
+            },
+            {
+              "originalPosition": 118,
+              "body": "This is just a subset of {{response-message}}. You should just be able to use that instead of repeating a partial schema here.\r\n\r\n```\r\n1. Let `error` be a new map with key-value pairs `[(\"code\", 400), (\"error\", error_msg)]`.\r\n1. Let `response` be a new {{response-message}}.\r\n1. Set `response[\"error\"]` to `error`.\r\n1. Serialize and send `response` to the client per {{services-to-client}}.\r\n```",
+              "createdAt": "2024-09-23T20:02:17Z",
+              "updatedAt": "2024-09-23T20:04:28Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6KepX0",
+          "commit": {
+            "abbreviatedOid": "cc4a040"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-23T20:54:35Z",
+          "updatedAt": "2024-09-23T20:54:35Z",
+          "comments": [
+            {
+              "originalPosition": 26,
+              "body": "does Chrome support Brotli? I do not think the servers do. ",
+              "createdAt": "2024-09-23T20:54:35Z",
+              "updatedAt": "2024-09-23T20:54:35Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6Ke-3n",
+          "commit": {
+            "abbreviatedOid": "cc4a040"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-23T21:27:42Z",
+          "updatedAt": "2024-09-23T21:27:42Z",
+          "comments": [
+            {
+              "originalPosition": 39,
+              "body": "We do not",
+              "createdAt": "2024-09-23T21:27:42Z",
+              "updatedAt": "2024-09-23T21:27:42Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6KgDrp",
+          "commit": {
+            "abbreviatedOid": "cc4a040"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-23T22:56:09Z",
+          "updatedAt": "2024-09-23T22:56:10Z",
+          "comments": [
+            {
+              "originalPosition": 50,
+              "body": "No. Do you think it makes sense for us to still specify this is an origin? I feel like we may want to (and maybe just update the servers to validate) in case of security.",
+              "createdAt": "2024-09-23T22:56:09Z",
+              "updatedAt": "2024-09-23T22:56:10Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6KgD4R",
+          "commit": {
+            "abbreviatedOid": "cc4a040"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-23T22:56:50Z",
+          "updatedAt": "2024-09-23T22:56:51Z",
+          "comments": [
+            {
+              "originalPosition": 38,
+              "body": "We don't check.\r\nSame question: https://github.com/privacysandbox/draft-ietf-protected-audience-auction-service/pull/7#discussion_r1772318059",
+              "createdAt": "2024-09-23T22:56:50Z",
+              "updatedAt": "2024-09-23T22:56:51Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6KgLra",
+          "commit": {
+            "abbreviatedOid": "cc4a040"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-23T23:32:43Z",
+          "updatedAt": "2024-09-23T23:32:43Z",
+          "comments": [
+            {
+              "originalPosition": 81,
+              "body": "https://github.com/privacysandbox/bidding-auction-servers/blob/722e1542c262dddc3aaf41be7b6c159a38cefd0a/services/seller_frontend_service/util/web_utils.cc#L192\r\n\r\nhttps://github.com/PJK/libcbor/blob/a0582ab2fc41669c73ee82a3400eafaea1ec6b9d/src/cbor/ints.c#L39\r\n\r\nNot sure re 32 bit (it seems we have 64 bit support), I'll ask my teammates.",
+              "createdAt": "2024-09-23T23:32:43Z",
+              "updatedAt": "2024-09-23T23:32:43Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6KgSOz",
+          "commit": {
+            "abbreviatedOid": "cc4a040"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-24T00:06:35Z",
+          "updatedAt": "2024-09-24T00:06:35Z",
+          "comments": [
+            {
+              "originalPosition": 81,
+              "body": "specifying as unsigned 64 bit ints",
+              "createdAt": "2024-09-24T00:06:35Z",
+              "updatedAt": "2024-09-24T00:06:35Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6KgTza",
+          "commit": {
+            "abbreviatedOid": "cc4a040"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-24T00:15:22Z",
+          "updatedAt": "2024-09-24T00:15:22Z",
+          "comments": [
+            {
+              "originalPosition": 62,
+              "body": "No, we do not validate it. In this case, for performance reasons, we probably want to skip validation. ",
+              "createdAt": "2024-09-24T00:15:22Z",
+              "updatedAt": "2024-09-24T00:15:22Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 8,
+      "id": "PR_kwDOMnZLVc58ZCXi",
+      "title": "minor cleanups",
+      "url": "https://github.com/privacysandbox/draft-ietf-protected-audience-auction-service/pull/8",
+      "state": "MERGED",
+      "author": "dankocoj-google",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-09-23T15:40:37Z",
+      "updatedAt": "2024-09-23T18:53:38Z",
+      "baseRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
+      "baseRefName": "main",
+      "baseRefOid": "5eea62211ca123ebcd5645c76c360babb6406cc4",
+      "headRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
+      "headRefName": "minorNits",
+      "headRefOid": "21b209efce4f3f329fa050c9c034ffb7fb6377f1",
+      "closedAt": "2024-09-23T18:53:37Z",
+      "mergedAt": "2024-09-23T18:53:37Z",
+      "mergedBy": "dankocoj-google",
+      "mergeCommit": {
+        "oid": "bbab92bf7a525a2ff52b0020fbb981c0815803a6"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOMnZLVc6KduzG",
+          "commit": {
+            "abbreviatedOid": "21b209e"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-09-23T18:41:46Z",
+          "updatedAt": "2024-09-23T18:41:46Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 9,
+      "id": "PR_kwDOMnZLVc58Z9Sx",
+      "title": "add response generation details",
+      "url": "https://github.com/privacysandbox/draft-ietf-protected-audience-auction-service/pull/9",
+      "state": "MERGED",
+      "author": "dankocoj-google",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-09-23T18:00:21Z",
+      "updatedAt": "2024-09-24T00:31:44Z",
+      "baseRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
+      "baseRefName": "serverRequestParsing",
+      "baseRefOid": "5fe1dfaf8f01226930b89f582984b1604ab01a65",
+      "headRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
+      "headRefName": "serverResponseGeneration",
+      "headRefOid": "f9ee565a37b12aeb12b6f90e681fc062947c6840",
+      "closedAt": "2024-09-24T00:31:43Z",
+      "mergedAt": "2024-09-24T00:31:43Z",
+      "mergedBy": "dankocoj-google",
+      "mergeCommit": {
+        "oid": "37446f283858c46ba8cbef44283d797ab9bf058d"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOMnZLVc6Kdvg-",
+          "commit": {
+            "abbreviatedOid": "a21073d"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-23T18:43:20Z",
+          "updatedAt": "2024-09-23T18:49:24Z",
+          "comments": [
+            {
+              "originalPosition": 27,
+              "body": "Add more details about framing fields.",
+              "createdAt": "2024-09-23T18:43:20Z",
+              "updatedAt": "2024-09-23T18:49:24Z"
+            },
+            {
+              "originalPosition": 22,
+              "body": "Are we going to suggest/require deterministically encoded CBOR?",
+              "createdAt": "2024-09-23T18:43:48Z",
+              "updatedAt": "2024-09-23T18:49:24Z"
+            },
+            {
+              "originalPosition": 29,
+              "body": "encryption and encapsulation of `encoded payload` **with `rctxt`**?",
+              "createdAt": "2024-09-23T18:49:18Z",
+              "updatedAt": "2024-09-23T18:49:24Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6KemuO",
+          "commit": {
+            "abbreviatedOid": "f3031cc"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-09-23T20:47:46Z",
+          "updatedAt": "2024-09-23T20:48:07Z",
+          "comments": [
+            {
+              "originalPosition": 28,
+              "body": "Should these be separate steps?",
+              "createdAt": "2024-09-23T20:47:46Z",
+              "updatedAt": "2024-09-23T20:48:07Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6Kewjo",
+          "commit": {
+            "abbreviatedOid": "f3031cc"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-09-23T21:12:48Z",
+          "updatedAt": "2024-09-23T21:12:48Z",
+          "comments": [
+            {
+              "originalPosition": 28,
+              "body": "I just saw your comment re framing in the other PR, I'll update here in a similar way.",
+              "createdAt": "2024-09-23T21:12:48Z",
+              "updatedAt": "2024-09-23T21:12:48Z"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
