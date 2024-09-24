@@ -815,7 +815,32 @@ reportingUrls = {
 
 ### Generating a Response {#response-generate}
 
-TODO
+This algorithm describes how conforming Bidding and Auction Services MAY
+generate a response to a request.
+
+The input is a `payload` corresponding to {{response-message}} and the HPKE
+receiver context saved in {{request-parsing}}, `rctxt`.
+
+The output is a `response` to be sent to a Client.
+
+1. Let `cbor payload` equal the [deterministically encoded CBOR](https://www.rfc-editor.org/rfc/rfc8949.html#name-deterministically-encoded-c)
+   `payload`. Return an empty `response` on CBOR encoding failure.
+1. Let `compressed payload` equal the [GZIP] compressed `cbor payload`,
+   returning an empty `response` on compression failure.
+1. Create a framed payload, as described in {{response-framing}}:
+   1. Create a `framing header`.
+   1. Set the `framing header` `Compression` to 2.
+   1. Set the `framing header` `Version` to 0.
+   1. Set the `framing header` `Size` to the size of `compressed payload`.
+   1. Let `framed payload` equal the result of prepend the framing header
+      to `compressed payload`.
+   1. Padding MAY be added to `framing header`, as described in
+      {{response-framing}}.
+   1. Return an empty `response` on failure of any of the previous steps.
+1. Let `response` equal the result of the encryption and encapsulation of
+   `framed payload` with `rctxt`, as described in {{response-encryption}}.
+   Return an empty `response` on failure.
+1. Return `response`.
 
 ### Parsing a Response {#response-parse}
 
