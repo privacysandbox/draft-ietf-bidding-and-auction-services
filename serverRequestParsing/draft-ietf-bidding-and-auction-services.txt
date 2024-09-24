@@ -5,7 +5,7 @@
 TBD                                                             D. Kocoj
 Internet-Draft                                            B. R. Hamilton
 Intended status: Standards Track                                  Google
-Expires: 27 March 2025                                 23 September 2024
+Expires: 28 March 2025                                 24 September 2024
 
 
                       Bidding and Auction Services
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 27 March 2025.
+   This Internet-Draft will expire on 28 March 2025.
 
 Copyright Notice
 
@@ -699,7 +699,7 @@ Table of Contents
 
             2.   Let ig be an empty struct similar to Section 2.2.3.1.
 
-            3.   If `interest group["name"] does not exist or is not a
+            3.   If interest group["name"] does not exist or is not a
                  string, return failure.
 
             4.   Set ig["name"] to interest group["name"].
@@ -746,22 +746,22 @@ Table of Contents
 
                  4.  If signals["bidCount"] exists:
 
-                     1.  If signals["bidCount"] is not an an int, return
-                         failure.
+                     1.  If signals["bidCount"] is not a valid 64-bit
+                         unsigned integer, return failure.
 
                      2.  Set igbs["bidCount"] to signals["bidCount"].
 
                  5.  If signals["joinCount"] exists:
 
-                     1.  If signals["joinCount"] is not an an int,
-                         return failure.
+                     1.  If signals["joinCount"] is not a valid 64-bit
+                         unsigned integer, return failure.
 
                      2.  Set igbs["joinCount"] to signals["joinCount"].
 
                  6.  If signals["recencyMs"] exists:
 
-                     1.  If signals["recencyMs"] is not an an int,
-                         return failure.
+                     1.  If signals["recencyMs"] is not a valid 64-bit
+                         unsigned integer, return failure.
 
                      2.  Set igbs["recencyMs"] to signals["recencyMs"].
 
@@ -779,8 +779,8 @@ Table of Contents
                          2.  If prevWinTuple is not an array of size 2,
                              return failure.
 
-                         3.  If prevWinTuple[0] is not an int, return
-                             failure.
+                         3.  If prevWinTuple[0] is not a valid 64-bit
+                             unsigned integer, return failure.
 
                          4.  If prevWinTuple[1] is not a string, return
                              failure.
@@ -1253,10 +1253,6 @@ Table of Contents
    [ADRENDERID]
               "Protected Audience", 2024, <https://wicg.github.io/
               turtledove/#server-auction-previous-win-ad-render-id>.
-
-   [BINARY]   Thomson, M. and C. A. Wood, "Binary Representation of HTTP
-              Messages", RFC 9292, DOI 10.17487/RFC9292, August 2022,
-              <https://www.rfc-editor.org/rfc/rfc9292>.
 
    [CBOR]     Bormann, C. and P. Hoffman, "Concise Binary Object
               Representation (CBOR)", STD 94, RFC 8949,
