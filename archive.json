@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-09-24T00:52:11.393316+00:00",
+  "timestamp": "2024-09-26T00:51:36.903939+00:00",
   "repo": "privacysandbox/draft-ietf-protected-audience-auction-service",
   "labels": [
     {
@@ -1633,24 +1633,26 @@
       "id": "PR_kwDOMnZLVc58TNc0",
       "title": "add server parsing request steps",
       "url": "https://github.com/privacysandbox/draft-ietf-protected-audience-auction-service/pull/7",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "dankocoj-google",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "",
       "createdAt": "2024-09-23T00:35:28Z",
-      "updatedAt": "2024-09-24T00:31:45Z",
+      "updatedAt": "2024-09-24T17:56:39Z",
       "baseRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
       "baseRefName": "main",
       "baseRefOid": "5eea62211ca123ebcd5645c76c360babb6406cc4",
       "headRepository": "privacysandbox/draft-ietf-protected-audience-auction-service",
       "headRefName": "serverRequestParsing",
       "headRefOid": "37446f283858c46ba8cbef44283d797ab9bf058d",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2024-09-24T17:56:37Z",
+      "mergedAt": "2024-09-24T17:56:37Z",
+      "mergedBy": "dankocoj-google",
+      "mergeCommit": {
+        "oid": "483bae903d359f788bc66602fa45306b01caef68"
+      },
       "comments": [],
       "reviews": [
         {
@@ -1902,6 +1904,19 @@
               "updatedAt": "2024-09-24T00:15:22Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6KoSZ3",
+          "commit": {
+            "abbreviatedOid": "37446f2"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-09-24T16:36:31Z",
+          "updatedAt": "2024-09-24T16:36:31Z",
+          "comments": []
         }
       ]
     },
