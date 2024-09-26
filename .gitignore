@@ -17,7 +17,7 @@
 /versioned/
 Gemfile.lock
 archive.json
-draft-ietf-trusted-auction-services.xml
+draft-ietf-bidding-and-auction-services.xml
 package-lock.json
 report.xml
 !requirements.txt
