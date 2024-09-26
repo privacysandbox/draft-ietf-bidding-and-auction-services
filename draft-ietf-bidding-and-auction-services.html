@@ -1030,7 +1030,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Kocoj &amp; Hamilton</td>
-<td class="center">Expires 28 March 2025</td>
+<td class="center">Expires 30 March 2025</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1043,12 +1043,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-ietf-bidding-and-auction-services-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-09-24" class="published">24 September 2024</time>
+<time datetime="2024-09-26" class="published">26 September 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2025-03-28">28 March 2025</time></dd>
+<dd class="expires"><time datetime="2025-03-30">30 March 2025</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1074,7 +1074,7 @@ remote environments while preserving user privacy.<a href="#section-abstract-1" 
       </h2>
 <p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
 <p id="section-note.1-2">Source for this draft and an issue tracker can be found at
-    <span><a href="https://github.com/privacysandbox/draft-ietf-protected-audience-auction-service">https://github.com/privacysandbox/draft-ietf-protected-audience-auction-service</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
+    <span><a href="https://github.com/privacysandbox/draft-ietf-bidding-and-auction-services">https://github.com/privacysandbox/draft-ietf-bidding-and-auction-services</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
 </section>
 <div id="status-of-memo">
 <section id="section-boilerplate.1">
@@ -1095,7 +1095,7 @@ remote environments while preserving user privacy.<a href="#section-abstract-1" 
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 28 March 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 30 March 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1222,49 +1222,65 @@ Protected Audience API (<a href="https://developer.android.com/design-for-safety
 <a href="https://developer.chrome.com/docs/privacy-sandbox/fledge/">Chrome</a>) provides
 ways to preserve privacy and limit third-party data sharing by serving
 personalized ads based on previous mobile app or web engagement.<a href="#section-1-1" class="pilcrow">¶</a></p>
-<p id="section-1-2">For all platforms, Protected Audience may require <a href="https://github.com/privacysandbox/fledge-docs/blob/main/trusted_services_overview.md">real-time services</a>.
-In the initial <a href="https://github.com/WICG/turtledove/blob/main/FLEDGE.md">proposal by Chrome</a>,
-bidding and auction for Protected Audience ad demand is executed locally. This
-can demand computation requirements that may be impractical to execute on
-devices with limited processing power, or may be too slow to render ads due to
-network latency.<a href="#section-1-2" class="pilcrow">¶</a></p>
-<p id="section-1-3">This Bidding and Auction Services proposal outlines a way to allow Protected Audience
-computation to take place on cloud servers,
-rather than running locally on a user's device. Moving computations to
-the cloud has the following benefits:<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-2">This Bidding and Auction Services proposal outlines a way to allow Protected Audience
+computation to take place on cloud servers in a
+<a href="https://github.com/privacysandbox/fledge-docs/blob/main/trusted_services_overview.md#trusted-execution-environment">Trusted Execution Environment (TEE)</a>,
+rather than running locally on a user's device. Running workloads
+in a TEE in cloud has the following benefits:<a href="#section-1-2" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-1-4.1">
-          <p id="section-1-4.1.1">Scalable auctions.<a href="#section-1-4.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-1-3.1">
+          <p id="section-1-3.1.1">Scalable ad auctions.<a href="#section-1-3.1.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1-3.1.2.1">
+              <p id="section-1-3.1.2.1.1">A scalable ad auction may include several buyers and sellers and that
+can demand more compute resources and network bandwidth.<a href="#section-1-3.1.2.1.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-1-4.2">
-          <p id="section-1-4.2.1">A scalable ad auction may include several buyers and sellers and that
-can demand more compute resources and network bandwidth.<a href="#section-1-4.2.1" class="pilcrow">¶</a></p>
+          </ul>
 </li>
-        <li class="normal" id="section-1-4.3">
-          <p id="section-1-4.3.1">System health of the user's device.<a href="#section-1-4.3.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="section-1-3.2">
+          <p id="section-1-3.2.1">Lower latency of ad auctions.<a href="#section-1-3.2.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1-3.2.2.1">
+              <p id="section-1-3.2.2.1.1">Server to server communication on the cloud is faster than multiple
+device to server calls.<a href="#section-1-3.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-1-4.4">
-          <p id="section-1-4.4.1">Ensure better system health of the user's device by freeing up
-computational cycles and network bandwidth.<a href="#section-1-4.4.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="section-1-3.2.2.2">
+              <p id="section-1-3.2.2.2.1">Adtech code can execute faster on servers with higher computing power.<a href="#section-1-3.2.2.2.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-1-4.5">
-          <p id="section-1-4.5.1">Better latency of ad auctions.<a href="#section-1-4.5.1" class="pilcrow">¶</a></p>
+          </ul>
 </li>
-        <li class="normal" id="section-1-4.6">
-          <p id="section-1-4.6.1">Server to server communication on the cloud is faster than multiple device to server calls.<a href="#section-1-4.6.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="section-1-3.3">
+          <p id="section-1-3.3.1">Higher utility of ad auctions.<a href="#section-1-3.3.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1-3.3.2.1">
+              <p id="section-1-3.3.2.1.1">Servers have better processing power, therefore adtechs can run compute
+intensive workloads on a server for better utility.<a href="#section-1-3.3.2.1.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-1-4.7">
-          <p id="section-1-4.7.1">Adtech code can execute faster on servers with higher computing power compared to a device.<a href="#section-1-4.7.1" class="pilcrow">¶</a></p>
+            <li class="normal" id="section-1-3.3.2.2">
+              <p id="section-1-3.3.2.2.1">Lower latency of ad auctions also positively impact utility.<a href="#section-1-3.3.2.2.1" class="pilcrow">¶</a></p>
 </li>
-        <li class="normal" id="section-1-4.8">
-          <p id="section-1-4.8.1">Servers have better processing power.<a href="#section-1-4.8.1" class="pilcrow">¶</a></p>
+          </ul>
 </li>
-        <li class="normal" id="section-1-4.9">
-          <p id="section-1-4.9.1">Adtechs can run more compute intensive workloads on a server compared to a device for better utility.<a href="#section-1-4.9.1" class="pilcrow">¶</a></p>
+        <li class="normal" id="section-1-3.4">
+          <p id="section-1-3.4.1">Security protection<a href="#section-1-3.4.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1-3.4.2.1">
+              <p id="section-1-3.4.2.1.1">TEEs can protect confidentiality of adtech code and signals.<a href="#section-1-3.4.2.1.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+</li>
+        <li class="normal" id="section-1-3.5">
+          <p id="section-1-3.5.1">System health of the user's device.<a href="#section-1-3.5.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1-3.5.2.1">
+              <p id="section-1-3.5.2.1.1">Ensure better system health of user's device by freeing up computational
+cycles and network bandwidth.<a href="#section-1-3.5.2.1.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
 </li>
       </ul>
-<p id="section-1-5">Standardized protocols for interacting with Bidding and Auction Services are
-essential to creating a diverse and healthy ecosystem for such services.<a href="#section-1-5" class="pilcrow">¶</a></p>
+<p id="section-1-4">Standardized protocols for interacting with Bidding and Auction Services are
+essential to creating a diverse and healthy ecosystem for such services.<a href="#section-1-4" class="pilcrow">¶</a></p>
 <div id="Scope">
 <section id="section-1.1">
         <h3 id="name-scope">
@@ -2849,10 +2865,6 @@ or null if there is an error.<a href="#section-2.3.5.1-2.3.1" class="pilcrow">¶
 <dt id="RFC8174">[RFC8174]</dt>
       <dd>
 <span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8174">https://www.rfc-editor.org/rfc/rfc8174</a>&gt;</span>. </dd>
-<dd class="break"></dd>
-<dt id="SHA-256">[SHA-256]</dt>
-      <dd>
-<span class="refAuthor">Eastlake 3rd, D.</span> and <span class="refAuthor">T. Hansen</span>, <span class="refTitle">"US Secure Hash Algorithms (SHA and SHA-based HMAC and HKDF)"</span>, <span class="seriesInfo">RFC 6234</span>, <span class="seriesInfo">DOI 10.17487/RFC6234</span>, <time datetime="2011-05" class="refDate">May 2011</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6234">https://www.rfc-editor.org/rfc/rfc6234</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="URL">[URL]</dt>
       <dd>
