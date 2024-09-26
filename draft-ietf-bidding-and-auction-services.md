@@ -75,29 +75,28 @@ Protected Audience API ([Android](https://developer.android.com/design-for-safet
 ways to preserve privacy and limit third-party data sharing by serving
 personalized ads based on previous mobile app or web engagement.
 
-For all platforms, Protected Audience may require [real-time services](https://github.com/privacysandbox/fledge-docs/blob/main/trusted_services_overview.md).
-In the initial [proposal by Chrome](https://github.com/WICG/turtledove/blob/main/FLEDGE.md),
-bidding and auction for Protected Audience ad demand is executed locally. This
-can demand computation requirements that may be impractical to execute on
-devices with limited processing power, or may be too slow to render ads due to
-network latency.
-
 This Bidding and Auction Services proposal outlines a way to allow Protected Audience
-computation to take place on cloud servers,
-rather than running locally on a user's device. Moving computations to
-the cloud has the following benefits:
+computation to take place on cloud servers in a
+[Trusted Execution Environment (TEE)](https://github.com/privacysandbox/fledge-docs/blob/main/trusted_services_overview.md#trusted-execution-environment),
+rather than running locally on a user's device. Running workloads
+in a TEE in cloud has the following benefits:
 
-*   Scalable auctions.
+*   Scalable ad auctions.
   *   A scalable ad auction may include several buyers and sellers and that
       can demand more compute resources and network bandwidth.
+*   Lower latency of ad auctions.
+  *   Server to server communication on the cloud is faster than multiple
+      device to server calls. 
+  *   Adtech code can execute faster on servers with higher computing power.
+*   Higher utility of ad auctions.
+  *   Servers have better processing power, therefore adtechs can run compute
+      intensive workloads on a server for better utility.
+  *   Lower latency of ad auctions also positively impact utility. 
+*   Security protection
+  *   TEEs can protect confidentiality of adtech code and signals.
 *   System health of the user's device.
-  *   Ensure better system health of the user's device by freeing up
-      computational cycles and network bandwidth.
-*   Better latency of ad auctions.
-  *   Server to server communication on the cloud is faster than multiple device to server calls.
-  *   Adtech code can execute faster on servers with higher computing power compared to a device.
-*   Servers have better processing power.
-  *   Adtechs can run more compute intensive workloads on a server compared to a device for better utility.
+  *   Ensure better system health of user's device by freeing up computational
+      cycles and network bandwidth.
 
 Standardized protocols for interacting with Bidding and Auction Services are
 essential to creating a diverse and healthy ecosystem for such services.
