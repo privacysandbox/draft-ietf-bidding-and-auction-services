@@ -1,8 +1,8 @@
 # Bidding and Auction Services
 
-This is the working area for the IETF [TRUSTED Working Group](https://datatracker.ietf.org/wg/trusted/documents/) Internet-Draft, "Bidding and Auction Services".
+This is the working area for the IETF [BIDDING Working Group](https://datatracker.ietf.org/wg/bidding/documents/) Internet-Draft, "Bidding and Auction Services".
 
-* [Editor's Copy](https://privacysandbox.github.io/draft-ietf-bidding-and-auction-services/#go.draft-ietf-trusted-auction-services.html)
+* [Editor's Copy](https://privacysandbox.github.io/draft-ietf-bidding-and-auction-services/#go.draft-ietf-bidding-and-auction-services.html)
 * [Datatracker Page](https://datatracker.ietf.org/doc/draft-ietf-bidding-and-auction-services)
 * [Working Group Draft](https://datatracker.ietf.org/doc/html/draft-ietf-bidding-and-auction-services)
 * [Compare Editor's Copy to Working Group Draft](https://privacysandbox.github.io/draft-ietf-bidding-and-auction-services/#go.draft-ietf-bidding-and-auction-services.diff)
