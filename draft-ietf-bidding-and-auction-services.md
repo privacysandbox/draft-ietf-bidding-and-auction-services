@@ -76,7 +76,7 @@ personalized ads based on previous mobile app or web engagement.
 
 This Bidding and Auction Services proposal outlines a way to allow Protected Audience
 computation to take place on cloud servers in a
-[Trusted Execution Environment (TEE)](https://github.com/privacysandbox/fledge-docs/blob/main/trusted_services_overview.md#trusted-execution-environment),
+Trusted Execution Environment (TEE),
 rather than running locally on a user's device. Running workloads
 in a TEE in cloud has the following benefits:
 
