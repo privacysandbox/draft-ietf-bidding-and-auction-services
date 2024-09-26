@@ -1,6 +1,6 @@
-# Trusted Auction Services
+# Bidding and Auction Services
 
-This is the working area for the IETF [TRUSTED Working Group](https://datatracker.ietf.org/wg/trusted/documents/) Internet-Draft, "Trusted Auction Services".
+This is the working area for the IETF [TRUSTED Working Group](https://datatracker.ietf.org/wg/trusted/documents/) Internet-Draft, "Bidding and Auction Services".
 
 * [Editor's Copy](https://privacysandbox.github.io/draft-ietf-protected-audience-auction-service/#go.draft-ietf-trusted-auction-services.html)
 * [Datatracker Page](https://datatracker.ietf.org/doc/draft-ietf-trusted-auction-services)
