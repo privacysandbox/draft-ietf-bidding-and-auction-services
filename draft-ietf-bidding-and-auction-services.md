@@ -30,7 +30,6 @@ normative:
   CDDL: RFC8610
   JSON: RFC8259
   OHTTP: RFC9458
-  SHA-256: RFC6234
   HPKE: RFC9180
   GZIP: RFC1952
   UUID: RFC9562
@@ -82,21 +81,21 @@ rather than running locally on a user's device. Running workloads
 in a TEE in cloud has the following benefits:
 
 *   Scalable ad auctions.
-  *   A scalable ad auction may include several buyers and sellers and that
-      can demand more compute resources and network bandwidth.
+    *   A scalable ad auction may include several buyers and sellers and that
+        can demand more compute resources and network bandwidth.
 *   Lower latency of ad auctions.
-  *   Server to server communication on the cloud is faster than multiple
-      device to server calls. 
-  *   Adtech code can execute faster on servers with higher computing power.
+    *   Server to server communication on the cloud is faster than multiple
+        device to server calls.
+    *   Adtech code can execute faster on servers with higher computing power.
 *   Higher utility of ad auctions.
-  *   Servers have better processing power, therefore adtechs can run compute
-      intensive workloads on a server for better utility.
-  *   Lower latency of ad auctions also positively impact utility. 
+    *   Servers have better processing power, therefore adtechs can run compute
+        intensive workloads on a server for better utility.
+    *   Lower latency of ad auctions also positively impact utility.
 *   Security protection
-  *   TEEs can protect confidentiality of adtech code and signals.
+    *   TEEs can protect confidentiality of adtech code and signals.
 *   System health of the user's device.
-  *   Ensure better system health of user's device by freeing up computational
-      cycles and network bandwidth.
+    *   Ensure better system health of user's device by freeing up computational
+        cycles and network bandwidth.
 
 Standardized protocols for interacting with Bidding and Auction Services are
 essential to creating a diverse and healthy ecosystem for such services.
