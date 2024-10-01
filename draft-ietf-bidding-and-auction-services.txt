@@ -5,7 +5,7 @@
 TBD                                                             D. Kocoj
 Internet-Draft                                            B. R. Hamilton
 Intended status: Standards Track                                  Google
-Expires: 30 March 2025                                 26 September 2024
+Expires: 4 April 2025                                     1 October 2024
 
 
                       Bidding and Auction Services
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 30 March 2025.
+   This Internet-Draft will expire on 4 April 2025.
 
 Copyright Notice
 
@@ -280,9 +280,9 @@ Table of Contents
    ID, and HPKE AEAD ID are the key encapsulation mechanism, key
    derivation function and authenticated encryption with associated data
    function parameters for [HPKE].  For this protocol, a compliant
-   implementation MUST support HKDF-SHA256 (0x0010) for HPKE KEM ID,
-   HKDF-SHA256 (0x0001) for HPKE KDF ID, and AES-256-GCM (0x0002) for
-   HPKE AEAD ID.
+   implementation MUST support DHKEM(X25519, HKDF-SHA256) (0x0020) for
+   HPKE KEM ID, HKDF-SHA256 (0x0001) for HPKE KDF ID, and AES-256-GCM
+   (0x0002) for HPKE AEAD ID.
 
    Encryption of the request is similar to in [OHTTP] Section 4.3
    (https://www.rfc-editor.org/rfc/rfc9458#name-encapsulation-of-
