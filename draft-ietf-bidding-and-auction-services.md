@@ -391,7 +391,8 @@ the {{framing}} header.
 This section describes how the client MAY form and serialize request messages
 in order to communicate with the Bidding and Auction services.
 
-This algorithm takes as input the `publisher`, all of the `relevant interest groups`,
+This algorithm takes as input all of the `relevant interest groups`, and a config
+consisting of the `publisher`,
 an optional `desired total size`, an optional list of `interest group owners` to
 include each with an optional `desired size`, and the [HPKE] `public key` and
 its associated `key ID`. It returns an `encrypted request` and a `request context`
