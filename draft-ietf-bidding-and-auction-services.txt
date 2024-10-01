@@ -466,11 +466,12 @@ Table of Contents
    messages in order to communicate with the Bidding and Auction
    services.
 
-   This algorithm takes as input the publisher, all of the relevant
-   interest groups, an optional desired total size, an optional list of
-   interest group owners to include each with an optional desired size,
-   and the [HPKE] public key and its associated key ID.  It returns an
-   encrypted request and a request context tuple.
+   This algorithm takes as input all of the relevant interest groups,
+   and a config consisting of the publisher, an optional desired total
+   size, an optional list of interest group owners to include each with
+   an optional desired size, and the [HPKE] public key and its
+   associated key ID.  It returns an encrypted request and a request
+   context tuple.
 
    1.   Let included_groups be an empty map.
 

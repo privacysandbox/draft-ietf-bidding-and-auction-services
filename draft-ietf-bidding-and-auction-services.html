@@ -1733,7 +1733,8 @@ the <a href="#framing" class="auto internal xref">Section 2.1.2</a> header.<a hr
           </h4>
 <p id="section-2.2.4-1">This section describes how the client MAY form and serialize request messages
 in order to communicate with the Bidding and Auction services.<a href="#section-2.2.4-1" class="pilcrow">¶</a></p>
-<p id="section-2.2.4-2">This algorithm takes as input the <code>publisher</code>, all of the <code>relevant interest groups</code>,
+<p id="section-2.2.4-2">This algorithm takes as input all of the <code>relevant interest groups</code>, and a config
+consisting of the <code>publisher</code>,
 an optional <code>desired total size</code>, an optional list of <code>interest group owners</code> to
 include each with an optional <code>desired size</code>, and the <span>[<a href="#HPKE" class="cite xref">HPKE</a>]</span> <code>public key</code> and
 its associated <code>key ID</code>. It returns an <code>encrypted request</code> and a <code>request context</code>
