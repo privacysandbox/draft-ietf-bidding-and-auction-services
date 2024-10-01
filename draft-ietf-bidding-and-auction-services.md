@@ -212,7 +212,7 @@ The `Version` for this message SHOULD be 0. The `HPKE KEM ID`, `HPKE KDF ID`,
 and `HPKE AEAD ID` are the key encapsulation mechanism, key derivation function
 and authenticated encryption with associated data function parameters for
 [HPKE]. For this protocol, a compliant implementation MUST support
-HKDF-SHA256 (0x0010) for `HPKE KEM ID`, HKDF-SHA256 (0x0001) for
+DHKEM(X25519, HKDF-SHA256) (0x0020) for `HPKE KEM ID`, HKDF-SHA256 (0x0001) for
 `HPKE KDF ID`, and AES-256-GCM (0x0002) for `HPKE AEAD ID`.
 
 Encryption of the request is similar to in [OHTTP]
