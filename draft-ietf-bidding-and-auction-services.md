@@ -733,8 +733,20 @@ response = {
   ;   5.       add a tuple to the list in (1) of [interest group owner (2),
                interest group name (4)]
   ;   6. return the list in (1)
-   ? biddingGroups: {
+  ? biddingGroups: {
     * interestGroupOwner => [* int]
+  },
+
+  ; Indices and update-if-older-than times of interest groups in the original
+  ; request for this owner for interest groups where an update-if-older-than
+  ; time (in milliseconds) was specified.
+  ; Maps to https://wicg.github.io/turtledove/#server-auction-response-update-groups.
+  ? updateGroups: {
+    * interestGroupOwner => [
+      * {
+        index: int,
+        updateIfOlderThanMs: int
+      }]
   },
 
   ; Score of the ad determined during the auction.
@@ -906,6 +918,28 @@ response from Bidding and Auction Services. It takes as input the
        `included_groups[owner]`, return failure.
     1. Let `name` be the `interest group name` for `included_groups[owner][element]`.
     1. Append the tuple (`owner`, `name`) to `processed response["bidding groups"]`.
+1. If `response["updateGroups"]` exists and is a map:
+  1. For each `key`, `value` in `response["updateGroups"]`:
+    1. Let `owner` be equal to `key` parsed as an [ORIGIN], continuing the next
+       iteration of this loop if there is an error.
+    1. If `request context`'s `included_groups` does not contain `owner` as a
+       key, continue the next iteration of this loop.
+    1. If `value` is not a list, return failure.
+    1. For each `element` in `value`:
+      1. If `element` is not a map, continue the next iteration of this loop.
+      1. If `element["index"]` does not exist or is not an integer or
+         `element["updateIfOlderThanMs"]` does not exist or is not an integer, continue the
+         next iteration of this loop.
+      1. If `element["index"]` is not an integer or `element["index"] < 0`,
+         continue the next iteration of this loop.
+      1. If `element["index"]` is greater than or equal to the length of
+         `included_groups[owner]`, continue the next iteration of this loop.
+      1. Let `name` be the `interest group name` for `included_groups[owner][element]`.
+      1. Let `interest group key` be the tuple (`owner`, `name`).
+      1. Let `update duration` be `element["updateIfOlderThanMs"]`, parsed into a time
+         duration as integer milliseconds.
+      1. Set `processed response["update groups"][intereset group key]` to
+         `update duration`.
 1. If `response["score"]` exists:
   1. If `response["score"]` is not a floating point value, return failure.
   1. Set `processed response["score"]` to `response["score"]`.
