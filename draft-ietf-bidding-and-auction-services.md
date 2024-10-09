@@ -739,13 +739,13 @@ response = {
 
   ; Indices and update-if-older-than times of interest groups in the original
   ; request for this owner for interest groups where an update-if-older-than
-  ; time was specified.
+  ; time (in milliseconds) was specified.
   ; Maps to https://wicg.github.io/turtledove/#server-auction-response-update-groups.
   ? updateGroups: {
     * interestGroupOwner => [
       * {
         index: int,
-        time: int
+        updateIfOlderThanMs: int
       }]
   },
 
@@ -921,21 +921,22 @@ response from Bidding and Auction Services. It takes as input the
 1. If `response["updateGroups"]` exists and is a map:
   1. For each `key`, `value` in `response["updateGroups"]`:
     1. Let `owner` be equal to `key` parsed as an [ORIGIN], continuing the next
-      iteration of this loop if there is an error.
+       iteration of this loop if there is an error.
     1. If `request context`'s `included_groups` does not contain `owner` as a
        key, continue the next iteration of this loop.
     1. If `value` is not a list, return failure.
     1. For each `element` in `value`:
       1. If `element` is not a map, continue the next iteration of this loop.
       1. If `element["index"]` does not exist or is not an integer or
-         `element["time"]` does not exist or is not an integer, continue the
+         `element["updateIfOlderThanMs"]` does not exist or is not an integer, continue the
          next iteration of this loop.
-      1. If `element["index"]` is not an integer or `element["index"] < 0`, return failure.
+      1. If `element["index"]` is not an integer or `element["index"] < 0`,
+         continue the next iteration of this loop.
       1. If `element["index"]` is greater than or equal to the length of
          `included_groups[owner]`, continue the next iteration of this loop.
       1. Let `name` be the `interest group name` for `included_groups[owner][element]`.
       1. Let `interest group key` be the tuple (`owner`, `name`).
-      1. Let `update duration` be `element["time"]`, parsed into a time
+      1. Let `update duration` be `element["updateIfOlderThanMs"]`, parsed into a time
          duration as integer milliseconds.
       1. Set `processed response["update groups"][intereset group key]` to
          `update duration`.
