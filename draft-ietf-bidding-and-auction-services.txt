@@ -5,7 +5,7 @@
 TBD                                                             D. Kocoj
 Internet-Draft                                            B. R. Hamilton
 Intended status: Standards Track                                  Google
-Expires: 4 April 2025                                     1 October 2024
+Expires: 28 April 2025                                   25 October 2024
 
 
                       Bidding and Auction Services
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 4 April 2025.
+   This Internet-Draft will expire on 28 April 2025.
 
 Copyright Notice
 
@@ -967,8 +967,20 @@ Table of Contents
      ;   5.       add a tuple to the list in (1) of [interest group owner (2),
                   interest group name (4)]
      ;   6. return the list in (1)
-      ? biddingGroups: {
+     ? biddingGroups: {
        * interestGroupOwner => [* int]
+     },
+
+     ; Indices and update-if-older-than times of interest groups in the original
+     ; request for this owner for interest groups where an update-if-older-than
+     ; time (in milliseconds) was specified.
+     ; Maps to https://wicg.github.io/turtledove/#server-auction-response-update-groups.
+     ? updateGroups: {
+       * interestGroupOwner => [
+         * {
+           index: int,
+           updateIfOlderThanMs: int
+         }]
      },
 
      ; Score of the ad determined during the auction.
@@ -1188,72 +1200,106 @@ Table of Contents
         included_groups[owner][element].  1.  Append the tuple (owner,
         name) to processed response["bidding groups"].
 
-   29.  If response["score"] exists:
+   29.  If response["updateGroups"] exists and is a map:
 
-   30.  If response["score"] is not a floating point value, return
+   30.  For each key, value in response["updateGroups"]: 1.  Let owner
+        be equal to key parsed as an [ORIGIN], continuing the next
+        iteration of this loop if there is an error.  1.  If request
+        context's included_groups does not contain owner as a key,
+        continue the next iteration of this loop.  1.  If value is not a
+        list, return failure.  1.  For each element in value:
+
+        1.  If element is not a map, continue the next iteration of this
+            loop.
+
+        2.  If element["index"] does not exist or is not an integer or
+            element["updateIfOlderThanMs"] does not exist or is not an
+            integer, continue the next iteration of this loop.
+
+        3.  If element["index"] is not an integer or element["index"] <
+            0, continue the next iteration of this loop.
+
+        4.  If element["index"] is greater than or equal to the length
+            of included_groups[owner], continue the next iteration of
+            this loop.
+
+        5.  Let name be the interest group name for
+            included_groups[owner][element].
+
+        6.  Let interest group key be the tuple (owner, name).
+
+        7.  Let update duration be element["updateIfOlderThanMs"],
+            parsed into a time duration as integer milliseconds.
+
+        8.  Set processed response["update groups"][intereset group key]
+            to update duration.
+
+   31.  If response["score"] exists:
+
+   32.  If response["score"] is not a floating point value, return
         failure.
 
-   31.  Set processed response["score"] to response["score"].
+   33.  Set processed response["score"] to response["score"].
 
-   32.  If response["bid"] exists:
+   34.  If response["bid"] exists:
 
-   33.  If response["bid"] is not a floating point value, return
+   35.  If response["bid"] is not a floating point value, return
         failure.
 
-   34.  Let bid be a new structure analogous to bid with currency
+   36.  Let bid be a new structure analogous to bid with currency
         (https://wicg.github.io/turtledove/#bid-with-currency).
 
-   35.  Set bids value field to response["bid"].
+   37.  Set bids value field to response["bid"].
 
-   36.  If response["bidCurrency"] exists: 1.  If
+   38.  If response["bidCurrency"] exists: 1.  If
         response["bidCurrency"] is not a string, return failure.  1.  If
         response["bidCUrrency"] is not 3 bytes long or contains
         characters other than upper case ASCII letters, return failure.
         1.  Set bid's currency field to response["bidCurrency"].
 
-   37.  Set processed response["bid"] to bid.
+   39.  Set processed response["bid"] to bid.
 
-   38.  If response["winReportingURLs"] exists and is a map:
+   40.  If response["winReportingURLs"] exists and is a map:
 
-   39.  If response["winReportingURLs"]["buyerReportingURLs"] exists: 1.
+   41.  If response["winReportingURLs"]["buyerReportingURLs"] exists: 1.
         Let buyer reporting be the result of Section 2.3.5.1 on
         response["winReportingURLs"]["buyerReportingURLs"].  1.  Set
         processed response["buyer reporting"] to buyer reporting.
 
-   40.  If response["winReportingURLs"]["topLevelSellerReportingURLs"]
+   42.  If response["winReportingURLs"]["topLevelSellerReportingURLs"]
         exists: 1.  Let top level seller reporting be the result of
         Section 2.3.5.1 on
         response["winReportingURLs"]["topLevelSellerReportingURLs"].  1.
         Set processed response["top level seller reporting"] to top
         level seller reporting.
 
-   41.  If response["winReportingURLs"]["componentSellerReportingURLs"]
+   43.  If response["winReportingURLs"]["componentSellerReportingURLs"]
         exists: 1.  Let component seller reporting be the result of
         Section 2.3.5.1 on
         response["winReportingURLs"]["componentSellerReportingURLs"].
         1.  Set processed response["component seller reporting" to
         component seller reporting.
 
-   42.  If response["topLevelSeller"] exists:
+   44.  If response["topLevelSeller"] exists:
 
-   43.  If response["topLevelSeller"] is not a string, return failure.
+   45.  If response["topLevelSeller"] is not a string, return failure.
 
-   44.  Set processed response["top level seller"] to
+   46.  Set processed response["top level seller"] to
         response["topLevelSeller"] parsed as a [URL], returning failure
         if there is an error.
 
-   45.  If response["adMetadata"] exists and is a string set processed
+   47.  If response["adMetadata"] exists and is a string set processed
         response["ad metadata"] to response["adMetadata"].
 
-   46.  If response["buyerReportingId"] exists and is a string set
+   48.  If response["buyerReportingId"] exists and is a string set
         processed response["buyer reporting id"] to
         response["buyerReportingId"].
 
-   47.  If response["buyerAndSellerReportingId"] exists and is a string
+   49.  If response["buyerAndSellerReportingId"] exists and is a string
         set processed response["buyer and seller reporting id"] to
         response["buyerAndSellerReportingId"].
 
-   48.  Return processed response.
+   50.  Return processed response.
 
 2.3.5.1.  Parsing reporting URLs
 
