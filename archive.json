@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-10-24T00:52:06.290300+00:00",
+  "timestamp": "2024-10-27T00:56:26.729031+00:00",
   "repo": "privacysandbox/draft-ietf-bidding-and-auction-services",
   "labels": [
     {
@@ -2177,24 +2177,26 @@
       "id": "PR_kwDOMnZLVc5-Fe3K",
       "title": "Add support for triggered updates",
       "url": "https://github.com/privacysandbox/draft-ietf-bidding-and-auction-services/pull/12",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "brusshamilton",
       "authorAssociation": "COLLABORATOR",
       "assignees": [],
       "labels": [],
       "body": "",
       "createdAt": "2024-10-09T13:52:43Z",
-      "updatedAt": "2024-10-09T16:42:12Z",
+      "updatedAt": "2024-10-25T11:59:39Z",
       "baseRepository": "privacysandbox/draft-ietf-bidding-and-auction-services",
       "baseRefName": "main",
       "baseRefOid": "ebdfbb9053b2cf208a75d65bf7eab845ca198642",
       "headRepository": "privacysandbox/draft-ietf-bidding-and-auction-services",
       "headRefName": "triggeredUpdates",
       "headRefOid": "97d3358a061c1d2e73ae6ce6ed7e518f46ef2353",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2024-10-25T11:59:38Z",
+      "mergedAt": "2024-10-25T11:59:38Z",
+      "mergedBy": "brusshamilton",
+      "mergeCommit": {
+        "oid": "6b9cab9efb425ca83b02fda73952f0b77281542c"
+      },
       "comments": [],
       "reviews": [
         {
