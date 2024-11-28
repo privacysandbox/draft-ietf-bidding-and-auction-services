@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-11-26T00:55:29.571207+00:00",
+  "timestamp": "2024-11-28T00:56:06.158204+00:00",
   "repo": "privacysandbox/draft-ietf-bidding-and-auction-services",
   "labels": [
     {
@@ -2469,6 +2469,53 @@
               "body": "ah ok I see, thanks.",
               "createdAt": "2024-10-09T16:42:11Z",
               "updatedAt": "2024-10-09T16:42:12Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 14,
+      "id": "PR_kwDOMnZLVc6DWb2j",
+      "title": "Add selected reporting id to response",
+      "url": "https://github.com/privacysandbox/draft-ietf-bidding-and-auction-services/pull/14",
+      "state": "OPEN",
+      "author": "qingxinwu",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "add selectedBuyerANdSellerReportingId",
+      "createdAt": "2024-11-27T15:01:58Z",
+      "updatedAt": "2024-11-27T15:03:19Z",
+      "baseRepository": "privacysandbox/draft-ietf-bidding-and-auction-services",
+      "baseRefName": "main",
+      "baseRefOid": "6b9cab9efb425ca83b02fda73952f0b77281542c",
+      "headRepository": "qingxinwu/draft-ietf-bidding-and-auction-services",
+      "headRefName": "patch-1",
+      "headRefOid": "6997ac3c22c362c41b14e2481bbd89e67c82df02",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOMnZLVc6S8Ugn",
+          "commit": {
+            "abbreviatedOid": "6997ac3"
+          },
+          "author": "qingxinwu",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-11-27T15:03:18Z",
+          "updatedAt": "2024-11-27T15:03:19Z",
+          "comments": [
+            {
+              "originalPosition": 5,
+              "body": "update after W3C spec's [pull request](https://github.com/WICG/turtledove/pull/1348) that defines the new field is merged.",
+              "createdAt": "2024-11-27T15:03:18Z",
+              "updatedAt": "2024-11-27T15:03:19Z"
             }
           ]
         }
