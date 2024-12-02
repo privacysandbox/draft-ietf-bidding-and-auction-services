@@ -778,8 +778,12 @@ response = {
   ; If not present, map as Null.
   ? buyerAndSellerReportingId: tstr,
 
+  ; Optional SelectedBuyerAndSellerReportingId of the winning Ad
+  ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-selected-buyer-and-seller-reporting-id
+  ; If not present, map as Null.
+  ? selectedBuyerAndSellerReportingId: tstr,
+
   ; The auction result may be ignored if set to true.
-  ; Maps to https://wicg.github.io/turtledove/#server-auction-response-is-chaff.
   ; If not present, map as false.
   ? isChaff: bool,
 
@@ -974,11 +978,15 @@ response from Bidding and Auction Services. It takes as input the
      parsed as a [URL], returning failure if there is an error.
 1. If `response["adMetadata"]` exists and is a string set
    `processed response["ad metadata"]` to `response["adMetadata"]`.
-1. If `response["buyerReportingId"]` exists and is a string set
+1. If `response["buyerReportingId"]` exists and is a string, set
    `processed response["buyer reporting id"]` to `response["buyerReportingId"]`.
-1. If `response["buyerAndSellerReportingId"]` exists and is a string set
+1. If `response["buyerAndSellerReportingId"]` exists and is a string, set
    `processed response["buyer and seller reporting id"]` to
    `response["buyerAndSellerReportingId"]`.
+1. If `response["selectedBuyerAndSellerReportingId"]` exists and is a string, set
+   `processed response["selected buyer and seller reporting id"]` to
+   `response["selectedBuyerAndSellerReportingId"]`.
+
 1. Return `processed response`.
 
 #### Parsing reporting URLs {#response-parsing-reporting}
