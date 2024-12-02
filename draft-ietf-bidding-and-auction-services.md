@@ -779,12 +779,11 @@ response = {
   ? buyerAndSellerReportingId: tstr,
 
   ; Optional SelectedBuyerAndSellerReportingId of the winning Ad
-  ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-buyer-and-seller-reporting-id. (TODO: update before merge)
+  ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-selected-buyer-and-seller-reporting-id
   ; If not present, map as Null.
   ? selectedBuyerAndSellerReportingId: tstr,
 
   ; The auction result may be ignored if set to true.
-  ; Maps to https://wicg.github.io/turtledove/#server-auction-response-is-chaff.
   ; If not present, map as false.
   ? isChaff: bool,
 
