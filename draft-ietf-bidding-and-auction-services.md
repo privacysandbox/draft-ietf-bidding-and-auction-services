@@ -818,6 +818,11 @@ response = {
   ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-top-level-seller.
   ; If not present, map as Null.
   ? topLevelSeller: origin,
+
+  ; Optional list of private aggregation contributions.
+  ; Maps to TODO:::::::::
+  ; If not present, map as an empty list.
+  ? paggResponse: [* paggResponsePerOrigin],
 }
 
 ; Defines the structure for reporting URLs.
@@ -910,7 +915,7 @@ response from Bidding and Auction Services. It takes as input the
 1. For each `key`, `value` in `response["biddingGroups"]`:
   1. Let `owner` be equal to `key` parsed as an [ORIGIN], returning failure if
      there is an error.
-  1. `request context`'s `included_groups` does not contain `owner` as a key, return failure.
+  1. If `request context`'s `included_groups` does not contain `owner` as a key, return failure.
   1. If `value` is not a list, return failure.
   1. For each `element` in `value`:
     1. If `element` is not an integer or `element < 0`, return failure.
@@ -979,6 +984,27 @@ response from Bidding and Auction Services. It takes as input the
 1. If `response["buyerAndSellerReportingId"]` exists and is a string set
    `processed response["buyer and seller reporting id"]` to
    `response["buyerAndSellerReportingId"]`.
+1. If `response["paggResponse"]` exists and is an array:
+    1. For each `per origin response` in `response["paggResponse"]`:
+       1. If `per origin response` is not a map, continue with the next iteration.
+       1. If `per origin response["reportingOrigin"]` does not exist or is not a string,
+          continue with the next iteration.
+       1. Let `reporting origin` be `per origin response["reportingOrigin"]` parsed as an [ORIGIN],
+          continue with the next iteration if there is an error.
+       1. If `per origin response["igContributions"]` does not exist or is not an array,
+          continue with the next iteration.
+       1. Let `names` be an empty array.
+       1. If `request context`'s `included_groups` contains `owner` as a key, set `names` to its value.
+       1. For each `ig contribution` in `per origin response["igContributions"]`:
+           1. If `ig contribution` is not a map, continue with the next iteration.
+           1. Let `coordinator` be null.
+           1. If `ig contribution["coordinator"]` exists and is a string, set `coordinator` to
+              `per origin response["reportingOrigin"]` parsed as an [ORIGIN], continue with the next
+              iteration if there is an error.
+           1. Otherwise if `ig contribution["igIndex"]` exists and is an integer:
+               1. If `ig contribution["igIndex"] < 0` or is greater than or equal to the length of `names`,
+                  continue with the next iteration.
+               1. 
 1. Return `processed response`.
 
 #### Parsing reporting URLs {#response-parsing-reporting}
