@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-12-01T01:05:50.357758+00:00",
+  "timestamp": "2024-12-03T00:57:31.333226+00:00",
   "repo": "privacysandbox/draft-ietf-bidding-and-auction-services",
   "labels": [
     {
@@ -2486,18 +2486,26 @@
       "labels": [],
       "body": "add selectedBuyerANdSellerReportingId",
       "createdAt": "2024-11-27T15:01:58Z",
-      "updatedAt": "2024-11-27T15:03:19Z",
+      "updatedAt": "2024-12-02T20:13:57Z",
       "baseRepository": "privacysandbox/draft-ietf-bidding-and-auction-services",
       "baseRefName": "main",
       "baseRefOid": "6b9cab9efb425ca83b02fda73952f0b77281542c",
       "headRepository": "qingxinwu/draft-ietf-bidding-and-auction-services",
       "headRefName": "patch-1",
-      "headRefOid": "6997ac3c22c362c41b14e2481bbd89e67c82df02",
+      "headRefOid": "ae73989f757be91de95dad2f0f08754cf6b2144d",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
-      "comments": [],
+      "comments": [
+        {
+          "author": "qingxinwu",
+          "authorAssociation": "NONE",
+          "body": "> LGTM modulo updating the link referenced in your open comment.\r\n\r\ndone.",
+          "createdAt": "2024-12-02T20:13:55Z",
+          "updatedAt": "2024-12-02T20:13:55Z"
+        }
+      ],
       "reviews": [
         {
           "id": "PRR_kwDOMnZLVc6S8Ugn",
@@ -2518,8 +2526,67 @@
               "updatedAt": "2024-11-27T15:03:19Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6TZ7j_",
+          "commit": {
+            "abbreviatedOid": "6997ac3"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "LGTM modulo updating the link referenced in your open comment.",
+          "createdAt": "2024-12-02T15:34:46Z",
+          "updatedAt": "2024-12-02T15:34:46Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6Tc2mp",
+          "commit": {
+            "abbreviatedOid": "6997ac3"
+          },
+          "author": "qingxinwu",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-02T20:13:26Z",
+          "updatedAt": "2024-12-02T20:13:26Z",
+          "comments": [
+            {
+              "originalPosition": 5,
+              "body": "done.",
+              "createdAt": "2024-12-02T20:13:26Z",
+              "updatedAt": "2024-12-02T20:13:26Z"
+            }
+          ]
         }
       ]
+    },
+    {
+      "number": 15,
+      "id": "PR_kwDOMnZLVc6Dztuf",
+      "title": "[In progress] Add private aggregation related response field handling",
+      "url": "https://github.com/privacysandbox/draft-ietf-bidding-and-auction-services/pull/15",
+      "state": "OPEN",
+      "author": "qingxinwu",
+      "authorAssociation": "NONE",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2024-12-02T21:34:02Z",
+      "updatedAt": "2024-12-02T21:34:03Z",
+      "baseRepository": "privacysandbox/draft-ietf-bidding-and-auction-services",
+      "baseRefName": "main",
+      "baseRefOid": "6b9cab9efb425ca83b02fda73952f0b77281542c",
+      "headRepository": "qingxinwu/draft-ietf-bidding-and-auction-services",
+      "headRefName": "patch-2",
+      "headRefOid": "6289ecdfd0744f3fd7c595734d213486d8c9cb30",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": []
     }
   ]
 }
