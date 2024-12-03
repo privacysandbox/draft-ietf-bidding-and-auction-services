@@ -471,7 +471,8 @@ tuple.
    larger than request.
 1. Encrypt `request` using the `public key` and its `key id` as in
    {{request-encryption}} to get the `encrypted message` and `hpke context`.
-1. Let the `request context` be the tuple (`included_groups`, `hpke context`)
+1. Let the `request context` be the tuple
+   (`included_groups`, `hpke context`, `ig pagg coordinators`).
 1. Return the `request` and the `request context`.
 
 ### Parsing a Request {#request-parsing}
@@ -1002,9 +1003,42 @@ response from Bidding and Auction Services. It takes as input the
               `per origin response["reportingOrigin"]` parsed as an [ORIGIN], continue with the next
               iteration if there is an error.
            1. Otherwise if `ig contribution["igIndex"]` exists and is an integer:
-               1. If `ig contribution["igIndex"] < 0` or is greater than or equal to the length of `names`,
+              1. If `ig contribution["igIndex"] < 0` or is greater than or equal to the length of `names`,
                   continue with the next iteration.
-               1. 
+              1. Let `ig key` be the tuple (`owner`, `name`). 
+              1. If `request context`'s `ig pagg coordinators` contains `ig key`, set `coordinator` to
+                 `request context`'s `ig pagg coordinators["ig key"]`.
+           1. Let `is component win` be false.
+           1. If `ig contribution["componentWin"]` exists and is a boolean, set `is component win` to it.
+           1. If `ig contribution["eventContributions"]` exists and is an array:
+              1. For each `event contribution` in `ig contribution["eventContributions"]`:
+                 1. Continue with the next iteration if any of the following conditions hold:
+                    * `event contribution` is not a map;
+                    * `event contribution`["event"] does not exist or is not a string;
+                    * `event contribution`["event"] starts with "reserved.", but is not one of "reserved.win", "reserved.loss",
+                      or "reserved.always", continue with the next iteration.
+                 1. Let `event` be `event contribution`["event"]`.
+                 1. If `event contribution`["contributions"] exists and is an array, for each `contribution` in it:
+                    1. Continue with the next iteration if any of the following conditions hold:
+                       * `contribution` is not a map;
+                       * `contribution`["bucket"] does not exist or is not a byte array;
+                       * `contribution`["value"] does not exist or is not an integer.
+                    1. Let `filtering id` be 0.
+                    1. If `contribution`["filteringId"] exists and is a non-negative integer no greater than 255, set `filtering id` to it.
+                    1. Let `private aggregation contribution` be a new structure analogous to [PAExtendedHistogramContribution]
+                          (https://wicg.github.io/turtledove/#dictdef-paextendedhistogramcontribution).
+                    1. Set `private aggregation contribution`["bucket"] to `contribution`["bucket"] parsed as a big endian integer.
+                    1. Set `private aggregation contribution`["value"] to `contribution`["value"].
+                    1. Set `private aggregation contribution`["filteringId"] to `filtering id`.
+                    1. If `is component win` is true:
+                       1. Let `key` be (`reporting origin`, `coordinator`, `event`).
+                       1. If `processed response`["component win pagg contributions"] does not contain `key`, set
+                          `processed response`["component win pagg contributions"][`key`] to a new array.
+                       1. Append `private aggregation contribution` to `processed response`["component win pagg contributions"]["key"].
+                    1. Otherwise if `event contribution`["event"] starts with "reserved.", append `private aggregation contribution`
+                       to `processed response`["server filtered pagg contributions reserved"][`key`].
+                    1. Otherwise, append `private aggregation contribution` to
+                       `processed response`["server filtered pagg contributions non reserved"][`event`].
 1. Return `processed response`.
 
 #### Parsing reporting URLs {#response-parsing-reporting}
