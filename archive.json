@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-12-03T00:57:31.333226+00:00",
+  "timestamp": "2024-12-05T00:57:36.293069+00:00",
   "repo": "privacysandbox/draft-ietf-bidding-and-auction-services",
   "labels": [
     {
@@ -2574,13 +2574,13 @@
       "labels": [],
       "body": "",
       "createdAt": "2024-12-02T21:34:02Z",
-      "updatedAt": "2024-12-02T21:34:03Z",
+      "updatedAt": "2024-12-03T20:57:10Z",
       "baseRepository": "privacysandbox/draft-ietf-bidding-and-auction-services",
       "baseRefName": "main",
       "baseRefOid": "6b9cab9efb425ca83b02fda73952f0b77281542c",
       "headRepository": "qingxinwu/draft-ietf-bidding-and-auction-services",
       "headRefName": "patch-2",
-      "headRefOid": "6289ecdfd0744f3fd7c595734d213486d8c9cb30",
+      "headRefOid": "ee5ac3b47512c44e718e191d5948c87215bc8ab0",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
