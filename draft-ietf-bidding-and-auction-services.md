@@ -1041,13 +1041,10 @@ response from Bidding and Auction Services. It takes as input the
                       * `contribution` is not a map;
                       * `contribution["bucket"]` does not exist or is not a byte array;
                       * `contribution["value"]` does not exist or is not an integer.
-                   1. Let `filtering id` be 0.
-                   1. If `contribution["filteringId"]` exists and is a non-negative integer no greater than 255, set `filtering id` to it.
                    1. Let `private aggregation contribution` be a new structure analogous to [PAExtendedHistogramContribution]
                          (https://wicg.github.io/turtledove/#dictdef-paextendedhistogramcontribution).
                    1. Set `private aggregation contribution["bucket"]` to `contribution["bucket"]` parsed as a big endian integer.
                    1. Set `private aggregation contribution["value"]` to `contribution["value"]`.
-                   1. Set `private aggregation contribution["filteringId"]` to `filtering id`.
                    1. If `is component win` is true:
                       1. Let `key` be (`reporting origin`, `coordinator`, `event`).
                       1. If `processed response["component win pagg contributions"]` does not contain `key`, set
