@@ -391,10 +391,11 @@ the {{framing}} header.
 This section describes how the client MAY form and serialize request messages
 in order to communicate with the Bidding and Auction services.
 
-This algorithm takes as input all of the `relevant interest groups`, and a config
-consisting of the `publisher`,
+This algorithm takes as input all of the `relevant interest groups`, a config
+consisting of the `publisher`, a map of from (origin, string) tuple to origin
+`ig pagg coordinators`,
 an optional `desired total size`, an optional list of `interest group owners` to
-include each with an optional `desired size`, and the [HPKE] `public key` and
+include each with an optional `desired size`, the [HPKE] `public key` and
 its associated `key ID`. It returns an `encrypted request` and a `request context`
 tuple.
 
@@ -1024,7 +1025,7 @@ response from Bidding and Auction Services. It takes as input the
                 continue with the next iteration.
             1. Let `ig key` be the tuple (`owner`, `names[igIndex]`).
             1. If `request context`'s `ig pagg coordinators` contains `ig key`, set `coordinator` to
-               `request context`'s `ig pagg coordinators["ig key"]`.
+               `request context`'s `ig pagg coordinators[ig key]`.
           1. Let `is component win` be false.
           1. If `ig contribution["componentWin"]` exists and is a boolean, set `is component win` to it.
           1. If `ig contribution["eventContributions"]` exists and is an array:
