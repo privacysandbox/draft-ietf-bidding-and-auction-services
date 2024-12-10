@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-12-08T01:01:38.980280+00:00",
+  "timestamp": "2024-12-10T00:58:21.855228+00:00",
   "repo": "privacysandbox/draft-ietf-bidding-and-auction-services",
   "labels": [
     {
@@ -2565,7 +2565,7 @@
     {
       "number": 15,
       "id": "PR_kwDOMnZLVc6Dztuf",
-      "title": "[In progress] Add private aggregation related response field handling",
+      "title": "Add handling of private aggregation paggResponse field in response",
       "url": "https://github.com/privacysandbox/draft-ietf-bidding-and-auction-services/pull/15",
       "state": "OPEN",
       "author": "qingxinwu",
@@ -2574,19 +2574,74 @@
       "labels": [],
       "body": "",
       "createdAt": "2024-12-02T21:34:02Z",
-      "updatedAt": "2024-12-03T20:57:10Z",
+      "updatedAt": "2024-12-09T15:18:15Z",
       "baseRepository": "privacysandbox/draft-ietf-bidding-and-auction-services",
       "baseRefName": "main",
       "baseRefOid": "6b9cab9efb425ca83b02fda73952f0b77281542c",
       "headRepository": "qingxinwu/draft-ietf-bidding-and-auction-services",
       "headRefName": "patch-2",
-      "headRefOid": "ee5ac3b47512c44e718e191d5948c87215bc8ab0",
+      "headRefOid": "fa9dbf62a9235416edc5cd750b99d70b7f7eaa2b",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [
+        {
+          "author": "qingxinwu",
+          "authorAssociation": "NONE",
+          "body": "@brusshamilton PTAL, thanks!",
+          "createdAt": "2024-12-09T02:43:19Z",
+          "updatedAt": "2024-12-09T02:43:19Z"
+        }
+      ],
+      "reviews": []
+    },
+    {
+      "number": 16,
+      "id": "PR_kwDOMnZLVc6ElxSX",
+      "title": "Add support for k-anonymity enforcement",
+      "url": "https://github.com/privacysandbox/draft-ietf-bidding-and-auction-services/pull/16",
+      "state": "OPEN",
+      "author": "brusshamilton",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Adds fields needed for k-anonymity enforcement support.\r\nAdjusts request/response processing to generate/parse these additional fields.\r\n\r\nNote: Links to new W3C structures are notional and depend on https://github.com/WICG/turtledove/pull/1360.",
+      "createdAt": "2024-12-09T19:08:03Z",
+      "updatedAt": "2024-12-09T20:43:16Z",
+      "baseRepository": "privacysandbox/draft-ietf-bidding-and-auction-services",
+      "baseRefName": "main",
+      "baseRefOid": "6b9cab9efb425ca83b02fda73952f0b77281542c",
+      "headRepository": "privacysandbox/draft-ietf-bidding-and-auction-services",
+      "headRefName": "KAnon",
+      "headRefOid": "ad05bb27783022945c299fb1cc4393ab415696db",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
       "mergeCommit": null,
       "comments": [],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDOMnZLVc6Uas6b",
+          "commit": {
+            "abbreviatedOid": "ad05bb2"
+          },
+          "author": "dankocoj-google",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-12-09T20:37:49Z",
+          "updatedAt": "2024-12-09T20:43:16Z",
+          "comments": [
+            {
+              "originalPosition": 144,
+              "body": "indent?",
+              "createdAt": "2024-12-09T20:37:49Z",
+              "updatedAt": "2024-12-09T20:43:16Z"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
