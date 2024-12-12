@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-12-10T00:58:21.855228+00:00",
+  "timestamp": "2024-12-12T00:57:05.837308+00:00",
   "repo": "privacysandbox/draft-ietf-bidding-and-auction-services",
   "labels": [
     {
@@ -2486,7 +2486,7 @@
       "labels": [],
       "body": "add selectedBuyerANdSellerReportingId",
       "createdAt": "2024-11-27T15:01:58Z",
-      "updatedAt": "2024-12-02T20:13:57Z",
+      "updatedAt": "2024-12-10T16:11:03Z",
       "baseRepository": "privacysandbox/draft-ietf-bidding-and-auction-services",
       "baseRefName": "main",
       "baseRefOid": "6b9cab9efb425ca83b02fda73952f0b77281542c",
@@ -2559,6 +2559,19 @@
               "updatedAt": "2024-12-02T20:13:26Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6UlYun",
+          "commit": {
+            "abbreviatedOid": "ae73989"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-12-10T16:11:03Z",
+          "updatedAt": "2024-12-10T16:11:03Z",
+          "comments": []
         }
       ]
     },
@@ -2574,7 +2587,7 @@
       "labels": [],
       "body": "",
       "createdAt": "2024-12-02T21:34:02Z",
-      "updatedAt": "2024-12-09T15:18:15Z",
+      "updatedAt": "2024-12-10T16:10:34Z",
       "baseRepository": "privacysandbox/draft-ietf-bidding-and-auction-services",
       "baseRefName": "main",
       "baseRefOid": "6b9cab9efb425ca83b02fda73952f0b77281542c",
@@ -2594,7 +2607,40 @@
           "updatedAt": "2024-12-09T02:43:19Z"
         }
       ],
-      "reviews": []
+      "reviews": [
+        {
+          "id": "PRR_kwDOMnZLVc6UlVQM",
+          "commit": {
+            "abbreviatedOid": "fa9dbf6"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-10T16:05:31Z",
+          "updatedAt": "2024-12-10T16:10:34Z",
+          "comments": [
+            {
+              "originalPosition": 10,
+              "body": "The extra \"and\" was intentional here, as a way of grouping the key with its key ID. We could change the second \"and\" to \"with\" if you think that would be more clear.",
+              "createdAt": "2024-12-10T16:05:31Z",
+              "updatedAt": "2024-12-10T16:10:34Z"
+            },
+            {
+              "originalPosition": 7,
+              "body": "I would have thought we could calculate `ig pagg coordinators` from the `relevant interest groups`. I think we'd rather do that than have it as a separate argument.",
+              "createdAt": "2024-12-10T16:07:09Z",
+              "updatedAt": "2024-12-10T16:10:34Z"
+            },
+            {
+              "originalPosition": 21,
+              "body": "Would it make more sense to expand `included_groups` to be a list of (name, pagg coordinator) pairs? That would avoid the extra redundancy.",
+              "createdAt": "2024-12-10T16:08:29Z",
+              "updatedAt": "2024-12-10T16:10:34Z"
+            }
+          ]
+        }
+      ]
     },
     {
       "number": 16,
