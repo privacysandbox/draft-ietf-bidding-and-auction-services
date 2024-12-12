@@ -5,7 +5,7 @@
 TBD                                                             D. Kocoj
 Internet-Draft                                            B. R. Hamilton
 Intended status: Standards Track                                  Google
-Expires: 28 April 2025                                   25 October 2024
+Expires: 15 June 2025                                   12 December 2024
 
 
                       Bidding and Auction Services
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 28 April 2025.
+   This Internet-Draft will expire on 15 June 2025.
 
 Copyright Notice
 
@@ -1012,8 +1012,12 @@ Table of Contents
      ; If not present, map as Null.
      ? buyerAndSellerReportingId: tstr,
 
+     ; Optional SelectedBuyerAndSellerReportingId of the winning Ad
+     ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-selected-buyer-and-seller-reporting-id
+     ; If not present, map as Null.
+     ? selectedBuyerAndSellerReportingId: tstr,
+
      ; The auction result may be ignored if set to true.
-     ; Maps to https://wicg.github.io/turtledove/#server-auction-response-is-chaff.
      ; If not present, map as false.
      ? isChaff: bool,
 
@@ -1291,15 +1295,19 @@ Table of Contents
    47.  If response["adMetadata"] exists and is a string set processed
         response["ad metadata"] to response["adMetadata"].
 
-   48.  If response["buyerReportingId"] exists and is a string set
+   48.  If response["buyerReportingId"] exists and is a string, set
         processed response["buyer reporting id"] to
         response["buyerReportingId"].
 
-   49.  If response["buyerAndSellerReportingId"] exists and is a string
+   49.  If response["buyerAndSellerReportingId"] exists and is a string,
         set processed response["buyer and seller reporting id"] to
         response["buyerAndSellerReportingId"].
 
-   50.  Return processed response.
+   50.  If response["selectedBuyerAndSellerReportingId"] exists and is a
+        string, set processed response["selected buyer and seller
+        reporting id"] to response["selectedBuyerAndSellerReportingId"].
+
+   51.  Return processed response.
 
 2.3.5.1.  Parsing reporting URLs
 
