@@ -1024,7 +1024,7 @@ response from Bidding and Auction Services. It takes as input the
                otherwise false.
             1. Set `debug report key["is debug win"]` to
                `report["isWinReport"]` if it exists and is a bool,
-               otherwise false. 
+               otherwise false.
             1. Set `processed response[
                "component win debugging only reports"][
                debug report key]` to `url`.
