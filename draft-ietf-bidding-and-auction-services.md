@@ -999,33 +999,41 @@ response from Bidding and Auction Services. It takes as input the
    `response["buyerAndSellerReportingId"]`.
 1. If `response["debugReports"]` exists and is an array:
    1. For each `per origin debug reports` in `response["debugReports"]`:
-      1. If `per origin debug reports["adTechOrigin"]` does not exist or is not a string,
-         continue with the next iteration.
-      1. Let `ad tech origin` be `per origin debug reports["adTechOrigin"]` parsed as an [ORIGIN],
-         continue with the next iteration if there is an error.
-      1. If `per origin debug reports["reports"]` does not exist or is not an array,
-         continue with the next iteration.
+      1. If `per origin debug reports["adTechOrigin"]` does not exist or
+         is not a string, continue with the next iteration.
+      1. Let `ad tech origin` be `per origin debug reports[
+         "adTechOrigin"]` parsed as an [ORIGIN], continue with the next
+         iteration if there is an error.
+      1. If `per origin debug reports["reports"]` does not exist or is
+         not an array, continue with the next iteration.
       1. For each `report` in `per origin debug reports["reports"]`:
          1. If `report` is not a map, continue with the next iteration.
-         1. Let `component win` be `report["componentWin"]` if it exists and is a bool,
-            otherwise false.
+         1. Let `component win` be `report["componentWin"]` if it exists
+            and is a bool, otherwise false.
          1. If `report["url"]` exists and is a string:
-            1. Let `url` be `report["url"]` parsed as a [URL], or continue with the next
-               iteration if there is an error.
+            1. Let `url` be `report["url"]` parsed as a [URL], or
+               continue with the next iteration if there is an error.
             1. If `component win` is false, set
-               `processed response["server filtered debugging only reports"][ad tech origin]` to `url`,
-               and continue with the next iteration.
+               `processed response["server filtered debugging only
+               reports"][ad tech origin]` to `url`, and continue with
+               the next iteration.
             1. Let `debug report key` be a new structure analogous to
                [server auction debug report key](https://wicg.github.io/turtledove/#server-auction-debug-report-key).
-            1. Set `debug report key["from seller"]` to `report["isSellerReport"]` if it exists and is a bool,
+            1. Set `debug report key["from seller"]` to
+               `report["isSellerReport"]` if it exists and is a bool,
                otherwise false.
-            1. Set `debug report key["is debug win"]` to `report["isWinReport"]` if it exists and is a bool,
+            1. Set `debug report key["is debug win"]` to
+               `report["isWinReport"]` if it exists and is a bool,
                otherwise false. 
-            1. Set `processed response["component win debugging only reports"][debug report key]` to `url`.
+            1. Set `processed response[
+               "component win debugging only reports"][
+               debug report key]` to `url`.
          1. Otherwise:
-            1. If `component win` is false and `processed response["server filtered debugging only reports"]`
-               does not contain `ad tech origin`, set
-               `processed response["server filtered debugging only reports"][ad tech origin]` to an empty list.
+            1. If `component win` is false and `processed response[
+               "server filtered debugging only reports"]` does not
+               contain `ad tech origin`, set `processed response[
+               "server filtered debugging only reports"][
+               ad tech origin]` to an empty list.
 1. Return `processed response`.
 
 #### Parsing reporting URLs {#response-parsing-reporting}
