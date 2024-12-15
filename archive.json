@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-12-12T00:57:05.837308+00:00",
+  "timestamp": "2024-12-15T01:01:38.587840+00:00",
   "repo": "privacysandbox/draft-ietf-bidding-and-auction-services",
   "labels": [
     {
@@ -2479,28 +2479,30 @@
       "id": "PR_kwDOMnZLVc6DWb2j",
       "title": "Add selected reporting id to response",
       "url": "https://github.com/privacysandbox/draft-ietf-bidding-and-auction-services/pull/14",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "qingxinwu",
-      "authorAssociation": "NONE",
+      "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "add selectedBuyerANdSellerReportingId",
       "createdAt": "2024-11-27T15:01:58Z",
-      "updatedAt": "2024-12-10T16:11:03Z",
+      "updatedAt": "2024-12-12T16:21:12Z",
       "baseRepository": "privacysandbox/draft-ietf-bidding-and-auction-services",
       "baseRefName": "main",
       "baseRefOid": "6b9cab9efb425ca83b02fda73952f0b77281542c",
       "headRepository": "qingxinwu/draft-ietf-bidding-and-auction-services",
       "headRefName": "patch-1",
       "headRefOid": "ae73989f757be91de95dad2f0f08754cf6b2144d",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "closedAt": "2024-12-12T15:12:48Z",
+      "mergedAt": "2024-12-12T15:12:48Z",
+      "mergedBy": "brusshamilton",
+      "mergeCommit": {
+        "oid": "68ddca03d21e697d3e44770667cccc29b0601f53"
+      },
       "comments": [
         {
           "author": "qingxinwu",
-          "authorAssociation": "NONE",
+          "authorAssociation": "CONTRIBUTOR",
           "body": "> LGTM modulo updating the link referenced in your open comment.\r\n\r\ndone.",
           "createdAt": "2024-12-02T20:13:55Z",
           "updatedAt": "2024-12-02T20:13:55Z"
@@ -2513,7 +2515,7 @@
             "abbreviatedOid": "6997ac3"
           },
           "author": "qingxinwu",
-          "authorAssociation": "NONE",
+          "authorAssociation": "CONTRIBUTOR",
           "state": "COMMENTED",
           "body": "",
           "createdAt": "2024-11-27T15:03:18Z",
@@ -2546,7 +2548,7 @@
             "abbreviatedOid": "6997ac3"
           },
           "author": "qingxinwu",
-          "authorAssociation": "NONE",
+          "authorAssociation": "CONTRIBUTOR",
           "state": "COMMENTED",
           "body": "",
           "createdAt": "2024-12-02T20:13:26Z",
@@ -2582,7 +2584,7 @@
       "url": "https://github.com/privacysandbox/draft-ietf-bidding-and-auction-services/pull/15",
       "state": "OPEN",
       "author": "qingxinwu",
-      "authorAssociation": "NONE",
+      "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "",
@@ -2601,7 +2603,7 @@
       "comments": [
         {
           "author": "qingxinwu",
-          "authorAssociation": "NONE",
+          "authorAssociation": "CONTRIBUTOR",
           "body": "@brusshamilton PTAL, thanks!",
           "createdAt": "2024-12-09T02:43:19Z",
           "updatedAt": "2024-12-09T02:43:19Z"
@@ -2686,6 +2688,180 @@
               "updatedAt": "2024-12-09T20:43:16Z"
             }
           ]
+        }
+      ]
+    },
+    {
+      "number": 17,
+      "id": "PR_kwDOMnZLVc6FGgNZ",
+      "title": "Handle debugReports field in response",
+      "url": "https://github.com/privacysandbox/draft-ietf-bidding-and-auction-services/pull/17",
+      "state": "OPEN",
+      "author": "qingxinwu",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "... to support downsampling forDebuggingOnly reports. And send debug report's lockout status in the request as part of enableDebugReports field.",
+      "createdAt": "2024-12-13T05:52:52Z",
+      "updatedAt": "2024-12-13T19:51:10Z",
+      "baseRepository": "privacysandbox/draft-ietf-bidding-and-auction-services",
+      "baseRefName": "main",
+      "baseRefOid": "68ddca03d21e697d3e44770667cccc29b0601f53",
+      "headRepository": "qingxinwu/draft-ietf-bidding-and-auction-services",
+      "headRefName": "patch-1",
+      "headRefOid": "2923165b964278d85896d47a9159fbfbf88c91d9",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [
+        {
+          "author": "qingxinwu",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "@brusshamilton ready for review. PTAL. Thanks!",
+          "createdAt": "2024-12-13T18:17:58Z",
+          "updatedAt": "2024-12-13T18:17:58Z"
+        }
+      ],
+      "reviews": [
+        {
+          "id": "PRR_kwDOMnZLVc6VF7lf",
+          "commit": {
+            "abbreviatedOid": "d028f8b"
+          },
+          "author": "qingxinwu",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-13T05:54:38Z",
+          "updatedAt": "2024-12-13T05:54:38Z",
+          "comments": [
+            {
+              "originalPosition": 85,
+              "body": "Question: should we do https check in the IETF spec?",
+              "createdAt": "2024-12-13T05:54:38Z",
+              "updatedAt": "2024-12-13T05:54:46Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6VLb0c",
+          "commit": {
+            "abbreviatedOid": "d028f8b"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-13T17:29:39Z",
+          "updatedAt": "2024-12-13T17:29:39Z",
+          "comments": [
+            {
+              "originalPosition": 85,
+              "body": "I think it makes more sense to check for a \"possibly trustworthy\" URL in the W3C spec.",
+              "createdAt": "2024-12-13T17:29:39Z",
+              "updatedAt": "2024-12-13T17:29:39Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6VLuPS",
+          "commit": {
+            "abbreviatedOid": "d028f8b"
+          },
+          "author": "qingxinwu",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-13T18:17:27Z",
+          "updatedAt": "2024-12-13T18:17:27Z",
+          "comments": [
+            {
+              "originalPosition": 85,
+              "body": "ack. Thanks.",
+              "createdAt": "2024-12-13T18:17:27Z",
+              "updatedAt": "2024-12-13T18:17:46Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6VLwLu",
+          "commit": {
+            "abbreviatedOid": "0aa0882"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-13T18:22:49Z",
+          "updatedAt": "2024-12-13T18:29:39Z",
+          "comments": [
+            {
+              "originalPosition": 23,
+              "body": "We probably shouldn't be removing this, right?",
+              "createdAt": "2024-12-13T18:22:49Z",
+              "updatedAt": "2024-12-13T18:29:39Z"
+            },
+            {
+              "originalPosition": 61,
+              "body": "We probably should keep the comma and selectedBuyerAndSellerReportingId parts.",
+              "createdAt": "2024-12-13T18:24:12Z",
+              "updatedAt": "2024-12-13T18:29:39Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6VMGv3",
+          "commit": {
+            "abbreviatedOid": "0aa0882"
+          },
+          "author": "qingxinwu",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-13T19:24:23Z",
+          "updatedAt": "2024-12-13T19:24:23Z",
+          "comments": [
+            {
+              "originalPosition": 23,
+              "body": "so weird, it seems this branch did pick up the contents from the most recent PR merge, but then tried to remove all of them here. I manually added them back, but don't understand what's happening.",
+              "createdAt": "2024-12-13T19:24:23Z",
+              "updatedAt": "2024-12-13T19:29:23Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6VMKEI",
+          "commit": {
+            "abbreviatedOid": "0aa0882"
+          },
+          "author": "qingxinwu",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-13T19:29:07Z",
+          "updatedAt": "2024-12-13T19:29:07Z",
+          "comments": [
+            {
+              "originalPosition": 61,
+              "body": "added back. Weird",
+              "createdAt": "2024-12-13T19:29:07Z",
+              "updatedAt": "2024-12-13T19:29:07Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6VMkV4",
+          "commit": {
+            "abbreviatedOid": "2923165"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-12-13T19:51:10Z",
+          "updatedAt": "2024-12-13T19:51:10Z",
+          "comments": []
         }
       ]
     }
