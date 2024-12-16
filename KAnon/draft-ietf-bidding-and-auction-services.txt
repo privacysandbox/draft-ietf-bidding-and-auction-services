@@ -5,7 +5,7 @@
 TBD                                                             D. Kocoj
 Internet-Draft                                            B. R. Hamilton
 Intended status: Standards Track                                  Google
-Expires: 12 June 2025                                    9 December 2024
+Expires: 19 June 2025                                   16 December 2024
 
 
                       Bidding and Auction Services
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 12 June 2025.
+   This Internet-Draft will expire on 19 June 2025.
 
 Copyright Notice
 
@@ -1476,27 +1476,25 @@ Table of Contents
 
    20.  If ghost
         winner["ghostWinnerForTopLevelAuction"]["adComponentRenderURLs"]
-        exists:
-
-   21.  If ghost
+        exists: 1.  If ghost
         winner["ghostWinnerForTopLevelAuction"]["adComponentRenderURLs"]
-        is not an array, return null.
+        is not an array, return null.  1.  For each component in ghost w
+        inner["ghostWinnerForTopLevelAuction"]["adComponentRenderURLs"]:
 
-   22.  For each component in ghost winner["ghostWinnerForTopLevelAuctio
-        n"]["adComponentRenderURLs"]: 1.  Append component parsed as a
-        [URL] to result["ghost winner bid info"]["ad components"],
-        returning null if there is an error.
+        1.  Append component parsed as a [URL] to result["ghost winner
+            bid info"]["ad components"], returning null if there is an
+            error.
 
-   23.  If ghost winner["ghostWinnerForTopLevelAuction"]["modifiedBid"]
+   21.  If ghost winner["ghostWinnerForTopLevelAuction"]["modifiedBid"]
         does not exist or is not a floating point number, return null.
 
-   24.  Let bid be a new structure analogous to bid with currency
+   22.  Let bid be a new structure analogous to bid with currency
         (https://wicg.github.io/turtledove/#bid-with-currency).
 
-   25.  Set bids value field to ghost
+   23.  Set bids value field to ghost
         winner["ghostWinnerForTopLevelAuction"]["modifiedBid"].
 
-   26.  If ghost winner["ghostWinnerForTopLevelAuction"]["bidCurrency"]
+   24.  If ghost winner["ghostWinnerForTopLevelAuction"]["bidCurrency"]
         exists: 1.  If ``ghost
         winner["ghostWinnerForTopLevelAuction"]["bidCurrency"]is not a
         string, return null.  1.  Ifghost
@@ -1505,16 +1503,16 @@ Table of Contents
         letters, return null.  1.  Setbid'scurrencyfield toghost
         winner["ghostWinnerForTopLevelAuction"]["bidCurrency"]`.
 
-   27.  Set result["ghost winner bid info"]["modified bid"] to bid.
+   25.  Set result["ghost winner bid info"]["modified bid"] to bid.
 
-   28.  If ghost winner["ghostWinnerForTopLevelAuction"]["adMetadata"]
+   26.  If ghost winner["ghostWinnerForTopLevelAuction"]["adMetadata"]
         exists: 1.  If ghost
         winner["ghostWinnerForTopLevelAuction"]["adMetadata"] is not a
         string, return null.  1.  Set result["ghost winner bid
         info"]["ad metadata"] to ghost
         winner["ghostWinnerForTopLevelAuction"]["adMetadata"].
 
-   29.  If ghost
+   27.  If ghost
         winner["ghostWinnerForTopLevelAuction"]["buyerReportingId"]
         exists: 1.  If ghost
         winner["ghostWinnerForTopLevelAuction"]["buyerReportingId"] is
@@ -1522,14 +1520,14 @@ Table of Contents
         info"]["buyer reporting id"] to ghost
         winner["ghostWinnerForTopLevelAuction"]["buyerReportingId"].
 
-   30.  If ghost winner["ghostWinnerForTopLevelAuction"]["buyerAndSeller
+   28.  If ghost winner["ghostWinnerForTopLevelAuction"]["buyerAndSeller
         ReportingId"] exists: 1.  If ghost winner["ghostWinnerForTopLeve
         lAuction"]["buyerAndSellerReportingId"] is not a string, return
         null.  1.  Set result["ghost winner bid info"]["buyer and seller
         reporting id"] to ghost winner["ghostWinnerForTopLevelAuction"][
         "buyerAndSellerReportingId"].
 
-   31.  If ghost winner["ghostWinnerForTopLevelAuction"]["selectedBuyerA
+   29.  If ghost winner["ghostWinnerForTopLevelAuction"]["selectedBuyerA
         ndSellerReportingId"] exists: 1.  If ghost winner["ghostWinnerFo
         rTopLevelAuction"]["selectedBuyerAndSellerReportingId"] is not a
         string, return null.  1.  Set result["ghost winner bid
@@ -1537,7 +1535,7 @@ Table of Contents
         ["ghostWinnerForTopLevelAuction"]["selectedBuyerAndSellerReporti
         ngId"].
 
-   32.  Return result
+   30.  Return result
 
 3.  Security Considerations
 
