@@ -395,7 +395,7 @@ This algorithm takes as input all of the `relevant interest groups`, a config
 consisting of the `publisher`, a map of from (origin, string) tuple to origin
 `ig pagg coordinators`,
 an optional `desired total size`, an optional list of `interest group owners` to
-include each with an optional `desired size`, the [HPKE] `public key` and
+include each with an optional `desired size`, and the [HPKE] `public key` with
 its associated `key ID`. It returns an `encrypted request` and a `request context`
 tuple.
 
