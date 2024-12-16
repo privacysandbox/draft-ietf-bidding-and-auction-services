@@ -1097,12 +1097,12 @@ in the tuple returned from {{request-generate}}:
     `ghost winner["ghostWinnerForTopLevelAuction"]["adRenderURL"]` parsed as a
     [URL], returning null if there is an error.
   1. If `ghost winner["ghostWinnerForTopLevelAuction"]["adComponentRenderURLs"]` exists:
-  1. If `ghost winner["ghostWinnerForTopLevelAuction"]["adComponentRenderURLs"]`
-     is not an array, return null.
-  1. For each `component` in `ghost winner["ghostWinnerForTopLevelAuction"]["adComponentRenderURLs"]`:
-    1. Append `component` parsed as a [URL] to
-       `result["ghost winner bid info"]["ad components"]`, returning null if
-       there is an error.
+    1. If `ghost winner["ghostWinnerForTopLevelAuction"]["adComponentRenderURLs"]`
+      is not an array, return null.
+    1. For each `component` in `ghost winner["ghostWinnerForTopLevelAuction"]["adComponentRenderURLs"]`:
+      1. Append `component` parsed as a [URL] to
+        `result["ghost winner bid info"]["ad components"]`, returning null if
+        there is an error.
   1. If `ghost winner["ghostWinnerForTopLevelAuction"]["modifiedBid"]` does not
      exist or is not a floating point number, return null.
   1. Let `bid` be a new structure analogous to
