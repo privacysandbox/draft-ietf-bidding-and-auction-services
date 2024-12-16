@@ -1046,7 +1046,7 @@ response from Bidding and Auction Services. It takes as input the
                 1. If `event contribution["contributions"]` exists and is an array, for each `contribution` in it:
                    1. Continue with the next iteration if any of the following conditions hold:
                       * `contribution` is not a map;
-                      * `contribution["bucket"]` does not exist or is not a byte array;
+                      * `contribution["bucket"]` does not exist or is not a byte array or its size is greater than 16.
                       * `contribution["value"]` does not exist or is not an integer.
                    1. Let `private aggregation contribution` be a new structure analogous to [PAExtendedHistogramContribution]
                          (https://wicg.github.io/turtledove/#dictdef-paextendedhistogramcontribution).
