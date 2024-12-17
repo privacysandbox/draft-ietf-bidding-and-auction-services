@@ -1049,18 +1049,22 @@ response from Bidding and Auction Services. It takes as input the
                       * `contribution["bucket"]` does not exist or is not a byte array or its size is greater than 16.
                       * `contribution["value"]` does not exist or is not an integer.
                    1. Let `private aggregation contribution` be a new structure analogous to [PAExtendedHistogramContribution]
-                         (https://wicg.github.io/turtledove/#dictdef-paextendedhistogramcontribution).
+                      (https://wicg.github.io/turtledove/#dictdef-paextendedhistogramcontribution).
                    1. Set `private aggregation contribution["bucket"]` to `contribution["bucket"]` parsed as a big endian integer.
                    1. Set `private aggregation contribution["value"]` to `contribution["value"]`.
                    1. If `is component win` is true:
-                      1. Let `key` be (`reporting origin`, `coordinator`, `event`).
-                      1. If `processed response["component win pagg contributions"]` does not contain `key`, set
-                         `processed response["component win pagg contributions"][key]` to a new array.
-                      1. Append `private aggregation contribution` to `processed response["component win pagg contributions"][key]`.
+                      1. Let `key` be a new structure analogous to [server auction private aggregation contribution key]
+                         (https://wicg.github.io/turtledove/#server-auction-private-aggregation-contribution-key).
+                      1. Set `key`["reporting origin"] to `reporting origin`.
+                      1. Set `key`["coordinator"] to `coordinator`.
+                      1. Set `key`["event"] to `event`.
+                      1. If `processed response["component win private aggregation contributions"]` does not contain `key`, set
+                         `processed response["component win private aggregation contributions"][key]` to a new array.
+                      1. Append `private aggregation contribution` to `processed response["component win private aggregation contributions"][key]`.
                    1. Otherwise if `event contribution["event"]` starts with "reserved.", append `private aggregation contribution`
-                      to `processed response["server filtered pagg contributions reserved"][key]`.
+                      to `processed response["server filtered private aggregation contributions reserved"][key]`.
                    1. Otherwise, append `private aggregation contribution` to
-                      `processed response["server filtered pagg contributions non reserved"][event]`.
+                      `processed response["server filtered private aggregation contributions non reserved"][key]`.
 1. Return `processed response`.
 
 #### Parsing reporting URLs {#response-parsing-reporting}
