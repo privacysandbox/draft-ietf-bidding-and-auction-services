@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-12-15T01:01:38.587840+00:00",
+  "timestamp": "2024-12-17T00:57:27.566067+00:00",
   "repo": "privacysandbox/draft-ietf-bidding-and-auction-services",
   "labels": [
     {
@@ -2589,13 +2589,13 @@
       "labels": [],
       "body": "",
       "createdAt": "2024-12-02T21:34:02Z",
-      "updatedAt": "2024-12-10T16:10:34Z",
+      "updatedAt": "2024-12-16T22:29:05Z",
       "baseRepository": "privacysandbox/draft-ietf-bidding-and-auction-services",
       "baseRefName": "main",
-      "baseRefOid": "6b9cab9efb425ca83b02fda73952f0b77281542c",
+      "baseRefOid": "68ddca03d21e697d3e44770667cccc29b0601f53",
       "headRepository": "qingxinwu/draft-ietf-bidding-and-auction-services",
       "headRefName": "patch-2",
-      "headRefOid": "fa9dbf62a9235416edc5cd750b99d70b7f7eaa2b",
+      "headRefOid": "16d15b60d513e19b45cd6c02a4daf564f78ac351",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -2641,6 +2641,64 @@
               "updatedAt": "2024-12-10T16:10:34Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6U3nmd",
+          "commit": {
+            "abbreviatedOid": "fa9dbf6"
+          },
+          "author": "qingxinwu",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-12T04:57:48Z",
+          "updatedAt": "2024-12-16T00:18:59Z",
+          "comments": [
+            {
+              "originalPosition": 7,
+              "body": "I made it separate because `relevant interest groups` will be serialized to the request, but the coordinator will not. We can do that, but then we need to remove coordinator from all IGs in `relevant interest groups` after calculating ig pagg coordinators here. Not sure if it's worthwhile adding the extra complication, and the extra parameter does not affect things since it's only an internal algorithm. WDTY?",
+              "createdAt": "2024-12-12T04:57:48Z",
+              "updatedAt": "2024-12-16T00:18:59Z"
+            },
+            {
+              "originalPosition": 10,
+              "body": "ah didn't notice that.",
+              "createdAt": "2024-12-12T05:02:26Z",
+              "updatedAt": "2024-12-16T00:18:59Z"
+            },
+            {
+              "originalPosition": 21,
+              "body": "Do you mean let included_groups[owner]'s value be a list of (ig, coordinator) pairs? Sure we can do that, with an extra step to combine `interest group list` and `coordinator`. If that sounds good, I can make the change.",
+              "createdAt": "2024-12-16T00:18:55Z",
+              "updatedAt": "2024-12-16T00:18:59Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6VdQaQ",
+          "commit": {
+            "abbreviatedOid": "16d15b6"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-16T22:23:03Z",
+          "updatedAt": "2024-12-16T22:29:05Z",
+          "comments": [
+            {
+              "originalPosition": 7,
+              "body": "We serialize specific fields from `relevant interest groups`. It's not a problem to have additional fields that don't get serialized.\r\n\r\nI'm not sure I'd classify it as an internal algorithm, since nothing says that only the W3C spec can use this.",
+              "createdAt": "2024-12-16T22:23:03Z",
+              "updatedAt": "2024-12-16T22:29:05Z"
+            },
+            {
+              "originalPosition": 21,
+              "body": "Sorry, I think I was confused with our Chrome implementation. There's no need to include the coordinator there since we are keeping the entire interest group. So instead of using the `ig pagg coordinators` argument, we can just pull the coordinator out of the saved interest group.",
+              "createdAt": "2024-12-16T22:27:00Z",
+              "updatedAt": "2024-12-16T22:29:05Z"
+            }
+          ]
         }
       ]
     },
@@ -2656,13 +2714,13 @@
       "labels": [],
       "body": "Adds fields needed for k-anonymity enforcement support.\r\nAdjusts request/response processing to generate/parse these additional fields.\r\n\r\nNote: Links to new W3C structures are notional and depend on https://github.com/WICG/turtledove/pull/1360.",
       "createdAt": "2024-12-09T19:08:03Z",
-      "updatedAt": "2024-12-09T20:43:16Z",
+      "updatedAt": "2024-12-16T16:01:29Z",
       "baseRepository": "privacysandbox/draft-ietf-bidding-and-auction-services",
       "baseRefName": "main",
       "baseRefOid": "6b9cab9efb425ca83b02fda73952f0b77281542c",
       "headRepository": "privacysandbox/draft-ietf-bidding-and-auction-services",
       "headRefName": "KAnon",
-      "headRefOid": "ad05bb27783022945c299fb1cc4393ab415696db",
+      "headRefOid": "5e728011e6a9fe116480cbd3e940899221ecb8fe",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -2686,6 +2744,26 @@
               "body": "indent?",
               "createdAt": "2024-12-09T20:37:49Z",
               "updatedAt": "2024-12-09T20:43:16Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6VaAcP",
+          "commit": {
+            "abbreviatedOid": "ad05bb2"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-16T16:01:29Z",
+          "updatedAt": "2024-12-16T16:01:29Z",
+          "comments": [
+            {
+              "originalPosition": 144,
+              "body": "Fixed.",
+              "createdAt": "2024-12-16T16:01:29Z",
+              "updatedAt": "2024-12-16T16:01:29Z"
             }
           ]
         }
