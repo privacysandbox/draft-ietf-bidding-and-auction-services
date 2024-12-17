@@ -469,7 +469,8 @@ Table of Contents
    This algorithm takes as input all of the relevant interest groups, a
    config consisting of the publisher, a map of from (origin, string)
    tuple to origin ig pagg coordinators, an optional desired total size,
-   an optional list of interest group owners to include each with an
+   an optional boolean debugging report locked out defaults to false, an
+   optional list of interest group owners to include each with an
    optional desired size, and the [HPKE] public key with its associated
    key ID.  It returns an encrypted request and a request context tuple.
 
@@ -493,7 +494,7 @@ Table of Contents
         publisher, request["version"] set to 0, request["generationId"]
         set to a new [UUID] Version 4 (https://www.rfc-editor.org/rfc/
         rfc9562.html#section-5.4), and request["enableDebugReporting"]
-        set to true.
+        set to debugging report locked out.
 
    6.   Set current_size to be the serialized size of the encrypted
         request created from request without padding.
@@ -1018,6 +1019,7 @@ Table of Contents
      ? selectedBuyerAndSellerReportingId: tstr,
 
      ; The auction result may be ignored if set to true.
+     ; Maps to https://wicg.github.io/turtledove/#server-auction-response-is-chaff.
      ; If not present, map as false.
      ? isChaff: bool,
 
@@ -1056,6 +1058,19 @@ Table of Contents
      ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-top-level-seller.
      ; If not present, map as Null.
      ? topLevelSeller: origin,
+
+     ; Optional list of forDebuggingOnly reports.
+     ; If not present, map as an empty list.
+     ; Maps to https://wicg.github.io/turtledove/#server-auction-response-component-win-debugging-only-reports
+     ; and https://wicg.github.io/turtledove/#server-auction-response-server-filtered-debugging-only-reports.
+     ? debugReports: [
+       * {
+         origin => [
+           * {
+             url tstr,
+             ? bool isWinReport,
+             ? bool isSellerReport,
+             ? bool componentWin
 
      ; Optional list of private aggregation contributions.
      ; If not present, map as an empty list.
@@ -1329,7 +1344,67 @@ Table of Contents
         string, set processed response["selected buyer and seller
         reporting id"] to response["selectedBuyerAndSellerReportingId"].
 
-   51.  If response["paggResponse"] exists and is an array:
+   51.  If response["debugReports"] exists and is an array:
+
+        1.  For each per origin debug reports in
+            response["debugReports"]:
+
+            1.  If per origin debug reports["adTechOrigin"] does not
+                exist or is not a string, continue with the next
+                iteration.
+
+            2.  Let ad tech origin be per origin debug reports[
+                "adTechOrigin"] parsed as an [ORIGIN], continue with the
+                next iteration if there is an error.
+
+            3.  If per origin debug reports["reports"] does not exist or
+                is not an array, continue with the next iteration.
+
+            4.  For each report in per origin debug reports["reports"]:
+
+                1.  If report is not a map, continue with the next
+                    iteration.
+
+                2.  Let component win be report["componentWin"] if it
+                    exists and is a bool, otherwise false.
+
+                3.  If report["url"] exists and is a string:
+
+                    1.  Let url be report["url"] parsed as a [URL], or
+                        continue with the next iteration if there is an
+                        error.
+
+                    2.  If component win is false, set processed
+                        response["server filtered debugging only
+                        reports"][ad tech origin] to url, and continue
+                        with the next iteration.
+
+                    3.  Let debug report key be a new structure
+                        analogous to server auction debug report key
+                        (https://wicg.github.io/turtledove/#server-
+                        auction-debug-report-key).
+
+                    4.  Set debug report key["from seller"] to
+                        report["isSellerReport"] if it exists and is a
+                        bool, otherwise false.
+
+                    5.  Set debug report key["is debug win"] to
+                        report["isWinReport"] if it exists and is a
+                        bool, otherwise false.
+
+                    6.  Set processed response[ "component win debugging
+                        only reports"][ debug report key] to url.
+
+                4.  Otherwise:
+
+                    1.  If component win is false and processed
+                        response[ "server filtered debugging only
+                        reports"] does not contain ad tech origin, set
+                        processed response[ "server filtered debugging
+                        only reports"][ ad tech origin] to an empty
+                        list.
+
+   52.  If response["paggResponse"] exists and is an array:
 
         1.  For each per origin response in pagg response:
 
@@ -1479,7 +1554,7 @@ Table of Contents
                                 aggregation contributions non
                                 reserved"][key].
 
-   52.  Return processed response.
+   53.  Return processed response.
 
 2.3.5.1.  Parsing reporting URLs
 
