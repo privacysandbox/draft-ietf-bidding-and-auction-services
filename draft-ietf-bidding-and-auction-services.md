@@ -391,10 +391,11 @@ the {{framing}} header.
 This section describes how the client MAY form and serialize request messages
 in order to communicate with the Bidding and Auction services.
 
-This algorithm takes as input all of the `relevant interest groups`, and a config
-consisting of the `publisher`,
+This algorithm takes as input all of the `relevant interest groups`, a config
+consisting of the `publisher`, a map of from (origin, string) tuple to origin
+`ig pagg coordinators`,
 an optional `desired total size`, an optional list of `interest group owners` to
-include each with an optional `desired size`, and the [HPKE] `public key` and
+include each with an optional `desired size`, and the [HPKE] `public key` with
 its associated `key ID`. It returns an `encrypted request` and a `request context`
 tuple.
 
@@ -471,7 +472,8 @@ tuple.
    larger than request.
 1. Encrypt `request` using the `public key` and its `key id` as in
    {{request-encryption}} to get the `encrypted message` and `hpke context`.
-1. Let the `request context` be the tuple (`included_groups`, `hpke context`)
+1. Let the `request context` be the tuple
+   (`included_groups`, `hpke context`, `ig pagg coordinators`).
 1. Return the `request` and the `request context`.
 
 ### Parsing a Request {#request-parsing}
@@ -822,6 +824,28 @@ response = {
   ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-top-level-seller.
   ; If not present, map as Null.
   ? topLevelSeller: origin,
+
+  ; Optional list of private aggregation contributions.
+  ; If not present, map as an empty list.
+  ? paggResponse: [
+    * {
+      origin => [
+        * {
+          ? igIndex: int,
+          ? coordinator: origin,
+          ? componentWin: bool,
+          eventContributions: [
+            tstr => [
+              * {
+                bucket: blob,
+                value: int
+              }
+            ]
+          ]
+        }
+      ]
+    }
+  ],
 }
 
 ; Defines the structure for reporting URLs.
@@ -914,7 +938,7 @@ response from Bidding and Auction Services. It takes as input the
 1. For each `key`, `value` in `response["biddingGroups"]`:
   1. Let `owner` be equal to `key` parsed as an [ORIGIN], returning failure if
      there is an error.
-  1. `request context`'s `included_groups` does not contain `owner` as a key, return failure.
+  1. If `request context`'s `included_groups` does not contain `owner` as a key, return failure.
   1. If `value` is not a list, return failure.
   1. For each `element` in `value`:
     1. If `element` is not an integer or `element < 0`, return failure.
@@ -986,7 +1010,61 @@ response from Bidding and Auction Services. It takes as input the
 1. If `response["selectedBuyerAndSellerReportingId"]` exists and is a string, set
    `processed response["selected buyer and seller reporting id"]` to
    `response["selectedBuyerAndSellerReportingId"]`.
-
+1. If `response["paggResponse"]` exists and is an array:
+   1. For each `per origin response` in `pagg response`:
+      1. If `per origin response` is not a map, continue with the next iteration.
+      1. If `per origin response["reportingOrigin"]` does not exist or is not a string,
+         continue with the next iteration.
+      1. Let `reporting origin` be `per origin response["reportingOrigin"]` parsed as an [ORIGIN],
+         continue with the next iteration if there is an error.
+      1. If `per origin response["igContributions"]` does not exist or is not an array,
+         continue with the next iteration.
+      1. Let `names` be an empty array.
+      1. If `request context`'s `included_groups` contains `owner` as a key, set `names` to its value.
+      1. For each `ig contribution` in `per origin response["igContributions"]`:
+         1. If `ig contribution` is not a map, continue with the next iteration.
+         1. Let `coordinator` be null.
+         1. If `ig contribution["coordinator"]` exists and is a string, set `coordinator` to
+            `per origin response["reportingOrigin"]` parsed as an [ORIGIN], continue with the next
+            iteration if there is an error.
+         1. Otherwise if `ig contribution["igIndex"]` exists and is an integer:
+            1. If `ig contribution["igIndex"] < 0` or is greater than or equal to the length of `names`,
+                continue with the next iteration.
+            1. Let `ig key` be the tuple (`owner`, `names[igIndex]`).
+            1. If `request context`'s `ig pagg coordinators` contains `ig key`, set `coordinator` to
+               `request context`'s `ig pagg coordinators[ig key]`.
+          1. Let `is component win` be false.
+          1. If `ig contribution["componentWin"]` exists and is a boolean, set `is component win` to it.
+          1. If `ig contribution["eventContributions"]` exists and is an array:
+             1. For each `event contribution` in `ig contribution["eventContributions"]`:
+                1. Continue with the next iteration if any of the following conditions hold:
+                   * `event contribution` is not a map;
+                   * `event contribution["event"]` does not exist or is not a string;
+                   * `event contribution["event"]` starts with "reserved.", but is not one of "reserved.win", "reserved.loss",
+                     or "reserved.always", continue with the next iteration.
+                1. Let `event` be `event contribution["event"]`.
+                1. If `event contribution["contributions"]` exists and is an array, for each `contribution` in it:
+                   1. Continue with the next iteration if any of the following conditions hold:
+                      * `contribution` is not a map;
+                      * `contribution["bucket"]` does not exist or is not a byte array or its size is greater than 16.
+                      * `contribution["value"]` does not exist or is not an integer.
+                   1. Let `private aggregation contribution` be a new structure analogous to [PAExtendedHistogramContribution]
+                      (https://wicg.github.io/turtledove/#dictdef-paextendedhistogramcontribution).
+                   1. Set `private aggregation contribution["bucket"]` to `contribution["bucket"]` parsed as a big endian integer.
+                   1. Set `private aggregation contribution["value"]` to `contribution["value"]`.
+                   1. If `is component win` is true:
+                      1. Let `key` be a new structure analogous to [server auction private aggregation contribution key]
+                         (https://wicg.github.io/turtledove/#server-auction-private-aggregation-contribution-key).
+                      1. Set `key`["reporting origin"] to `reporting origin`.
+                      1. Set `key`["coordinator"] to `coordinator`.
+                      1. Set `key`["event"] to `event`.
+                      1. If `processed response["component win private aggregation contributions"]` does not contain `key`, set
+                         `processed response["component win private aggregation contributions"][key]` to a new array.
+                      1. Append `private aggregation contribution` to `processed response["component win private aggregation contributions"][key]`.
+                   1. Otherwise if `event contribution["event"]` starts with "reserved.", append `private aggregation contribution`
+                      to `processed response["server filtered private aggregation contributions reserved"][key]`.
+                   1. Otherwise, append `private aggregation contribution` to
+                      `processed response["server filtered private aggregation contributions non reserved"][key]`.
 1. Return `processed response`.
 
 #### Parsing reporting URLs {#response-parsing-reporting}
