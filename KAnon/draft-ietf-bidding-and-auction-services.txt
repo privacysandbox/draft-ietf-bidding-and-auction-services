@@ -5,7 +5,7 @@
 TBD                                                             D. Kocoj
 Internet-Draft                                            B. R. Hamilton
 Intended status: Standards Track                                  Google
-Expires: 19 June 2025                                   16 December 2024
+Expires: 21 June 2025                                   18 December 2024
 
 
                       Bidding and Auction Services
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 19 June 2025.
+   This Internet-Draft will expire on 21 June 2025.
 
 Copyright Notice
 
@@ -1201,157 +1201,195 @@ Table of Contents
 
    16.  If response["components"] exists:
 
-   17.  If response["components"] is not an array, return failure.
+        1.  If response["components"] is not an array, return failure.
 
-   18.  For each component in response["components"]: 1.  Append
-        component parsed as a [URL] to processed response["ad
-        components"], returning failure if there is an error.
+        2.  For each component in response["components"]:
 
-   19.  If response["interestGroupName"] does not exist or is not a
+            1.  Append component parsed as a [URL] to processed
+                response["ad components"], returning failure if there is
+                an error.
+
+   17.  If response["interestGroupName"] does not exist or is not a
         string, return failure.
 
-   20.  Set processed response["interest group name"] to
+   18.  Set processed response["interest group name"] to
         response["interestGroupName"].
 
-   21.  If response["interestGroupOwner"] does not exist or is not a
+   19.  If response["interestGroupOwner"] does not exist or is not a
         string, return failure.
 
-   22.  Set processed response["interest group owner"] to
+   20.  Set processed response["interest group owner"] to
         response["interestGroupOwner"] parsed as an [ORIGIN], returning
         failure if there is an error.
 
-   23.  If response["biddingGroups"] does not exist or is not a map,
+   21.  If response["biddingGroups"] does not exist or is not a map,
         return failure.
 
-   24.  For each key, value in response["biddingGroups"]:
+   22.  For each key, value in response["biddingGroups"]:
 
-   25.  Let owner be equal to key parsed as an [ORIGIN], returning
-        failure if there is an error.
+        1.  Let owner be equal to key parsed as an [ORIGIN], returning
+            failure if there is an error.
 
-   26.  request context's included_groups does not contain owner as a
-        key, return failure.
+        2.  request context's included_groups does not contain owner as
+            a key, return failure.
 
-   27.  If value is not a list, return failure.
+        3.  If value is not a list, return failure.
 
-   28.  For each element in value: 1.  If element is not an integer or
-        element < 0, return failure.  1.  If element is greater than or
-        equal to the length of included_groups[owner], return failure.
-        1.  Let name be the interest group name for
-        included_groups[owner][element].  1.  Append the tuple (owner,
-        name) to processed response["bidding groups"].
+        4.  For each element in value:
 
-   29.  If response["updateGroups"] exists and is a map:
+            1.  If element is not an integer or element < 0, return
+                failure.
 
-   30.  For each key, value in response["updateGroups"]: 1.  Let owner
-        be equal to key parsed as an [ORIGIN], continuing the next
-        iteration of this loop if there is an error.  1.  If request
-        context's included_groups does not contain owner as a key,
-        continue the next iteration of this loop.  1.  If value is not a
-        list, return failure.  1.  For each element in value:
+            2.  If element is greater than or equal to the length of
+                included_groups[owner], return failure.
 
-        1.  If element is not a map, continue the next iteration of this
-            loop.
+            3.  Let name be the interest group name for
+                included_groups[owner][element].
 
-        2.  If element["index"] does not exist or is not an integer or
-            element["updateIfOlderThanMs"] does not exist or is not an
-            integer, continue the next iteration of this loop.
+            4.  Append the tuple (owner, name) to processed
+                response["bidding groups"].
 
-        3.  If element["index"] is not an integer or element["index"] <
-            0, continue the next iteration of this loop.
+   23.  If response["updateGroups"] exists and is a map:
 
-        4.  If element["index"] is greater than or equal to the length
-            of included_groups[owner], continue the next iteration of
-            this loop.
+        1.  For each key, value in response["updateGroups"]:
 
-        5.  Let name be the interest group name for
-            included_groups[owner][element].
+            1.  Let owner be equal to key parsed as an [ORIGIN],
+                continuing the next iteration of this loop if there is
+                an error.
 
-        6.  Let interest group key be the tuple (owner, name).
+            2.  If request context's included_groups does not contain
+                owner as a key, continue the next iteration of this
+                loop.
 
-        7.  Let update duration be element["updateIfOlderThanMs"],
-            parsed into a time duration as integer milliseconds.
+            3.  If value is not a list, return failure.
 
-        8.  Set processed response["update groups"][intereset group key]
-            to update duration.
+            4.  For each element in value:
 
-   31.  If response["score"] exists:
+                1.  If element is not a map, continue the next iteration
+                    of this loop.
 
-   32.  If response["score"] is not a floating point value, return
-        failure.
+                2.  If element["index"] does not exist or is not an
+                    integer or element["updateIfOlderThanMs"] does not
+                    exist or is not an integer, continue the next
+                    iteration of this loop.
 
-   33.  Set processed response["score"] to response["score"].
+                3.  If element["index"] is not an integer or
+                    element["index"] < 0, continue the next iteration of
+                    this loop.
 
-   34.  If response["bid"] exists:
+                4.  If element["index"] is greater than or equal to the
+                    length of included_groups[owner], continue the next
+                    iteration of this loop.
 
-   35.  If response["bid"] is not a floating point value, return
-        failure.
+                5.  Let name be the interest group name for
+                    included_groups[owner][element].
 
-   36.  Let bid be a new structure analogous to bid with currency
-        (https://wicg.github.io/turtledove/#bid-with-currency).
+                6.  Let interest group key be the tuple (owner, name).
 
-   37.  Set bids value field to response["bid"].
+                7.  Let update duration be
+                    element["updateIfOlderThanMs"], parsed into a time
+                    duration as integer milliseconds.
 
-   38.  If response["bidCurrency"] exists: 1.  If
-        response["bidCurrency"] is not a string, return failure.  1.  If
-        response["bidCUrrency"] is not 3 bytes long or contains
-        characters other than upper case ASCII letters, return failure.
-        1.  Set bid's currency field to response["bidCurrency"].
+            5.  Set processed response["update groups"][intereset group
+                key] to update duration.
 
-   39.  Set processed response["bid"] to bid.
+   24.  If response["score"] exists:
 
-   40.  If response["winReportingURLs"] exists and is a map:
+        1.  If response["score"] is not a floating point value, return
+            failure.
 
-   41.  If response["winReportingURLs"]["buyerReportingURLs"] exists: 1.
-        Let buyer reporting be the result of Section 2.3.5.1 on
-        response["winReportingURLs"]["buyerReportingURLs"].  1.  Set
-        processed response["buyer reporting"] to buyer reporting.
+        2.  Set processed response["score"] to response["score"].
 
-   42.  If response["winReportingURLs"]["topLevelSellerReportingURLs"]
-        exists: 1.  Let top level seller reporting be the result of
-        Section 2.3.5.1 on
-        response["winReportingURLs"]["topLevelSellerReportingURLs"].  1.
-        Set processed response["top level seller reporting"] to top
-        level seller reporting.
+   25.  If response["bid"] exists:
 
-   43.  If response["winReportingURLs"]["componentSellerReportingURLs"]
-        exists: 1.  Let component seller reporting be the result of
-        Section 2.3.5.1 on
-        response["winReportingURLs"]["componentSellerReportingURLs"].
-        1.  Set processed response["component seller reporting" to
-        component seller reporting.
+        1.  If response["bid"] is not a floating point value, return
+            failure.
 
-   44.  If response["topLevelSeller"] exists:
+        2.  Let bid be a new structure analogous to bid with currency
+            (https://wicg.github.io/turtledove/#bid-with-currency).
 
-   45.  If response["topLevelSeller"] is not a string, return failure.
+        3.  Set bids value field to response["bid"].
 
-   46.  Set processed response["top level seller"] to
-        response["topLevelSeller"] parsed as a [URL], returning failure
-        if there is an error.
+        4.  If response["bidCurrency"] exists:
 
-   47.  If response["adMetadata"] exists and is a string set processed
+            1.  If response["bidCurrency"] is not a string, return
+                failure.
+
+            2.  If response["bidCUrrency"] is not 3 bytes long or
+                contains characters other than upper case ASCII letters,
+                return failure.
+
+        5.  Set bid's currency field to response["bidCurrency"].
+
+        6.  Set processed response["bid"] to bid.
+
+   26.  If response["winReportingURLs"] exists and is a map:
+
+        1.  If response["winReportingURLs"]["buyerReportingURLs"]
+            exists:
+
+            1.  Let buyer reporting be the result of Section 2.3.5.1 on
+                response["winReportingURLs"]["buyerReportingURLs"].
+
+            2.  Set processed response["buyer reporting"] to buyer
+                reporting.
+
+        2.  If
+            response["winReportingURLs"]["topLevelSellerReportingURLs"]
+            exists:
+
+            1.  Let top level seller reporting be the result of
+                Section 2.3.5.1 on response["winReportingURLs"]["topLeve
+                lSellerReportingURLs"].
+
+            2.  Set processed response["top level seller reporting"] to
+                top level seller reporting.
+
+        3.  If
+            response["winReportingURLs"]["componentSellerReportingURLs"]
+            exists:
+
+            1.  Let component seller reporting be the result of
+                Section 2.3.5.1 on response["winReportingURLs"]["compone
+                ntSellerReportingURLs"].
+
+            2.  Set processed response["component seller reporting" to
+                component seller reporting.
+
+   27.  If response["topLevelSeller"] exists:
+
+        1.  If response["topLevelSeller"] is not a string, return
+            failure.
+
+        2.  Set processed response["top level seller"] to
+            response["topLevelSeller"] parsed as a [URL], returning
+            failure if there is an error.
+
+   28.  If response["adMetadata"] exists and is a string set processed
         response["ad metadata"] to response["adMetadata"].
 
-   48.  If response["buyerReportingId"] exists and is a string set
+   29.  If response["buyerReportingId"] exists and is a string set
         processed response["buyer reporting id"] to
         response["buyerReportingId"].
 
-   49.  If response["buyerAndSellerReportingId"] exists and is a string
+   30.  If response["buyerAndSellerReportingId"] exists and is a string
         set processed response["buyer and seller reporting id"] to
         response["buyerAndSellerReportingId"].
 
-   50.  If response["kAnonWinnerJoinCandidates"] exists and is a map:
+   31.  If response["kAnonWinnerJoinCandidates"] exists and is a map:
 
-   51.  Set processed response["winner join candidates"] to the result
-        of Section 2.3.5.2 on response["kAnonWinnerJoinCandidates"].
+        1.  Set processed response["winner join candidates"] to the
+            result of Section 2.3.5.2 on
+            response["kAnonWinnerJoinCandidates"].
 
-   52.  If response["kAnonGhostWinners"] exists and is an array and has
+   32.  If response["kAnonGhostWinners"] exists and is an array and has
         at least 1 element:
 
-   53.  Set processed response["ghost winner"] to the result of
-        Section 2.3.5.3 on response["kAnonGhostWinners"][0] and request
-        context's included_groups.
+        1.  Set processed response["ghost winner"] to the result of
+            Section 2.3.5.3 on response["kAnonGhostWinners"][0] and
+            request context's included_groups.
 
-   54.  Return processed response.
+   33.  Return processed response.
 
 2.3.5.1.  Parsing reporting URLs
 
@@ -1364,23 +1402,27 @@ Table of Contents
 
    2.  If reporting URLs["reportingURL"] exists and is a string:
 
-   3.  Let reporting URL be reporting URLs["reportingURL"] parsed as a
-       [URL], or null if there is an error.
+       1.  Let reporting URL be reporting URLs["reportingURL"] parsed as
+           a [URL], or null if there is an error.
 
-   4.  If reporting URL is not null, set processed reporting
-       URLs["reporting url"] to reporting URL.
+       2.  If reporting URL is not null, set processed reporting
+           URLs["reporting url"] to reporting URL.
 
-   5.  If reporting URLs["interactionReportingURLs"] exists and is a
+   3.  If reporting URLs["interactionReportingURLs"] exists and is a
        map:
 
-   6.  For each key, value in reporting
-       URLs["interactionReportingURLs"]: 1.  If key is not a string,
-       continue with the next iteration.  1.  Let reporting URL be value
-       parsed as a [URL].  If there is an error, continue with the next
-       iteration.  1.  Set processed reporting URLs["beacon urls"][key]
-       to reporting URL.
+       1.  For each key, value in reporting
+           URLs["interactionReportingURLs"]:
 
-   7.  Return processed reporting URLs.
+           1.  If key is not a string, continue with the next iteration.
+
+           2.  Let reporting URL be value parsed as a [URL].  If there
+               is an error, continue with the next iteration.
+
+           3.  Set processed reporting URLs["beacon urls"][key] to
+               reporting URL.
+
+   4.  Return processed reporting URLs.
 
 2.3.5.2.  Parsing k-Anonymity Join Candidates
 
@@ -1399,21 +1441,24 @@ Table of Contents
 
    4.  If candidates["adComponentRenderURLsHash"] exists:
 
-   5.  If candidates["adComponentRenderURLsHash"] is not an array,
-       return null.
+       1.  If candidates["adComponentRenderURLsHash"] is not an array,
+           return null.
 
-   6.  For each component in candidates["adComponentRenderURLsHash"]: 1.
-       If component is not a byte string, return null.  1.  Append
-       component to winner join candidates["ad component render url
-       hashes"].
+       2.  For each component in
+           candidates["adComponentRenderURLsHash"]:
 
-   7.  If candidates["reportingIdHash"] does not exist or is not a byte
+           1.  If component is not a byte string, return null.
+
+           2.  Append component to winner join candidates["ad component
+               render url hashes"].
+
+   5.  If candidates["reportingIdHash"] does not exist or is not a byte
        string, return null.
 
-   8.  Set winner join candidates["reporting id hash"] to
+   6.  Set winner join candidates["reporting id hash"] to
        candidates["reportingIdHash"].
 
-   9.  Return winner join candidates.
+   7.  Return winner join candidates.
 
 2.3.5.3.  Parsing a Ghost Winner
 
@@ -1460,82 +1505,109 @@ Table of Contents
 
    15.  If ghost winner["ghostWinnerForTopLevelAuction"] exists:
 
-   16.  If ghost winner["ghostWinnerForTopLevelAuction"] is not a map,
-        return null.
+        1.   If ghost winner["ghostWinnerForTopLevelAuction"] is not a
+             map, return null.
 
-   17.  Let result["ghost winner bid info"] be a new structure analogous
-        to server auction ghost winner bid info (https://wicg.github.io/
-        turtledove/#server-auction-ghost-winner-bid-info).
+        2.   Let result["ghost winner bid info"] be a new structure
+             analogous to server auction ghost winner bid info
+             (https://wicg.github.io/turtledove/#server-auction-ghost-
+             winner-bid-info).
 
-   18.  If ghost winner["ghostWinnerForTopLevelAuction"]["adRenderURL"]
-        does not exist, return null.
+        3.   If ghost
+             winner["ghostWinnerForTopLevelAuction"]["adRenderURL"] does
+             not exist, return null.
 
-   19.  Set result["ghost winner bid info"]["ad render url"] to ghost
-        winner["ghostWinnerForTopLevelAuction"]["adRenderURL"] parsed as
-        a [URL], returning null if there is an error.
+        4.   Set result["ghost winner bid info"]["ad render url"] to
+             ghost
+             winner["ghostWinnerForTopLevelAuction"]["adRenderURL"]
+             parsed as a [URL], returning null if there is an error.
 
-   20.  If ghost
-        winner["ghostWinnerForTopLevelAuction"]["adComponentRenderURLs"]
-        exists: 1.  If ghost
-        winner["ghostWinnerForTopLevelAuction"]["adComponentRenderURLs"]
-        is not an array, return null.  1.  For each component in ghost w
-        inner["ghostWinnerForTopLevelAuction"]["adComponentRenderURLs"]:
+        5.   If ghost winner["ghostWinnerForTopLevelAuction"]["adCompone
+             ntRenderURLs"] exists:
 
-        1.  Append component parsed as a [URL] to result["ghost winner
-            bid info"]["ad components"], returning null if there is an
-            error.
+             1.  If ghost winner["ghostWinnerForTopLevelAuction"]["adCom
+                 ponentRenderURLs"] is not an array, return null.
 
-   21.  If ghost winner["ghostWinnerForTopLevelAuction"]["modifiedBid"]
-        does not exist or is not a floating point number, return null.
+             2.  For each component in ghost winner["ghostWinnerForTopLe
+                 velAuction"]["adComponentRenderURLs"]:
 
-   22.  Let bid be a new structure analogous to bid with currency
-        (https://wicg.github.io/turtledove/#bid-with-currency).
+                 1.  Append component parsed as a [URL] to result["ghost
+                     winner bid info"]["ad components"], returning null
+                     if there is an error.
 
-   23.  Set bids value field to ghost
-        winner["ghostWinnerForTopLevelAuction"]["modifiedBid"].
+        6.   If ghost
+             winner["ghostWinnerForTopLevelAuction"]["modifiedBid"] does
+             not exist or is not a floating point number, return null.
 
-   24.  If ghost winner["ghostWinnerForTopLevelAuction"]["bidCurrency"]
-        exists: 1.  If ``ghost
-        winner["ghostWinnerForTopLevelAuction"]["bidCurrency"]is not a
-        string, return null.  1.  Ifghost
-        winner["ghostWinnerForTopLevelAuction"]["bidCurrency"]is not 3
-        bytes long or contains characters other than upper case ASCII
-        letters, return null.  1.  Setbid'scurrencyfield toghost
-        winner["ghostWinnerForTopLevelAuction"]["bidCurrency"]`.
+        7.   Let bid be a new structure analogous to bid with currency
+             (https://wicg.github.io/turtledove/#bid-with-currency).
 
-   25.  Set result["ghost winner bid info"]["modified bid"] to bid.
+        8.   Set bids value field to ghost
+             winner["ghostWinnerForTopLevelAuction"]["modifiedBid"].
 
-   26.  If ghost winner["ghostWinnerForTopLevelAuction"]["adMetadata"]
-        exists: 1.  If ghost
-        winner["ghostWinnerForTopLevelAuction"]["adMetadata"] is not a
-        string, return null.  1.  Set result["ghost winner bid
-        info"]["ad metadata"] to ghost
-        winner["ghostWinnerForTopLevelAuction"]["adMetadata"].
+        9.   If ghost
+             winner["ghostWinnerForTopLevelAuction"]["bidCurrency"]
+             exists:
 
-   27.  If ghost
-        winner["ghostWinnerForTopLevelAuction"]["buyerReportingId"]
-        exists: 1.  If ghost
-        winner["ghostWinnerForTopLevelAuction"]["buyerReportingId"] is
-        not a string, return null.  1.  Set result["ghost winner bid
-        info"]["buyer reporting id"] to ghost
-        winner["ghostWinnerForTopLevelAuction"]["buyerReportingId"].
+             1.  If ``ghost
+                 winner["ghostWinnerForTopLevelAuction"]["bidCurrency"]`
+                 is not a string, return null.
 
-   28.  If ghost winner["ghostWinnerForTopLevelAuction"]["buyerAndSeller
-        ReportingId"] exists: 1.  If ghost winner["ghostWinnerForTopLeve
-        lAuction"]["buyerAndSellerReportingId"] is not a string, return
-        null.  1.  Set result["ghost winner bid info"]["buyer and seller
-        reporting id"] to ghost winner["ghostWinnerForTopLevelAuction"][
-        "buyerAndSellerReportingId"].
+             2.  If ghost
+                 winner["ghostWinnerForTopLevelAuction"]["bidCurrency"]
+                 is not 3 bytes long or contains characters other than
+                 upper case ASCII letters, return null.
 
-   29.  If ghost winner["ghostWinnerForTopLevelAuction"]["selectedBuyerA
-        ndSellerReportingId"] exists: 1.  If ghost winner["ghostWinnerFo
-        rTopLevelAuction"]["selectedBuyerAndSellerReportingId"] is not a
-        string, return null.  1.  Set result["ghost winner bid
-        info"]["selected buyer and seller reporting id"] to ghost winner
-        ["ghostWinnerForTopLevelAuction"]["selectedBuyerAndSellerReporti
-        ngId"].
+             3.  Set bid's currency field to ghost
+                 winner["ghostWinnerForTopLevelAuction"]["bidCurrency"].
 
-   30.  Return result
+        10.  Set result["ghost winner bid info"]["modified bid"] to bid.
+
+        11.  If ghost
+             winner["ghostWinnerForTopLevelAuction"]["adMetadata"]
+             exists:
+
+             1.  If ghost
+                 winner["ghostWinnerForTopLevelAuction"]["adMetadata"]
+                 is not a string, return null.
+
+             2.  Set result["ghost winner bid info"]["ad metadata"] to
+                 ghost
+                 winner["ghostWinnerForTopLevelAuction"]["adMetadata"].
+
+        12.  If ghost
+             winner["ghostWinnerForTopLevelAuction"]["buyerReportingId"]
+             exists:
+
+             1.  If ghost winner["ghostWinnerForTopLevelAuction"]["buyer
+                 ReportingId"] is not a string, return null.
+
+             2.  Set result["ghost winner bid info"]["buyer reporting
+                 id"] to ghost winner["ghostWinnerForTopLevelAuction"]["
+                 buyerReportingId"].
+
+        13.  If ghost winner["ghostWinnerForTopLevelAuction"]["buyerAndS
+             ellerReportingId"] exists:
+
+             1.  If ghost winner["ghostWinnerForTopLevelAuction"]["buyer
+                 AndSellerReportingId"] is not a string, return null.
+
+             2.  Set result["ghost winner bid info"]["buyer and seller
+                 reporting id"] to ghost winner["ghostWinnerForTopLevelA
+                 uction"]["buyerAndSellerReportingId"].
+
+        14.  If ghost winner["ghostWinnerForTopLevelAuction"]["selectedB
+             uyerAndSellerReportingId"] exists:
+
+             1.  If ghost winner["ghostWinnerForTopLevelAuction"]["selec
+                 tedBuyerAndSellerReportingId"] is not a string, return
+                 null.
+
+             2.  Set result["ghost winner bid info"]["selected buyer and
+                 seller reporting id"] to ghost winner["ghostWinnerForTo
+                 pLevelAuction"]["selectedBuyerAndSellerReportingId"].
+
+   16.  Return result
 
 3.  Security Considerations
 
