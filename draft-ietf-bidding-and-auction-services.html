@@ -16,15 +16,15 @@ remote environments while preserving user privacy.
 <meta content="draft-ietf-bidding-and-auction-services-latest" name="ietf.draft">
 <!-- Generator version information:
   xml2rfc 3.25.0
-    Python 3.12.7
+    Python 3.12.8
     ConfigArgParse 1.7
     google-i18n-address 3.1.1
     intervaltree 3.1.0
     Jinja2 3.1.4
     lxml 5.3.0
     platformdirs 4.3.6
-    pycountry 22.3.5
-    PyYAML 6.0.1
+    pycountry 24.6.1
+    PyYAML 6.0.2
     requests 2.32.3
     setuptools 70.3.0
     wcwidth 0.2.13
@@ -1050,7 +1050,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Kocoj &amp; Hamilton</td>
-<td class="center">Expires 20 June 2025</td>
+<td class="center">Expires 21 June 2025</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1063,12 +1063,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-ietf-bidding-and-auction-services-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-12-17" class="published">17 December 2024</time>
+<time datetime="2024-12-18" class="published">18 December 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2025-06-20">20 June 2025</time></dd>
+<dd class="expires"><time datetime="2025-06-21">21 June 2025</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1115,7 +1115,7 @@ remote environments while preserving user privacy.<a href="#section-abstract-1" 
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 20 June 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 21 June 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1938,7 +1938,7 @@ larger than request.<a href="#section-2.2.4-3.14.1" class="pilcrow">¶</a></p>
 (<code>included_groups</code>, <code>hpke context</code>, <code>ig pagg coordinators</code>).<a href="#section-2.2.4-3.16.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-2.2.4-3.17">
-              <p id="section-2.2.4-3.17.1">Return the <code>request</code> and the <code>request context</code>.<a href="#section-2.2.4-3.17.1" class="pilcrow">¶</a></p>
+              <p id="section-2.2.4-3.17.1">Return the <code>encrypted message</code> and the <code>request context</code>.<a href="#section-2.2.4-3.17.1" class="pilcrow">¶</a></p>
 </li>
           </ol>
 </section>
@@ -2691,251 +2691,314 @@ as a <span>[<a href="#URL" class="cite xref">URL</a>]</span>, returning failure 
 </li>
             <li id="section-2.3.5-2.16">
               <p id="section-2.3.5-2.16.1">If <code>response["components"]</code> exists:<a href="#section-2.3.5-2.16.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.16.2">
+<li id="section-2.3.5-2.16.2.1">
+                  <p id="section-2.3.5-2.16.2.1.1">If <code>response["components"]</code> is not an array, return failure.<a href="#section-2.3.5-2.16.2.1.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-2.3.5-2.17">
-              <p id="section-2.3.5-2.17.1">If <code>response["components"]</code> is not an array, return failure.<a href="#section-2.3.5-2.17.1" class="pilcrow">¶</a></p>
+                <li id="section-2.3.5-2.16.2.2">
+                  <p id="section-2.3.5-2.16.2.2.1">For each <code>component</code> in <code>response["components"]</code>:<a href="#section-2.3.5-2.16.2.2.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.16.2.2.2">
+<li id="section-2.3.5-2.16.2.2.2.1">
+                      <p id="section-2.3.5-2.16.2.2.2.1.1">Append <code>component</code> parsed as a <span>[<a href="#URL" class="cite xref">URL</a>]</span> to <code>processed response["ad components"]</code>,
+returning failure if there is an error.<a href="#section-2.3.5-2.16.2.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-2.3.5-2.18">
-              <p id="section-2.3.5-2.18.1">For each <code>component</code> in <code>response["components"]</code>:
-    1. Append <code>component</code> parsed as a <span>[<a href="#URL" class="cite xref">URL</a>]</span> to
-  <code>processed response["ad components"]</code>, returning failure if there is an
-  error.<a href="#section-2.3.5-2.18.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.19">
-              <p id="section-2.3.5-2.19.1">If <code>response["interestGroupName"]</code> does not exist or is not a string, return failure.<a href="#section-2.3.5-2.19.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.20">
-              <p id="section-2.3.5-2.20.1">Set <code>processed response["interest group name"]</code> to <code>response["interestGroupName"]</code>.<a href="#section-2.3.5-2.20.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.21">
-              <p id="section-2.3.5-2.21.1">If <code>response["interestGroupOwner"]</code> does not exist or is not a string, return failure.<a href="#section-2.3.5-2.21.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.22">
-              <p id="section-2.3.5-2.22.1">Set <code>processed response["interest group owner"]</code> to <code>response["interestGroupOwner"]</code>
-parsed as an <span>[<a href="#ORIGIN" class="cite xref">ORIGIN</a>]</span>, returning failure if there is an error.<a href="#section-2.3.5-2.22.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.23">
-              <p id="section-2.3.5-2.23.1">If <code>response["biddingGroups"]</code> does not exist or is not a map, return failure.<a href="#section-2.3.5-2.23.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.24">
-              <p id="section-2.3.5-2.24.1">For each <code>key</code>, <code>value</code> in <code>response["biddingGroups"]</code>:<a href="#section-2.3.5-2.24.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.25">
-              <p id="section-2.3.5-2.25.1">Let <code>owner</code> be equal to <code>key</code> parsed as an <span>[<a href="#ORIGIN" class="cite xref">ORIGIN</a>]</span>, returning failure if
-there is an error.<a href="#section-2.3.5-2.25.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.26">
-              <p id="section-2.3.5-2.26.1">If <code>request context</code>'s <code>included_groups</code> does not contain <code>owner</code> as a key, return failure.<a href="#section-2.3.5-2.26.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.27">
-              <p id="section-2.3.5-2.27.1">If <code>value</code> is not a list, return failure.<a href="#section-2.3.5-2.27.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.28">
-              <p id="section-2.3.5-2.28.1">For each <code>element</code> in <code>value</code>:
-    1. If <code>element</code> is not an integer or <code>element &lt; 0</code>, return failure.
-    1. If <code>element</code> is greater than or equal to the length of
-  <code>included_groups[owner]</code>, return failure.
-    1. Let <code>name</code> be the <code>interest group name</code> for <code>included_groups[owner][element]</code>.
-    1. Append the tuple (<code>owner</code>, <code>name</code>) to <code>processed response["bidding groups"]</code>.<a href="#section-2.3.5-2.28.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.29">
-              <p id="section-2.3.5-2.29.1">If <code>response["updateGroups"]</code> exists and is a map:<a href="#section-2.3.5-2.29.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.30">
-              <p id="section-2.3.5-2.30.1">For each <code>key</code>, <code>value</code> in <code>response["updateGroups"]</code>:
-    1. Let <code>owner</code> be equal to <code>key</code> parsed as an <span>[<a href="#ORIGIN" class="cite xref">ORIGIN</a>]</span>, continuing the next
-  iteration of this loop if there is an error.
-    1. If <code>request context</code>'s <code>included_groups</code> does not contain <code>owner</code> as a
-  key, continue the next iteration of this loop.
-    1. If <code>value</code> is not a list, return failure.
-    1. For each <code>element</code> in <code>value</code>:<a href="#section-2.3.5-2.30.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.30.2">
-<li id="section-2.3.5-2.30.2.1">
-                  <p id="section-2.3.5-2.30.2.1.1">If <code>element</code> is not a map, continue the next iteration of this loop.<a href="#section-2.3.5-2.30.2.1.1" class="pilcrow">¶</a></p>
-</li>
-                <li id="section-2.3.5-2.30.2.2">
-                  <p id="section-2.3.5-2.30.2.2.1">If <code>element["index"]</code> does not exist or is not an integer or
-<code>element["updateIfOlderThanMs"]</code> does not exist or is not an integer, continue the
-next iteration of this loop.<a href="#section-2.3.5-2.30.2.2.1" class="pilcrow">¶</a></p>
-</li>
-                <li id="section-2.3.5-2.30.2.3">
-                  <p id="section-2.3.5-2.30.2.3.1">If <code>element["index"]</code> is not an integer or <code>element["index"] &lt; 0</code>,
-continue the next iteration of this loop.<a href="#section-2.3.5-2.30.2.3.1" class="pilcrow">¶</a></p>
-</li>
-                <li id="section-2.3.5-2.30.2.4">
-                  <p id="section-2.3.5-2.30.2.4.1">If <code>element["index"]</code> is greater than or equal to the length of
-<code>included_groups[owner]</code>, continue the next iteration of this loop.<a href="#section-2.3.5-2.30.2.4.1" class="pilcrow">¶</a></p>
-</li>
-                <li id="section-2.3.5-2.30.2.5">
-                  <p id="section-2.3.5-2.30.2.5.1">Let <code>name</code> be the <code>interest group name</code> for <code>included_groups[owner][element]</code>.<a href="#section-2.3.5-2.30.2.5.1" class="pilcrow">¶</a></p>
-</li>
-                <li id="section-2.3.5-2.30.2.6">
-                  <p id="section-2.3.5-2.30.2.6.1">Let <code>interest group key</code> be the tuple (<code>owner</code>, <code>name</code>).<a href="#section-2.3.5-2.30.2.6.1" class="pilcrow">¶</a></p>
-</li>
-                <li id="section-2.3.5-2.30.2.7">
-                  <p id="section-2.3.5-2.30.2.7.1">Let <code>update duration</code> be <code>element["updateIfOlderThanMs"]</code>, parsed into a time
-duration as integer milliseconds.<a href="#section-2.3.5-2.30.2.7.1" class="pilcrow">¶</a></p>
-</li>
-                <li id="section-2.3.5-2.30.2.8">
-                  <p id="section-2.3.5-2.30.2.8.1">Set <code>processed response["update groups"][intereset group key]</code> to
-<code>update duration</code>.<a href="#section-2.3.5-2.30.2.8.1" class="pilcrow">¶</a></p>
+                  </ol>
 </li>
               </ol>
 </li>
+            <li id="section-2.3.5-2.17">
+              <p id="section-2.3.5-2.17.1">If <code>response["interestGroupName"]</code> does not exist or is not a string, return failure.<a href="#section-2.3.5-2.17.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.3.5-2.18">
+              <p id="section-2.3.5-2.18.1">Set <code>processed response["interest group name"]</code> to <code>response["interestGroupName"]</code>.<a href="#section-2.3.5-2.18.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.3.5-2.19">
+              <p id="section-2.3.5-2.19.1">If <code>response["interestGroupOwner"]</code> does not exist or is not a string, return failure.<a href="#section-2.3.5-2.19.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.3.5-2.20">
+              <p id="section-2.3.5-2.20.1">Set <code>processed response["interest group owner"]</code> to <code>response["interestGroupOwner"]</code>
+parsed as an <span>[<a href="#ORIGIN" class="cite xref">ORIGIN</a>]</span>, returning failure if there is an error.<a href="#section-2.3.5-2.20.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.3.5-2.21">
+              <p id="section-2.3.5-2.21.1">If <code>response["biddingGroups"]</code> does not exist or is not a map, return failure.<a href="#section-2.3.5-2.21.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.3.5-2.22">
+              <p id="section-2.3.5-2.22.1">For each <code>key</code>, <code>value</code> in <code>response["biddingGroups"]</code>:<a href="#section-2.3.5-2.22.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.22.2">
+<li id="section-2.3.5-2.22.2.1">
+                  <p id="section-2.3.5-2.22.2.1.1">Let <code>owner</code> be equal to <code>key</code> parsed as an <span>[<a href="#ORIGIN" class="cite xref">ORIGIN</a>]</span>, returning failure if
+there is an error.<a href="#section-2.3.5-2.22.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.5-2.22.2.2">
+                  <p id="section-2.3.5-2.22.2.2.1">If <code>request context</code>'s <code>included_groups</code> does not contain <code>owner</code> as a key, return failure.<a href="#section-2.3.5-2.22.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.5-2.22.2.3">
+                  <p id="section-2.3.5-2.22.2.3.1">If <code>value</code> is not a list, return failure.<a href="#section-2.3.5-2.22.2.3.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.5-2.22.2.4">
+                  <p id="section-2.3.5-2.22.2.4.1">For each <code>element</code> in <code>value</code>:<a href="#section-2.3.5-2.22.2.4.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.22.2.4.2">
+<li id="section-2.3.5-2.22.2.4.2.1">
+                      <p id="section-2.3.5-2.22.2.4.2.1.1">If <code>element</code> is not an integer or <code>element &lt; 0</code>, return failure.<a href="#section-2.3.5-2.22.2.4.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                    <li id="section-2.3.5-2.22.2.4.2.2">
+                      <p id="section-2.3.5-2.22.2.4.2.2.1">If <code>element</code> is greater than or equal to the length of
+<code>included_groups[owner]</code>, return failure.<a href="#section-2.3.5-2.22.2.4.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                    <li id="section-2.3.5-2.22.2.4.2.3">
+                      <p id="section-2.3.5-2.22.2.4.2.3.1">Let <code>name</code> be the <code>interest group name</code> for <code>included_groups[owner][element]</code>.<a href="#section-2.3.5-2.22.2.4.2.3.1" class="pilcrow">¶</a></p>
+</li>
+                    <li id="section-2.3.5-2.22.2.4.2.4">
+                      <p id="section-2.3.5-2.22.2.4.2.4.1">Append the tuple (<code>owner</code>, <code>name</code>) to <code>processed response["bidding groups"]</code>.<a href="#section-2.3.5-2.22.2.4.2.4.1" class="pilcrow">¶</a></p>
+</li>
+                  </ol>
+</li>
+              </ol>
+</li>
+            <li id="section-2.3.5-2.23">
+              <p id="section-2.3.5-2.23.1">If <code>response["updateGroups"]</code> exists and is a map:<a href="#section-2.3.5-2.23.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.23.2">
+<li id="section-2.3.5-2.23.2.1">
+                  <p id="section-2.3.5-2.23.2.1.1">For each <code>key</code>, <code>value</code> in <code>response["updateGroups"]</code>:<a href="#section-2.3.5-2.23.2.1.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.23.2.1.2">
+<li id="section-2.3.5-2.23.2.1.2.1">
+                      <p id="section-2.3.5-2.23.2.1.2.1.1">Let <code>owner</code> be equal to <code>key</code> parsed as an <span>[<a href="#ORIGIN" class="cite xref">ORIGIN</a>]</span>, continuing the next
+iteration of this loop if there is an error.<a href="#section-2.3.5-2.23.2.1.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                    <li id="section-2.3.5-2.23.2.1.2.2">
+                      <p id="section-2.3.5-2.23.2.1.2.2.1">If <code>request context</code>'s <code>included_groups</code> does not contain <code>owner</code> as a
+key, continue the next iteration of this loop.<a href="#section-2.3.5-2.23.2.1.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                    <li id="section-2.3.5-2.23.2.1.2.3">
+                      <p id="section-2.3.5-2.23.2.1.2.3.1">If <code>value</code> is not a list, return failure.<a href="#section-2.3.5-2.23.2.1.2.3.1" class="pilcrow">¶</a></p>
+</li>
+                    <li id="section-2.3.5-2.23.2.1.2.4">
+                      <p id="section-2.3.5-2.23.2.1.2.4.1">For each <code>element</code> in <code>value</code>:<a href="#section-2.3.5-2.23.2.1.2.4.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.23.2.1.2.4.2">
+<li id="section-2.3.5-2.23.2.1.2.4.2.1">
+                          <p id="section-2.3.5-2.23.2.1.2.4.2.1.1">If <code>element</code> is not a map, continue the next iteration of this loop.<a href="#section-2.3.5-2.23.2.1.2.4.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                        <li id="section-2.3.5-2.23.2.1.2.4.2.2">
+                          <p id="section-2.3.5-2.23.2.1.2.4.2.2.1">If <code>element["index"]</code> does not exist or is not an integer or
+<code>element["updateIfOlderThanMs"]</code> does not exist or is not an integer, continue the
+next iteration of this loop.<a href="#section-2.3.5-2.23.2.1.2.4.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                        <li id="section-2.3.5-2.23.2.1.2.4.2.3">
+                          <p id="section-2.3.5-2.23.2.1.2.4.2.3.1">If <code>element["index"]</code> is not an integer or <code>element["index"] &lt; 0</code>,
+continue the next iteration of this loop.<a href="#section-2.3.5-2.23.2.1.2.4.2.3.1" class="pilcrow">¶</a></p>
+</li>
+                        <li id="section-2.3.5-2.23.2.1.2.4.2.4">
+                          <p id="section-2.3.5-2.23.2.1.2.4.2.4.1">If <code>element["index"]</code> is greater than or equal to the length of
+<code>included_groups[owner]</code>, continue the next iteration of this loop.<a href="#section-2.3.5-2.23.2.1.2.4.2.4.1" class="pilcrow">¶</a></p>
+</li>
+                        <li id="section-2.3.5-2.23.2.1.2.4.2.5">
+                          <p id="section-2.3.5-2.23.2.1.2.4.2.5.1">Let <code>name</code> be the <code>interest group name</code> for <code>included_groups[owner][element]</code>.<a href="#section-2.3.5-2.23.2.1.2.4.2.5.1" class="pilcrow">¶</a></p>
+</li>
+                        <li id="section-2.3.5-2.23.2.1.2.4.2.6">
+                          <p id="section-2.3.5-2.23.2.1.2.4.2.6.1">Let <code>interest group key</code> be the tuple (<code>owner</code>, <code>name</code>).<a href="#section-2.3.5-2.23.2.1.2.4.2.6.1" class="pilcrow">¶</a></p>
+</li>
+                        <li id="section-2.3.5-2.23.2.1.2.4.2.7">
+                          <p id="section-2.3.5-2.23.2.1.2.4.2.7.1">Let <code>update duration</code> be <code>element["updateIfOlderThanMs"]</code>, parsed into a time
+duration as integer milliseconds.<a href="#section-2.3.5-2.23.2.1.2.4.2.7.1" class="pilcrow">¶</a></p>
+</li>
+                        <li id="section-2.3.5-2.23.2.1.2.4.2.8">
+                          <p id="section-2.3.5-2.23.2.1.2.4.2.8.1">Set <code>processed response["update groups"][intereset group key]</code> to
+<code>update duration</code>.<a href="#section-2.3.5-2.23.2.1.2.4.2.8.1" class="pilcrow">¶</a></p>
+</li>
+                      </ol>
+</li>
+                  </ol>
+</li>
+              </ol>
+</li>
+            <li id="section-2.3.5-2.24">
+              <p id="section-2.3.5-2.24.1">If <code>response["score"]</code> exists:<a href="#section-2.3.5-2.24.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.24.2">
+<li id="section-2.3.5-2.24.2.1">
+                  <p id="section-2.3.5-2.24.2.1.1">If <code>response["score"]</code> is not a floating point value, return failure.<a href="#section-2.3.5-2.24.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.5-2.24.2.2">
+                  <p id="section-2.3.5-2.24.2.2.1">Set <code>processed response["score"]</code> to <code>response["score"]</code>.<a href="#section-2.3.5-2.24.2.2.1" class="pilcrow">¶</a></p>
+</li>
+              </ol>
+</li>
+            <li id="section-2.3.5-2.25">
+              <p id="section-2.3.5-2.25.1">If <code>response["bid"]</code> exists:<a href="#section-2.3.5-2.25.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.25.2">
+<li id="section-2.3.5-2.25.2.1">
+                  <p id="section-2.3.5-2.25.2.1.1">If <code>response["bid"]</code> is not a floating point value, return failure.<a href="#section-2.3.5-2.25.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.5-2.25.2.2">
+                  <p id="section-2.3.5-2.25.2.2.1">Let <code>bid</code> be a new structure analogous to <a href="https://wicg.github.io/turtledove/#bid-with-currency">bid with currency</a>.<a href="#section-2.3.5-2.25.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.5-2.25.2.3">
+                  <p id="section-2.3.5-2.25.2.3.1">Set <code>bid</code>s <code>value</code> field to <code>response["bid"]</code>.<a href="#section-2.3.5-2.25.2.3.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.5-2.25.2.4">
+                  <p id="section-2.3.5-2.25.2.4.1">If <code>response["bidCurrency"]</code> exists:<a href="#section-2.3.5-2.25.2.4.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.25.2.4.2">
+<li id="section-2.3.5-2.25.2.4.2.1">
+                      <p id="section-2.3.5-2.25.2.4.2.1.1">If <code>response["bidCurrency"]</code> is not a string, return failure.<a href="#section-2.3.5-2.25.2.4.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                    <li id="section-2.3.5-2.25.2.4.2.2">
+                      <p id="section-2.3.5-2.25.2.4.2.2.1">If <code>response["bidCUrrency"]</code> is not 3 bytes long or contains characters
+other than upper case ASCII letters, return failure.<a href="#section-2.3.5-2.25.2.4.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                    <li id="section-2.3.5-2.25.2.4.2.3">
+                      <p id="section-2.3.5-2.25.2.4.2.3.1">Set <code>bid</code>'s <code>currency</code> field to <code>response["bidCurrency"]</code>.<a href="#section-2.3.5-2.25.2.4.2.3.1" class="pilcrow">¶</a></p>
+</li>
+                  </ol>
+</li>
+                <li id="section-2.3.5-2.25.2.5">
+                  <p id="section-2.3.5-2.25.2.5.1">Set <code>processed response["bid"]</code> to <code>bid</code>.<a href="#section-2.3.5-2.25.2.5.1" class="pilcrow">¶</a></p>
+</li>
+              </ol>
+</li>
+            <li id="section-2.3.5-2.26">
+              <p id="section-2.3.5-2.26.1">If <code>response["winReportingURLs"]</code> exists and is a map:<a href="#section-2.3.5-2.26.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.26.2">
+<li id="section-2.3.5-2.26.2.1">
+                  <p id="section-2.3.5-2.26.2.1.1">If <code>response["winReportingURLs"]["buyerReportingURLs"]</code> exists:<a href="#section-2.3.5-2.26.2.1.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.26.2.1.2">
+<li id="section-2.3.5-2.26.2.1.2.1">
+                      <p id="section-2.3.5-2.26.2.1.2.1.1">Let <code>buyer reporting</code> be the result of <a href="#response-parsing-reporting" class="auto internal xref">Section 2.3.5.1</a> on
+<code>response["winReportingURLs"]["buyerReportingURLs"]</code>.<a href="#section-2.3.5-2.26.2.1.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                    <li id="section-2.3.5-2.26.2.1.2.2">
+                      <p id="section-2.3.5-2.26.2.1.2.2.1">Set <code>processed response["buyer reporting"]</code> to <code>buyer reporting</code>.<a href="#section-2.3.5-2.26.2.1.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                  </ol>
+</li>
+                <li id="section-2.3.5-2.26.2.2">
+                  <p id="section-2.3.5-2.26.2.2.1">If <code>response["winReportingURLs"]["topLevelSellerReportingURLs"]</code> exists:<a href="#section-2.3.5-2.26.2.2.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.26.2.2.2">
+<li id="section-2.3.5-2.26.2.2.2.1">
+                      <p id="section-2.3.5-2.26.2.2.2.1.1">Let <code>top level seller reporting</code> be the result of <a href="#response-parsing-reporting" class="auto internal xref">Section 2.3.5.1</a>
+on  <code>response["winReportingURLs"]["topLevelSellerReportingURLs"]</code>.<a href="#section-2.3.5-2.26.2.2.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                    <li id="section-2.3.5-2.26.2.2.2.2">
+                      <p id="section-2.3.5-2.26.2.2.2.2.1">Set <code>processed response["top level seller reporting"]</code> to
+<code>top level seller reporting</code>.<a href="#section-2.3.5-2.26.2.2.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                  </ol>
+</li>
+                <li id="section-2.3.5-2.26.2.3">
+                  <p id="section-2.3.5-2.26.2.3.1">If <code>response["winReportingURLs"]["componentSellerReportingURLs"]</code> exists:<a href="#section-2.3.5-2.26.2.3.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.26.2.3.2">
+<li id="section-2.3.5-2.26.2.3.2.1">
+                      <p id="section-2.3.5-2.26.2.3.2.1.1">Let <code>component seller reporting</code> be the result of <a href="#response-parsing-reporting" class="auto internal xref">Section 2.3.5.1</a>
+on <code>response["winReportingURLs"]["componentSellerReportingURLs"]</code>.<a href="#section-2.3.5-2.26.2.3.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                    <li id="section-2.3.5-2.26.2.3.2.2">
+                      <p id="section-2.3.5-2.26.2.3.2.2.1">Set <code>processed response["component seller reporting"</code> to
+<code>component seller reporting</code>.<a href="#section-2.3.5-2.26.2.3.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                  </ol>
+</li>
+              </ol>
+</li>
+            <li id="section-2.3.5-2.27">
+              <p id="section-2.3.5-2.27.1">If <code>response["topLevelSeller"]</code> exists:<a href="#section-2.3.5-2.27.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.27.2">
+<li id="section-2.3.5-2.27.2.1">
+                  <p id="section-2.3.5-2.27.2.1.1">If <code>response["topLevelSeller"]</code> is not a string, return failure.<a href="#section-2.3.5-2.27.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.5-2.27.2.2">
+                  <p id="section-2.3.5-2.27.2.2.1">Set <code>processed response["top level seller"]</code> to <code>response["topLevelSeller"]</code>
+parsed as a <span>[<a href="#URL" class="cite xref">URL</a>]</span>, returning failure if there is an error.<a href="#section-2.3.5-2.27.2.2.1" class="pilcrow">¶</a></p>
+</li>
+              </ol>
+</li>
+            <li id="section-2.3.5-2.28">
+              <p id="section-2.3.5-2.28.1">If <code>response["adMetadata"]</code> exists and is a string set
+<code>processed response["ad metadata"]</code> to <code>response["adMetadata"]</code>.<a href="#section-2.3.5-2.28.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.3.5-2.29">
+              <p id="section-2.3.5-2.29.1">If <code>response["buyerReportingId"]</code> exists and is a string, set
+<code>processed response["buyer reporting id"]</code> to <code>response["buyerReportingId"]</code>.<a href="#section-2.3.5-2.29.1" class="pilcrow">¶</a></p>
+</li>
+            <li id="section-2.3.5-2.30">
+              <p id="section-2.3.5-2.30.1">If <code>response["buyerAndSellerReportingId"]</code> exists and is a string, set
+<code>processed response["buyer and seller reporting id"]</code> to
+<code>response["buyerAndSellerReportingId"]</code>.<a href="#section-2.3.5-2.30.1" class="pilcrow">¶</a></p>
+</li>
             <li id="section-2.3.5-2.31">
-              <p id="section-2.3.5-2.31.1">If <code>response["score"]</code> exists:<a href="#section-2.3.5-2.31.1" class="pilcrow">¶</a></p>
+              <p id="section-2.3.5-2.31.1">If <code>response["selectedBuyerAndSellerReportingId"]</code> exists and is a string, set
+<code>processed response["selected buyer and seller reporting id"]</code> to
+<code>response["selectedBuyerAndSellerReportingId"]</code>.<a href="#section-2.3.5-2.31.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-2.3.5-2.32">
-              <p id="section-2.3.5-2.32.1">If <code>response["score"]</code> is not a floating point value, return failure.<a href="#section-2.3.5-2.32.1" class="pilcrow">¶</a></p>
+              <p id="section-2.3.5-2.32.1">If <code>response["debugReports"]</code> exists and is an array:<a href="#section-2.3.5-2.32.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.32.2">
+<li id="section-2.3.5-2.32.2.1">
+                  <p id="section-2.3.5-2.32.2.1.1">For each <code>per origin debug reports</code> in <code>response["debugReports"]</code>:<a href="#section-2.3.5-2.32.2.1.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.32.2.1.2">
+<li id="section-2.3.5-2.32.2.1.2.1">
+                      <p id="section-2.3.5-2.32.2.1.2.1.1">If <code>per origin debug reports["adTechOrigin"]</code> does not exist or
+is not a string, continue with the next iteration.<a href="#section-2.3.5-2.32.2.1.2.1.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-2.3.5-2.33">
-              <p id="section-2.3.5-2.33.1">Set <code>processed response["score"]</code> to <code>response["score"]</code>.<a href="#section-2.3.5-2.33.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.34">
-              <p id="section-2.3.5-2.34.1">If <code>response["bid"]</code> exists:<a href="#section-2.3.5-2.34.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.35">
-              <p id="section-2.3.5-2.35.1">If <code>response["bid"]</code> is not a floating point value, return failure.<a href="#section-2.3.5-2.35.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.36">
-              <p id="section-2.3.5-2.36.1">Let <code>bid</code> be a new structure analogous to <a href="https://wicg.github.io/turtledove/#bid-with-currency">bid with currency</a>.<a href="#section-2.3.5-2.36.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.37">
-              <p id="section-2.3.5-2.37.1">Set <code>bid</code>s <code>value</code> field to <code>response["bid"]</code>.<a href="#section-2.3.5-2.37.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.38">
-              <p id="section-2.3.5-2.38.1">If <code>response["bidCurrency"]</code> exists:
-    1. If <code>response["bidCurrency"]</code> is not a string, return failure.
-    1. If <code>response["bidCUrrency"]</code> is not 3 bytes long or contains characters
-  other than upper case ASCII letters, return failure.
-    1. Set <code>bid</code>'s <code>currency</code> field to <code>response["bidCurrency"]</code>.<a href="#section-2.3.5-2.38.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.39">
-              <p id="section-2.3.5-2.39.1">Set <code>processed response["bid"]</code> to <code>bid</code>.<a href="#section-2.3.5-2.39.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.40">
-              <p id="section-2.3.5-2.40.1">If <code>response["winReportingURLs"]</code> exists and is a map:<a href="#section-2.3.5-2.40.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.41">
-              <p id="section-2.3.5-2.41.1">If <code>response["winReportingURLs"]["buyerReportingURLs"]</code> exists:
-    1. Let <code>buyer reporting</code> be the result of <a href="#response-parsing-reporting" class="auto internal xref">Section 2.3.5.1</a> on
-  <code>response["winReportingURLs"]["buyerReportingURLs"]</code>.
-    1. Set <code>processed response["buyer reporting"]</code> to <code>buyer reporting</code>.<a href="#section-2.3.5-2.41.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.42">
-              <p id="section-2.3.5-2.42.1">If <code>response["winReportingURLs"]["topLevelSellerReportingURLs"]</code> exists:
-    1. Let <code>top level seller reporting</code> be the result of <a href="#response-parsing-reporting" class="auto internal xref">Section 2.3.5.1</a>
-  on  <code>response["winReportingURLs"]["topLevelSellerReportingURLs"]</code>.
-    1. Set <code>processed response["top level seller reporting"]</code> to
-  <code>top level seller reporting</code>.<a href="#section-2.3.5-2.42.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.43">
-              <p id="section-2.3.5-2.43.1">If <code>response["winReportingURLs"]["componentSellerReportingURLs"]</code> exists:
-    1. Let <code>component seller reporting</code> be the result of <a href="#response-parsing-reporting" class="auto internal xref">Section 2.3.5.1</a>
-  on <code>response["winReportingURLs"]["componentSellerReportingURLs"]</code>.
-    1. Set <code>processed response["component seller reporting"</code> to
-  <code>component seller reporting</code>.<a href="#section-2.3.5-2.43.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.44">
-              <p id="section-2.3.5-2.44.1">If <code>response["topLevelSeller"]</code> exists:<a href="#section-2.3.5-2.44.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.45">
-              <p id="section-2.3.5-2.45.1">If <code>response["topLevelSeller"]</code> is not a string, return failure.<a href="#section-2.3.5-2.45.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.46">
-              <p id="section-2.3.5-2.46.1">Set <code>processed response["top level seller"]</code> to <code>response["topLevelSeller"]</code>
-parsed as a <span>[<a href="#URL" class="cite xref">URL</a>]</span>, returning failure if there is an error.<a href="#section-2.3.5-2.46.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.47">
-              <p id="section-2.3.5-2.47.1">If <code>response["adMetadata"]</code> exists and is a string set
-<code>processed response["ad metadata"]</code> to <code>response["adMetadata"]</code>.<a href="#section-2.3.5-2.47.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.48">
-              <p id="section-2.3.5-2.48.1">If <code>response["buyerReportingId"]</code> exists and is a string, set
-<code>processed response["buyer reporting id"]</code> to <code>response["buyerReportingId"]</code>.<a href="#section-2.3.5-2.48.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.49">
-              <p id="section-2.3.5-2.49.1">If <code>response["buyerAndSellerReportingId"]</code> exists and is a string, set
-<code>processed response["buyer and seller reporting id"]</code> to
-<code>response["buyerAndSellerReportingId"]</code>.<a href="#section-2.3.5-2.49.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.50">
-              <p id="section-2.3.5-2.50.1">If <code>response["selectedBuyerAndSellerReportingId"]</code> exists and is a string, set
-<code>processed response["selected buyer and seller reporting id"]</code> to
-<code>response["selectedBuyerAndSellerReportingId"]</code>.<a href="#section-2.3.5-2.50.1" class="pilcrow">¶</a></p>
-</li>
-            <li id="section-2.3.5-2.51">
-              <p id="section-2.3.5-2.51.1">If <code>response["debugReports"]</code> exists and is an array:<a href="#section-2.3.5-2.51.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.51.2">
-<li id="section-2.3.5-2.51.2.1">
-                  <p id="section-2.3.5-2.51.2.1.1">For each <code>per origin debug reports</code> in <code>response["debugReports"]</code>:<a href="#section-2.3.5-2.51.2.1.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.51.2.1.2">
-<li id="section-2.3.5-2.51.2.1.2.1">
-                      <p id="section-2.3.5-2.51.2.1.2.1.1">If <code>per origin debug reports["adTechOrigin"]</code> does not exist or
-is not a string, continue with the next iteration.<a href="#section-2.3.5-2.51.2.1.2.1.1" class="pilcrow">¶</a></p>
-</li>
-                    <li id="section-2.3.5-2.51.2.1.2.2">
-                      <p id="section-2.3.5-2.51.2.1.2.2.1">Let <code>ad tech origin</code> be <code>per origin debug reports[
+                    <li id="section-2.3.5-2.32.2.1.2.2">
+                      <p id="section-2.3.5-2.32.2.1.2.2.1">Let <code>ad tech origin</code> be <code>per origin debug reports[
 "adTechOrigin"]</code> parsed as an <span>[<a href="#ORIGIN" class="cite xref">ORIGIN</a>]</span>, continue with the next
-iteration if there is an error.<a href="#section-2.3.5-2.51.2.1.2.2.1" class="pilcrow">¶</a></p>
+iteration if there is an error.<a href="#section-2.3.5-2.32.2.1.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-2.3.5-2.51.2.1.2.3">
-                      <p id="section-2.3.5-2.51.2.1.2.3.1">If <code>per origin debug reports["reports"]</code> does not exist or is
-not an array, continue with the next iteration.<a href="#section-2.3.5-2.51.2.1.2.3.1" class="pilcrow">¶</a></p>
+                    <li id="section-2.3.5-2.32.2.1.2.3">
+                      <p id="section-2.3.5-2.32.2.1.2.3.1">If <code>per origin debug reports["reports"]</code> does not exist or is
+not an array, continue with the next iteration.<a href="#section-2.3.5-2.32.2.1.2.3.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-2.3.5-2.51.2.1.2.4">
-                      <p id="section-2.3.5-2.51.2.1.2.4.1">For each <code>report</code> in <code>per origin debug reports["reports"]</code>:<a href="#section-2.3.5-2.51.2.1.2.4.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.51.2.1.2.4.2">
-<li id="section-2.3.5-2.51.2.1.2.4.2.1">
-                          <p id="section-2.3.5-2.51.2.1.2.4.2.1.1">If <code>report</code> is not a map, continue with the next iteration.<a href="#section-2.3.5-2.51.2.1.2.4.2.1.1" class="pilcrow">¶</a></p>
+                    <li id="section-2.3.5-2.32.2.1.2.4">
+                      <p id="section-2.3.5-2.32.2.1.2.4.1">For each <code>report</code> in <code>per origin debug reports["reports"]</code>:<a href="#section-2.3.5-2.32.2.1.2.4.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.32.2.1.2.4.2">
+<li id="section-2.3.5-2.32.2.1.2.4.2.1">
+                          <p id="section-2.3.5-2.32.2.1.2.4.2.1.1">If <code>report</code> is not a map, continue with the next iteration.<a href="#section-2.3.5-2.32.2.1.2.4.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                        <li id="section-2.3.5-2.51.2.1.2.4.2.2">
-                          <p id="section-2.3.5-2.51.2.1.2.4.2.2.1">Let <code>component win</code> be <code>report["componentWin"]</code> if it exists
-and is a bool, otherwise false.<a href="#section-2.3.5-2.51.2.1.2.4.2.2.1" class="pilcrow">¶</a></p>
+                        <li id="section-2.3.5-2.32.2.1.2.4.2.2">
+                          <p id="section-2.3.5-2.32.2.1.2.4.2.2.1">Let <code>component win</code> be <code>report["componentWin"]</code> if it exists
+and is a bool, otherwise false.<a href="#section-2.3.5-2.32.2.1.2.4.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                        <li id="section-2.3.5-2.51.2.1.2.4.2.3">
-                          <p id="section-2.3.5-2.51.2.1.2.4.2.3.1">If <code>report["url"]</code> exists and is a string:<a href="#section-2.3.5-2.51.2.1.2.4.2.3.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.51.2.1.2.4.2.3.2">
-<li id="section-2.3.5-2.51.2.1.2.4.2.3.2.1">
-                              <p id="section-2.3.5-2.51.2.1.2.4.2.3.2.1.1">Let <code>url</code> be <code>report["url"]</code> parsed as a <span>[<a href="#URL" class="cite xref">URL</a>]</span>, or
-continue with the next iteration if there is an error.<a href="#section-2.3.5-2.51.2.1.2.4.2.3.2.1.1" class="pilcrow">¶</a></p>
+                        <li id="section-2.3.5-2.32.2.1.2.4.2.3">
+                          <p id="section-2.3.5-2.32.2.1.2.4.2.3.1">If <code>report["url"]</code> exists and is a string:<a href="#section-2.3.5-2.32.2.1.2.4.2.3.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.32.2.1.2.4.2.3.2">
+<li id="section-2.3.5-2.32.2.1.2.4.2.3.2.1">
+                              <p id="section-2.3.5-2.32.2.1.2.4.2.3.2.1.1">Let <code>url</code> be <code>report["url"]</code> parsed as a <span>[<a href="#URL" class="cite xref">URL</a>]</span>, or
+continue with the next iteration if there is an error.<a href="#section-2.3.5-2.32.2.1.2.4.2.3.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                            <li id="section-2.3.5-2.51.2.1.2.4.2.3.2.2">
-                              <p id="section-2.3.5-2.51.2.1.2.4.2.3.2.2.1">If <code>component win</code> is false, set
+                            <li id="section-2.3.5-2.32.2.1.2.4.2.3.2.2">
+                              <p id="section-2.3.5-2.32.2.1.2.4.2.3.2.2.1">If <code>component win</code> is false, set
 <code>processed response["server filtered debugging only
 reports"][ad tech origin]</code> to <code>url</code>, and continue with
-the next iteration.<a href="#section-2.3.5-2.51.2.1.2.4.2.3.2.2.1" class="pilcrow">¶</a></p>
+the next iteration.<a href="#section-2.3.5-2.32.2.1.2.4.2.3.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                            <li id="section-2.3.5-2.51.2.1.2.4.2.3.2.3">
-                              <p id="section-2.3.5-2.51.2.1.2.4.2.3.2.3.1">Let <code>debug report key</code> be a new structure analogous to
-<a href="https://wicg.github.io/turtledove/#server-auction-debug-report-key">server auction debug report key</a>.<a href="#section-2.3.5-2.51.2.1.2.4.2.3.2.3.1" class="pilcrow">¶</a></p>
+                            <li id="section-2.3.5-2.32.2.1.2.4.2.3.2.3">
+                              <p id="section-2.3.5-2.32.2.1.2.4.2.3.2.3.1">Let <code>debug report key</code> be a new structure analogous to
+<a href="https://wicg.github.io/turtledove/#server-auction-debug-report-key">server auction debug report key</a>.<a href="#section-2.3.5-2.32.2.1.2.4.2.3.2.3.1" class="pilcrow">¶</a></p>
 </li>
-                            <li id="section-2.3.5-2.51.2.1.2.4.2.3.2.4">
-                              <p id="section-2.3.5-2.51.2.1.2.4.2.3.2.4.1">Set <code>debug report key["from seller"]</code> to
+                            <li id="section-2.3.5-2.32.2.1.2.4.2.3.2.4">
+                              <p id="section-2.3.5-2.32.2.1.2.4.2.3.2.4.1">Set <code>debug report key["from seller"]</code> to
 <code>report["isSellerReport"]</code> if it exists and is a bool,
-otherwise false.<a href="#section-2.3.5-2.51.2.1.2.4.2.3.2.4.1" class="pilcrow">¶</a></p>
+otherwise false.<a href="#section-2.3.5-2.32.2.1.2.4.2.3.2.4.1" class="pilcrow">¶</a></p>
 </li>
-                            <li id="section-2.3.5-2.51.2.1.2.4.2.3.2.5">
-                              <p id="section-2.3.5-2.51.2.1.2.4.2.3.2.5.1">Set <code>debug report key["is debug win"]</code> to
+                            <li id="section-2.3.5-2.32.2.1.2.4.2.3.2.5">
+                              <p id="section-2.3.5-2.32.2.1.2.4.2.3.2.5.1">Set <code>debug report key["is debug win"]</code> to
 <code>report["isWinReport"]</code> if it exists and is a bool,
-otherwise false.<a href="#section-2.3.5-2.51.2.1.2.4.2.3.2.5.1" class="pilcrow">¶</a></p>
+otherwise false.<a href="#section-2.3.5-2.32.2.1.2.4.2.3.2.5.1" class="pilcrow">¶</a></p>
 </li>
-                            <li id="section-2.3.5-2.51.2.1.2.4.2.3.2.6">
-                              <p id="section-2.3.5-2.51.2.1.2.4.2.3.2.6.1">Set <code>processed response[
+                            <li id="section-2.3.5-2.32.2.1.2.4.2.3.2.6">
+                              <p id="section-2.3.5-2.32.2.1.2.4.2.3.2.6.1">Set <code>processed response[
 "component win debugging only reports"][
-debug report key]</code> to <code>url</code>.<a href="#section-2.3.5-2.51.2.1.2.4.2.3.2.6.1" class="pilcrow">¶</a></p>
+debug report key]</code> to <code>url</code>.<a href="#section-2.3.5-2.32.2.1.2.4.2.3.2.6.1" class="pilcrow">¶</a></p>
 </li>
                           </ol>
 </li>
-                        <li id="section-2.3.5-2.51.2.1.2.4.2.4">
-                          <p id="section-2.3.5-2.51.2.1.2.4.2.4.1">Otherwise:<a href="#section-2.3.5-2.51.2.1.2.4.2.4.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.51.2.1.2.4.2.4.2">
-<li id="section-2.3.5-2.51.2.1.2.4.2.4.2.1">
-                              <p id="section-2.3.5-2.51.2.1.2.4.2.4.2.1.1">If <code>component win</code> is false and <code>processed response[
+                        <li id="section-2.3.5-2.32.2.1.2.4.2.4">
+                          <p id="section-2.3.5-2.32.2.1.2.4.2.4.1">Otherwise:<a href="#section-2.3.5-2.32.2.1.2.4.2.4.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.32.2.1.2.4.2.4.2">
+<li id="section-2.3.5-2.32.2.1.2.4.2.4.2.1">
+                              <p id="section-2.3.5-2.32.2.1.2.4.2.4.2.1.1">If <code>component win</code> is false and <code>processed response[
 "server filtered debugging only reports"]</code> does not
 contain <code>ad tech origin</code>, set <code>processed response[
 "server filtered debugging only reports"][
-ad tech origin]</code> to an empty list.<a href="#section-2.3.5-2.51.2.1.2.4.2.4.2.1.1" class="pilcrow">¶</a></p>
+ad tech origin]</code> to an empty list.<a href="#section-2.3.5-2.32.2.1.2.4.2.4.2.1.1" class="pilcrow">¶</a></p>
 </li>
                           </ol>
 </li>
@@ -2945,152 +3008,152 @@ ad tech origin]</code> to an empty list.<a href="#section-2.3.5-2.51.2.1.2.4.2.4
 </li>
               </ol>
 </li>
-            <li id="section-2.3.5-2.52">
-              <p id="section-2.3.5-2.52.1">If <code>response["paggResponse"]</code> exists and is an array:<a href="#section-2.3.5-2.52.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.52.2">
-<li id="section-2.3.5-2.52.2.1">
-                  <p id="section-2.3.5-2.52.2.1.1">For each <code>per origin response</code> in <code>pagg response</code>:<a href="#section-2.3.5-2.52.2.1.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.52.2.1.2">
-<li id="section-2.3.5-2.52.2.1.2.1">
-                      <p id="section-2.3.5-2.52.2.1.2.1.1">If <code>per origin response</code> is not a map, continue with the next iteration.<a href="#section-2.3.5-2.52.2.1.2.1.1" class="pilcrow">¶</a></p>
+            <li id="section-2.3.5-2.33">
+              <p id="section-2.3.5-2.33.1">If <code>response["paggResponse"]</code> exists and is an array:<a href="#section-2.3.5-2.33.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.33.2">
+<li id="section-2.3.5-2.33.2.1">
+                  <p id="section-2.3.5-2.33.2.1.1">For each <code>per origin response</code> in <code>pagg response</code>:<a href="#section-2.3.5-2.33.2.1.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.33.2.1.2">
+<li id="section-2.3.5-2.33.2.1.2.1">
+                      <p id="section-2.3.5-2.33.2.1.2.1.1">If <code>per origin response</code> is not a map, continue with the next iteration.<a href="#section-2.3.5-2.33.2.1.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-2.3.5-2.52.2.1.2.2">
-                      <p id="section-2.3.5-2.52.2.1.2.2.1">If <code>per origin response["reportingOrigin"]</code> does not exist or is not a string,
-continue with the next iteration.<a href="#section-2.3.5-2.52.2.1.2.2.1" class="pilcrow">¶</a></p>
+                    <li id="section-2.3.5-2.33.2.1.2.2">
+                      <p id="section-2.3.5-2.33.2.1.2.2.1">If <code>per origin response["reportingOrigin"]</code> does not exist or is not a string,
+continue with the next iteration.<a href="#section-2.3.5-2.33.2.1.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-2.3.5-2.52.2.1.2.3">
-                      <p id="section-2.3.5-2.52.2.1.2.3.1">Let <code>reporting origin</code> be <code>per origin response["reportingOrigin"]</code> parsed as an <span>[<a href="#ORIGIN" class="cite xref">ORIGIN</a>]</span>,
-continue with the next iteration if there is an error.<a href="#section-2.3.5-2.52.2.1.2.3.1" class="pilcrow">¶</a></p>
+                    <li id="section-2.3.5-2.33.2.1.2.3">
+                      <p id="section-2.3.5-2.33.2.1.2.3.1">Let <code>reporting origin</code> be <code>per origin response["reportingOrigin"]</code> parsed as an <span>[<a href="#ORIGIN" class="cite xref">ORIGIN</a>]</span>,
+continue with the next iteration if there is an error.<a href="#section-2.3.5-2.33.2.1.2.3.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-2.3.5-2.52.2.1.2.4">
-                      <p id="section-2.3.5-2.52.2.1.2.4.1">If <code>per origin response["igContributions"]</code> does not exist or is not an array,
-continue with the next iteration.<a href="#section-2.3.5-2.52.2.1.2.4.1" class="pilcrow">¶</a></p>
+                    <li id="section-2.3.5-2.33.2.1.2.4">
+                      <p id="section-2.3.5-2.33.2.1.2.4.1">If <code>per origin response["igContributions"]</code> does not exist or is not an array,
+continue with the next iteration.<a href="#section-2.3.5-2.33.2.1.2.4.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-2.3.5-2.52.2.1.2.5">
-                      <p id="section-2.3.5-2.52.2.1.2.5.1">Let <code>names</code> be an empty array.<a href="#section-2.3.5-2.52.2.1.2.5.1" class="pilcrow">¶</a></p>
+                    <li id="section-2.3.5-2.33.2.1.2.5">
+                      <p id="section-2.3.5-2.33.2.1.2.5.1">Let <code>names</code> be an empty array.<a href="#section-2.3.5-2.33.2.1.2.5.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-2.3.5-2.52.2.1.2.6">
-                      <p id="section-2.3.5-2.52.2.1.2.6.1">If <code>request context</code>'s <code>included_groups</code> contains <code>owner</code> as a key, set <code>names</code> to its value.<a href="#section-2.3.5-2.52.2.1.2.6.1" class="pilcrow">¶</a></p>
+                    <li id="section-2.3.5-2.33.2.1.2.6">
+                      <p id="section-2.3.5-2.33.2.1.2.6.1">If <code>request context</code>'s <code>included_groups</code> contains <code>owner</code> as a key, set <code>names</code> to its value.<a href="#section-2.3.5-2.33.2.1.2.6.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-2.3.5-2.52.2.1.2.7">
-                      <p id="section-2.3.5-2.52.2.1.2.7.1">For each <code>ig contribution</code> in <code>per origin response["igContributions"]</code>:<a href="#section-2.3.5-2.52.2.1.2.7.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.52.2.1.2.7.2">
-<li id="section-2.3.5-2.52.2.1.2.7.2.1">
-                          <p id="section-2.3.5-2.52.2.1.2.7.2.1.1">If <code>ig contribution</code> is not a map, continue with the next iteration.<a href="#section-2.3.5-2.52.2.1.2.7.2.1.1" class="pilcrow">¶</a></p>
+                    <li id="section-2.3.5-2.33.2.1.2.7">
+                      <p id="section-2.3.5-2.33.2.1.2.7.1">For each <code>ig contribution</code> in <code>per origin response["igContributions"]</code>:<a href="#section-2.3.5-2.33.2.1.2.7.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.33.2.1.2.7.2">
+<li id="section-2.3.5-2.33.2.1.2.7.2.1">
+                          <p id="section-2.3.5-2.33.2.1.2.7.2.1.1">If <code>ig contribution</code> is not a map, continue with the next iteration.<a href="#section-2.3.5-2.33.2.1.2.7.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                        <li id="section-2.3.5-2.52.2.1.2.7.2.2">
-                          <p id="section-2.3.5-2.52.2.1.2.7.2.2.1">Let <code>coordinator</code> be null.<a href="#section-2.3.5-2.52.2.1.2.7.2.2.1" class="pilcrow">¶</a></p>
+                        <li id="section-2.3.5-2.33.2.1.2.7.2.2">
+                          <p id="section-2.3.5-2.33.2.1.2.7.2.2.1">Let <code>coordinator</code> be null.<a href="#section-2.3.5-2.33.2.1.2.7.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                        <li id="section-2.3.5-2.52.2.1.2.7.2.3">
-                          <p id="section-2.3.5-2.52.2.1.2.7.2.3.1">If <code>ig contribution["coordinator"]</code> exists and is a string, set <code>coordinator</code> to
+                        <li id="section-2.3.5-2.33.2.1.2.7.2.3">
+                          <p id="section-2.3.5-2.33.2.1.2.7.2.3.1">If <code>ig contribution["coordinator"]</code> exists and is a string, set <code>coordinator</code> to
 <code>per origin response["reportingOrigin"]</code> parsed as an <span>[<a href="#ORIGIN" class="cite xref">ORIGIN</a>]</span>, continue with the next
-iteration if there is an error.<a href="#section-2.3.5-2.52.2.1.2.7.2.3.1" class="pilcrow">¶</a></p>
+iteration if there is an error.<a href="#section-2.3.5-2.33.2.1.2.7.2.3.1" class="pilcrow">¶</a></p>
 </li>
-                        <li id="section-2.3.5-2.52.2.1.2.7.2.4">
-                          <p id="section-2.3.5-2.52.2.1.2.7.2.4.1">Otherwise if <code>ig contribution["igIndex"]</code> exists and is an integer:<a href="#section-2.3.5-2.52.2.1.2.7.2.4.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.52.2.1.2.7.2.4.2">
-<li id="section-2.3.5-2.52.2.1.2.7.2.4.2.1">
-                              <p id="section-2.3.5-2.52.2.1.2.7.2.4.2.1.1">If <code>ig contribution["igIndex"] &lt; 0</code> or is greater than or equal to the length of <code>names</code>,
- continue with the next iteration.<a href="#section-2.3.5-2.52.2.1.2.7.2.4.2.1.1" class="pilcrow">¶</a></p>
+                        <li id="section-2.3.5-2.33.2.1.2.7.2.4">
+                          <p id="section-2.3.5-2.33.2.1.2.7.2.4.1">Otherwise if <code>ig contribution["igIndex"]</code> exists and is an integer:<a href="#section-2.3.5-2.33.2.1.2.7.2.4.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.33.2.1.2.7.2.4.2">
+<li id="section-2.3.5-2.33.2.1.2.7.2.4.2.1">
+                              <p id="section-2.3.5-2.33.2.1.2.7.2.4.2.1.1">If <code>ig contribution["igIndex"] &lt; 0</code> or is greater than or equal to the length of <code>names</code>,
+ continue with the next iteration.<a href="#section-2.3.5-2.33.2.1.2.7.2.4.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                            <li id="section-2.3.5-2.52.2.1.2.7.2.4.2.2">
-                              <p id="section-2.3.5-2.52.2.1.2.7.2.4.2.2.1">Let <code>ig key</code> be the tuple (<code>owner</code>, <code>names[igIndex]</code>).<a href="#section-2.3.5-2.52.2.1.2.7.2.4.2.2.1" class="pilcrow">¶</a></p>
+                            <li id="section-2.3.5-2.33.2.1.2.7.2.4.2.2">
+                              <p id="section-2.3.5-2.33.2.1.2.7.2.4.2.2.1">Let <code>ig key</code> be the tuple (<code>owner</code>, <code>names[igIndex]</code>).<a href="#section-2.3.5-2.33.2.1.2.7.2.4.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                            <li id="section-2.3.5-2.52.2.1.2.7.2.4.2.3">
-                              <p id="section-2.3.5-2.52.2.1.2.7.2.4.2.3.1">If <code>request context</code>'s <code>ig pagg coordinators</code> contains <code>ig key</code>, set <code>coordinator</code> to
-<code>request context</code>'s <code>ig pagg coordinators[ig key]</code>.<a href="#section-2.3.5-2.52.2.1.2.7.2.4.2.3.1" class="pilcrow">¶</a></p>
+                            <li id="section-2.3.5-2.33.2.1.2.7.2.4.2.3">
+                              <p id="section-2.3.5-2.33.2.1.2.7.2.4.2.3.1">If <code>request context</code>'s <code>ig pagg coordinators</code> contains <code>ig key</code>, set <code>coordinator</code> to
+<code>request context</code>'s <code>ig pagg coordinators[ig key]</code>.<a href="#section-2.3.5-2.33.2.1.2.7.2.4.2.3.1" class="pilcrow">¶</a></p>
 </li>
                           </ol>
 </li>
-                        <li id="section-2.3.5-2.52.2.1.2.7.2.5">
-                          <p id="section-2.3.5-2.52.2.1.2.7.2.5.1">Let <code>is component win</code> be false.<a href="#section-2.3.5-2.52.2.1.2.7.2.5.1" class="pilcrow">¶</a></p>
+                        <li id="section-2.3.5-2.33.2.1.2.7.2.5">
+                          <p id="section-2.3.5-2.33.2.1.2.7.2.5.1">Let <code>is component win</code> be false.<a href="#section-2.3.5-2.33.2.1.2.7.2.5.1" class="pilcrow">¶</a></p>
 </li>
-                        <li id="section-2.3.5-2.52.2.1.2.7.2.6">
-                          <p id="section-2.3.5-2.52.2.1.2.7.2.6.1">If <code>ig contribution["componentWin"]</code> exists and is a boolean, set <code>is component win</code> to it.<a href="#section-2.3.5-2.52.2.1.2.7.2.6.1" class="pilcrow">¶</a></p>
+                        <li id="section-2.3.5-2.33.2.1.2.7.2.6">
+                          <p id="section-2.3.5-2.33.2.1.2.7.2.6.1">If <code>ig contribution["componentWin"]</code> exists and is a boolean, set <code>is component win</code> to it.<a href="#section-2.3.5-2.33.2.1.2.7.2.6.1" class="pilcrow">¶</a></p>
 </li>
-                        <li id="section-2.3.5-2.52.2.1.2.7.2.7">
-                          <p id="section-2.3.5-2.52.2.1.2.7.2.7.1">If <code>ig contribution["eventContributions"]</code> exists and is an array:<a href="#section-2.3.5-2.52.2.1.2.7.2.7.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.52.2.1.2.7.2.7.2">
-<li id="section-2.3.5-2.52.2.1.2.7.2.7.2.1">
-                              <p id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.1">For each <code>event contribution</code> in <code>ig contribution["eventContributions"]</code>:<a href="#section-2.3.5-2.52.2.1.2.7.2.7.2.1.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2">
-<li id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.1">
-                                  <p id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.1.1">Continue with the next iteration if any of the following conditions hold:<a href="#section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.1.1" class="pilcrow">¶</a></p>
+                        <li id="section-2.3.5-2.33.2.1.2.7.2.7">
+                          <p id="section-2.3.5-2.33.2.1.2.7.2.7.1">If <code>ig contribution["eventContributions"]</code> exists and is an array:<a href="#section-2.3.5-2.33.2.1.2.7.2.7.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.33.2.1.2.7.2.7.2">
+<li id="section-2.3.5-2.33.2.1.2.7.2.7.2.1">
+                              <p id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.1">For each <code>event contribution</code> in <code>ig contribution["eventContributions"]</code>:<a href="#section-2.3.5-2.33.2.1.2.7.2.7.2.1.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2">
+<li id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.1">
+                                  <p id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.1.1">Continue with the next iteration if any of the following conditions hold:<a href="#section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.1.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.1.2.1">
-                                      <p id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.1.2.1.1"><code>event contribution</code> is not a map;<a href="#section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.1.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.1.2.1">
+                                      <p id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.1.2.1.1"><code>event contribution</code> is not a map;<a href="#section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.1.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                                    <li class="normal" id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.1.2.2">
-                                      <p id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.1.2.2.1"><code>event contribution["event"]</code> does not exist or is not a string;<a href="#section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.1.2.2.1" class="pilcrow">¶</a></p>
+                                    <li class="normal" id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.1.2.2">
+                                      <p id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.1.2.2.1"><code>event contribution["event"]</code> does not exist or is not a string;<a href="#section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.1.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                                    <li class="normal" id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.1.2.3">
-                                      <p id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.1.2.3.1"><code>event contribution["event"]</code> starts with "reserved.", but is not one of "reserved.win", "reserved.loss",
-or "reserved.always", continue with the next iteration.<a href="#section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.1.2.3.1" class="pilcrow">¶</a></p>
+                                    <li class="normal" id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.1.2.3">
+                                      <p id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.1.2.3.1"><code>event contribution["event"]</code> starts with "reserved.", but is not one of "reserved.win", "reserved.loss",
+or "reserved.always", continue with the next iteration.<a href="#section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.1.2.3.1" class="pilcrow">¶</a></p>
 </li>
                                   </ul>
 </li>
-                                <li id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.2">
-                                  <p id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.2.1">Let <code>event</code> be <code>event contribution["event"]</code>.<a href="#section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.2.1" class="pilcrow">¶</a></p>
+                                <li id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.2">
+                                  <p id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.2.1">Let <code>event</code> be <code>event contribution["event"]</code>.<a href="#section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                                <li id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3">
-                                  <p id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.1">If <code>event contribution["contributions"]</code> exists and is an array, for each <code>contribution</code> in it:<a href="#section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2">
-<li id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.1">
-                                      <p id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.1.1">Continue with the next iteration if any of the following conditions hold:<a href="#section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.1.1" class="pilcrow">¶</a></p>
+                                <li id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3">
+                                  <p id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.1">If <code>event contribution["contributions"]</code> exists and is an array, for each <code>contribution</code> in it:<a href="#section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2">
+<li id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.1">
+                                      <p id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.1.1">Continue with the next iteration if any of the following conditions hold:<a href="#section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.1.1" class="pilcrow">¶</a></p>
 <ul class="normal">
-<li class="normal" id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.1.2.1">
-                                          <p id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.1.2.1.1"><code>contribution</code> is not a map;<a href="#section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.1.2.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.1.2.1">
+                                          <p id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.1.2.1.1"><code>contribution</code> is not a map;<a href="#section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.1.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                                        <li class="normal" id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.1.2.2">
-                                          <p id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.1.2.2.1"><code>contribution["bucket"]</code> does not exist or is not a byte array or its size is greater than 16.<a href="#section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.1.2.2.1" class="pilcrow">¶</a></p>
+                                        <li class="normal" id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.1.2.2">
+                                          <p id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.1.2.2.1"><code>contribution["bucket"]</code> does not exist or is not a byte array or its size is greater than 16.<a href="#section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.1.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                                        <li class="normal" id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.1.2.3">
-                                          <p id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.1.2.3.1"><code>contribution["value"]</code> does not exist or is not an integer.<a href="#section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.1.2.3.1" class="pilcrow">¶</a></p>
+                                        <li class="normal" id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.1.2.3">
+                                          <p id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.1.2.3.1"><code>contribution["value"]</code> does not exist or is not an integer.<a href="#section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.1.2.3.1" class="pilcrow">¶</a></p>
 </li>
                                       </ul>
 </li>
-                                    <li id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.2">
-                                      <p id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.2.1">Let <code>private aggregation contribution</code> be a new structure analogous to [PAExtendedHistogramContribution]
-(https://wicg.github.io/turtledove/#dictdef-paextendedhistogramcontribution).<a href="#section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.2.1" class="pilcrow">¶</a></p>
+                                    <li id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.2">
+                                      <p id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.2.1">Let <code>private aggregation contribution</code> be a new structure analogous to [PAExtendedHistogramContribution]
+(https://wicg.github.io/turtledove/#dictdef-paextendedhistogramcontribution).<a href="#section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                                    <li id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.3">
-                                      <p id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.3.1">Set <code>private aggregation contribution["bucket"]</code> to <code>contribution["bucket"]</code> parsed as a big endian integer.<a href="#section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.3.1" class="pilcrow">¶</a></p>
+                                    <li id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.3">
+                                      <p id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.3.1">Set <code>private aggregation contribution["bucket"]</code> to <code>contribution["bucket"]</code> parsed as a big endian integer.<a href="#section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.3.1" class="pilcrow">¶</a></p>
 </li>
-                                    <li id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.4">
-                                      <p id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.4.1">Set <code>private aggregation contribution["value"]</code> to <code>contribution["value"]</code>.<a href="#section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.4.1" class="pilcrow">¶</a></p>
+                                    <li id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.4">
+                                      <p id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.4.1">Set <code>private aggregation contribution["value"]</code> to <code>contribution["value"]</code>.<a href="#section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.4.1" class="pilcrow">¶</a></p>
 </li>
-                                    <li id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.5">
-                                      <p id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.5.1">If <code>is component win</code> is true:<a href="#section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.5.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.5.2">
-<li id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.5.2.1">
-                                          <p id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.5.2.1.1">Let <code>key</code> be a new structure analogous to [server auction private aggregation contribution key]
-(https://wicg.github.io/turtledove/#server-auction-private-aggregation-contribution-key).<a href="#section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.5.2.1.1" class="pilcrow">¶</a></p>
+                                    <li id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.5">
+                                      <p id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.5.1">If <code>is component win</code> is true:<a href="#section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.5.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.5.2">
+<li id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.5.2.1">
+                                          <p id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.5.2.1.1">Let <code>key</code> be a new structure analogous to [server auction private aggregation contribution key]
+(https://wicg.github.io/turtledove/#server-auction-private-aggregation-contribution-key).<a href="#section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.5.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                                        <li id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.5.2.2">
-                                          <p id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.5.2.2.1">Set <code>key</code>["reporting origin"] to <code>reporting origin</code>.<a href="#section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.5.2.2.1" class="pilcrow">¶</a></p>
+                                        <li id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.5.2.2">
+                                          <p id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.5.2.2.1">Set <code>key</code>["reporting origin"] to <code>reporting origin</code>.<a href="#section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.5.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                                        <li id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.5.2.3">
-                                          <p id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.5.2.3.1">Set <code>key</code>["coordinator"] to <code>coordinator</code>.<a href="#section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.5.2.3.1" class="pilcrow">¶</a></p>
+                                        <li id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.5.2.3">
+                                          <p id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.5.2.3.1">Set <code>key</code>["coordinator"] to <code>coordinator</code>.<a href="#section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.5.2.3.1" class="pilcrow">¶</a></p>
 </li>
-                                        <li id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.5.2.4">
-                                          <p id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.5.2.4.1">Set <code>key</code>["event"] to <code>event</code>.<a href="#section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.5.2.4.1" class="pilcrow">¶</a></p>
+                                        <li id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.5.2.4">
+                                          <p id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.5.2.4.1">Set <code>key</code>["event"] to <code>event</code>.<a href="#section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.5.2.4.1" class="pilcrow">¶</a></p>
 </li>
-                                        <li id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.5.2.5">
-                                          <p id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.5.2.5.1">If <code>processed response["component win private aggregation contributions"]</code> does not contain <code>key</code>, set
-<code>processed response["component win private aggregation contributions"][key]</code> to a new array.<a href="#section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.5.2.5.1" class="pilcrow">¶</a></p>
+                                        <li id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.5.2.5">
+                                          <p id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.5.2.5.1">If <code>processed response["component win private aggregation contributions"]</code> does not contain <code>key</code>, set
+<code>processed response["component win private aggregation contributions"][key]</code> to a new array.<a href="#section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.5.2.5.1" class="pilcrow">¶</a></p>
 </li>
-                                        <li id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.5.2.6">
-                                          <p id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.5.2.6.1">Append <code>private aggregation contribution</code> to <code>processed response["component win private aggregation contributions"][key]</code>.<a href="#section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.5.2.6.1" class="pilcrow">¶</a></p>
+                                        <li id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.5.2.6">
+                                          <p id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.5.2.6.1">Append <code>private aggregation contribution</code> to <code>processed response["component win private aggregation contributions"][key]</code>.<a href="#section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.5.2.6.1" class="pilcrow">¶</a></p>
 </li>
                                       </ol>
 </li>
-                                    <li id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.6">
-                                      <p id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.6.1">Otherwise if <code>event contribution["event"]</code> starts with "reserved.", append <code>private aggregation contribution</code>
-to <code>processed response["server filtered private aggregation contributions reserved"][key]</code>.<a href="#section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.6.1" class="pilcrow">¶</a></p>
+                                    <li id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.6">
+                                      <p id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.6.1">Otherwise if <code>event contribution["event"]</code> starts with "reserved.", append <code>private aggregation contribution</code>
+to <code>processed response["server filtered private aggregation contributions reserved"][key]</code>.<a href="#section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.6.1" class="pilcrow">¶</a></p>
 </li>
-                                    <li id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.7">
-                                      <p id="section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.7.1">Otherwise, append <code>private aggregation contribution</code> to
-<code>processed response["server filtered private aggregation contributions non reserved"][key]</code>.<a href="#section-2.3.5-2.52.2.1.2.7.2.7.2.1.2.3.2.7.1" class="pilcrow">¶</a></p>
+                                    <li id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.7">
+                                      <p id="section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.7.1">Otherwise, append <code>private aggregation contribution</code> to
+<code>processed response["server filtered private aggregation contributions non reserved"][key]</code>.<a href="#section-2.3.5-2.33.2.1.2.7.2.7.2.1.2.3.2.7.1" class="pilcrow">¶</a></p>
 </li>
                                   </ol>
 </li>
@@ -3104,8 +3167,8 @@ to <code>processed response["server filtered private aggregation contributions r
 </li>
               </ol>
 </li>
-            <li id="section-2.3.5-2.53">
-              <p id="section-2.3.5-2.53.1">Return <code>processed response</code>.<a href="#section-2.3.5-2.53.1" class="pilcrow">¶</a></p>
+            <li id="section-2.3.5-2.34">
+              <p id="section-2.3.5-2.34.1">Return <code>processed response</code>.<a href="#section-2.3.5-2.34.1" class="pilcrow">¶</a></p>
 </li>
           </ol>
 <div id="response-parsing-reporting">
