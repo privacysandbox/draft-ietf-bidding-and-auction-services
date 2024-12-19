@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2024-12-17T00:57:27.566067+00:00",
+  "timestamp": "2024-12-19T00:55:39.780069+00:00",
   "repo": "privacysandbox/draft-ietf-bidding-and-auction-services",
   "labels": [
     {
@@ -2582,24 +2582,26 @@
       "id": "PR_kwDOMnZLVc6Dztuf",
       "title": "Add handling of private aggregation paggResponse field in response",
       "url": "https://github.com/privacysandbox/draft-ietf-bidding-and-auction-services/pull/15",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "qingxinwu",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "",
       "createdAt": "2024-12-02T21:34:02Z",
-      "updatedAt": "2024-12-16T22:29:05Z",
+      "updatedAt": "2024-12-17T19:04:21Z",
       "baseRepository": "privacysandbox/draft-ietf-bidding-and-auction-services",
       "baseRefName": "main",
       "baseRefOid": "68ddca03d21e697d3e44770667cccc29b0601f53",
       "headRepository": "qingxinwu/draft-ietf-bidding-and-auction-services",
       "headRefName": "patch-2",
-      "headRefOid": "16d15b60d513e19b45cd6c02a4daf564f78ac351",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "538bc718de3c529f9ea3f64fd96cc5c3eecbca13",
+      "closedAt": "2024-12-17T18:49:50Z",
+      "mergedAt": "2024-12-17T18:49:50Z",
+      "mergedBy": "brusshamilton",
+      "mergeCommit": {
+        "oid": "688f30f856d6276c96f399b9983d9c92a2c5e2a5"
+      },
       "comments": [
         {
           "author": "qingxinwu",
@@ -2607,6 +2609,13 @@
           "body": "@brusshamilton PTAL, thanks!",
           "createdAt": "2024-12-09T02:43:19Z",
           "updatedAt": "2024-12-09T02:43:19Z"
+        },
+        {
+          "author": "qingxinwu",
+          "authorAssociation": "CONTRIBUTOR",
+          "body": "@brusshamilton Made some final changes based on w3c's last minute changes. PTAL. Thanks\r\n",
+          "createdAt": "2024-12-17T17:04:36Z",
+          "updatedAt": "2024-12-17T17:04:36Z"
         }
       ],
       "reviews": [
@@ -2699,6 +2708,112 @@
               "updatedAt": "2024-12-16T22:29:05Z"
             }
           ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6Ve5UT",
+          "commit": {
+            "abbreviatedOid": "fa9dbf6"
+          },
+          "author": "qingxinwu",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-17T05:48:05Z",
+          "updatedAt": "2024-12-17T05:48:05Z",
+          "comments": [
+            {
+              "originalPosition": 7,
+              "body": "but it seems step 10.4 of https://privacysandbox.github.io/draft-ietf-bidding-and-auction-services/draft-ietf-bidding-and-auction-services.html#section-2.2.4 serialized everything",
+              "createdAt": "2024-12-17T05:48:05Z",
+              "updatedAt": "2024-12-17T05:48:05Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6Ve7el",
+          "commit": {
+            "abbreviatedOid": "16d15b6"
+          },
+          "author": "qingxinwu",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-17T05:56:08Z",
+          "updatedAt": "2024-12-17T05:56:15Z",
+          "comments": [
+            {
+              "originalPosition": 21,
+              "body": "the field is only used by this spec in \"parse response\", so it needs to be available in `request context`. But if we want to add it to be part of included_groups (as what's being discussed in the other comment), then we don't need this extra field.",
+              "createdAt": "2024-12-17T05:56:08Z",
+              "updatedAt": "2024-12-17T05:56:15Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6Vk1sy",
+          "commit": {
+            "abbreviatedOid": "fa9dbf6"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-17T16:42:04Z",
+          "updatedAt": "2024-12-17T16:42:04Z",
+          "comments": [
+            {
+              "originalPosition": 7,
+              "body": "Ah, I didn't realize we weren't explicitly serializing it. Then I guess we do need to pass it separately.",
+              "createdAt": "2024-12-17T16:42:04Z",
+              "updatedAt": "2024-12-17T16:42:04Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6Vk2Lm",
+          "commit": {
+            "abbreviatedOid": "fa9dbf6"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2024-12-17T16:42:52Z",
+          "updatedAt": "2024-12-17T16:42:52Z",
+          "comments": [
+            {
+              "originalPosition": 21,
+              "body": "From the other comment's discussion, adding the coordinators to the context link this seems to be the least-bad option right now.",
+              "createdAt": "2024-12-17T16:42:52Z",
+              "updatedAt": "2024-12-17T16:42:52Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6Vk2Sj",
+          "commit": {
+            "abbreviatedOid": "16d15b6"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-12-17T16:43:03Z",
+          "updatedAt": "2024-12-17T16:43:03Z",
+          "comments": []
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6VlHpG",
+          "commit": {
+            "abbreviatedOid": "538bc71"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-12-17T17:06:39Z",
+          "updatedAt": "2024-12-17T17:06:39Z",
+          "comments": []
         }
       ]
     },
@@ -2714,13 +2829,13 @@
       "labels": [],
       "body": "Adds fields needed for k-anonymity enforcement support.\r\nAdjusts request/response processing to generate/parse these additional fields.\r\n\r\nNote: Links to new W3C structures are notional and depend on https://github.com/WICG/turtledove/pull/1360.",
       "createdAt": "2024-12-09T19:08:03Z",
-      "updatedAt": "2024-12-16T16:01:29Z",
+      "updatedAt": "2024-12-18T17:00:29Z",
       "baseRepository": "privacysandbox/draft-ietf-bidding-and-auction-services",
       "baseRefName": "main",
       "baseRefOid": "6b9cab9efb425ca83b02fda73952f0b77281542c",
       "headRepository": "privacysandbox/draft-ietf-bidding-and-auction-services",
       "headRefName": "KAnon",
-      "headRefOid": "5e728011e6a9fe116480cbd3e940899221ecb8fe",
+      "headRefOid": "fbba49300a399a94d3bbb2c3c3205f5e27df0e81",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -2774,24 +2889,26 @@
       "id": "PR_kwDOMnZLVc6FGgNZ",
       "title": "Handle debugReports field in response",
       "url": "https://github.com/privacysandbox/draft-ietf-bidding-and-auction-services/pull/17",
-      "state": "OPEN",
+      "state": "MERGED",
       "author": "qingxinwu",
       "authorAssociation": "CONTRIBUTOR",
       "assignees": [],
       "labels": [],
       "body": "... to support downsampling forDebuggingOnly reports. And send debug report's lockout status in the request as part of enableDebugReports field.",
       "createdAt": "2024-12-13T05:52:52Z",
-      "updatedAt": "2024-12-13T19:51:10Z",
+      "updatedAt": "2024-12-17T19:04:59Z",
       "baseRepository": "privacysandbox/draft-ietf-bidding-and-auction-services",
       "baseRefName": "main",
-      "baseRefOid": "68ddca03d21e697d3e44770667cccc29b0601f53",
+      "baseRefOid": "688f30f856d6276c96f399b9983d9c92a2c5e2a5",
       "headRepository": "qingxinwu/draft-ietf-bidding-and-auction-services",
       "headRefName": "patch-1",
-      "headRefOid": "2923165b964278d85896d47a9159fbfbf88c91d9",
-      "closedAt": null,
-      "mergedAt": null,
-      "mergedBy": null,
-      "mergeCommit": null,
+      "headRefOid": "10c98cd45c039381176036fccbaddb522caa346e",
+      "closedAt": "2024-12-17T19:04:36Z",
+      "mergedAt": "2024-12-17T19:04:36Z",
+      "mergedBy": "brusshamilton",
+      "mergeCommit": {
+        "oid": "9b67a11e9b4b83e6d55e3262748e71373e68d48f"
+      },
       "comments": [
         {
           "author": "qingxinwu",
@@ -2939,6 +3056,48 @@
           "body": "",
           "createdAt": "2024-12-13T19:51:10Z",
           "updatedAt": "2024-12-13T19:51:10Z",
+          "comments": []
+        }
+      ]
+    },
+    {
+      "number": 18,
+      "id": "PR_kwDOMnZLVc6Fqray",
+      "title": "Fix one bug, and some rendering issues",
+      "url": "https://github.com/privacysandbox/draft-ietf-bidding-and-auction-services/pull/18",
+      "state": "MERGED",
+      "author": "qingxinwu",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "1. return encrypted message, instead of request\r\n2. use three spaces (instead of 2) before each \"1. ....\", otherwise it was not rendered as a new step.",
+      "createdAt": "2024-12-18T15:41:33Z",
+      "updatedAt": "2024-12-18T15:50:14Z",
+      "baseRepository": "privacysandbox/draft-ietf-bidding-and-auction-services",
+      "baseRefName": "main",
+      "baseRefOid": "9b67a11e9b4b83e6d55e3262748e71373e68d48f",
+      "headRepository": "qingxinwu/draft-ietf-bidding-and-auction-services",
+      "headRefName": "patch-1",
+      "headRefOid": "3e26c67b07e59fcc9d9500e46d44891ed224fb23",
+      "closedAt": "2024-12-18T15:44:00Z",
+      "mergedAt": "2024-12-18T15:44:00Z",
+      "mergedBy": "brusshamilton",
+      "mergeCommit": {
+        "oid": "300eee82a0396c44110a92b521cd82a6d62f3d39"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOMnZLVc6VvT50",
+          "commit": {
+            "abbreviatedOid": "3e26c67"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2024-12-18T15:43:15Z",
+          "updatedAt": "2024-12-18T15:43:15Z",
           "comments": []
         }
       ]
