@@ -939,7 +939,7 @@ response from Bidding and Auction Services. It takes as input the
 1. Let `processed response` be a new structure analogous to
    [server auction response](https://wicg.github.io/turtledove/#server-auction-response).
 1. If `response["nonce"]` exists and is a valid [UUID], set
-   `processed response["nonce"]` to `response["nonce"]`.
+   `processed response["nonce"]` to the lowercase ASCII representation of `response["nonce"]`.
 1. If `response["adRenderURL"]` does not exist, return failure.
 1. Set `processed response["ad render url"]` to `response["adRenderURL"]` parsed
    as a [URL], returning failure if there is an error.
