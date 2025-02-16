@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-01-30T00:50:40.580745+00:00",
+  "timestamp": "2025-02-16T00:09:15.134176+00:00",
   "repo": "privacysandbox/draft-ietf-bidding-and-auction-services",
   "labels": [
     {
@@ -2829,13 +2829,13 @@
       "labels": [],
       "body": "Adds fields needed for k-anonymity enforcement support.\r\nAdjusts request/response processing to generate/parse these additional fields.\r\n\r\nNote: Links to new W3C structures are notional and depend on https://github.com/WICG/turtledove/pull/1360.",
       "createdAt": "2024-12-09T19:08:03Z",
-      "updatedAt": "2024-12-18T17:00:29Z",
+      "updatedAt": "2025-02-13T21:50:31Z",
       "baseRepository": "privacysandbox/draft-ietf-bidding-and-auction-services",
       "baseRefName": "main",
-      "baseRefOid": "6b9cab9efb425ca83b02fda73952f0b77281542c",
+      "baseRefOid": "300eee82a0396c44110a92b521cd82a6d62f3d39",
       "headRepository": "privacysandbox/draft-ietf-bidding-and-auction-services",
       "headRefName": "KAnon",
-      "headRefOid": "fbba49300a399a94d3bbb2c3c3205f5e27df0e81",
+      "headRefOid": "63949d15a40642a55e1eb2db1a2fa5a7dcb5e54e",
       "closedAt": null,
       "mergedAt": null,
       "mergedBy": null,
@@ -3099,6 +3099,73 @@
           "createdAt": "2024-12-18T15:43:15Z",
           "updatedAt": "2024-12-18T15:43:15Z",
           "comments": []
+        }
+      ]
+    },
+    {
+      "number": 19,
+      "id": "PR_kwDOMnZLVc6KBn4s",
+      "title": "Add nonce to server response",
+      "url": "https://github.com/privacysandbox/draft-ietf-bidding-and-auction-services/pull/19",
+      "state": "OPEN",
+      "author": "brusshamilton",
+      "authorAssociation": "COLLABORATOR",
+      "assignees": [],
+      "labels": [],
+      "body": "Add support for Ad-Auction-Result-Nonce alternate authorization mechanism.",
+      "createdAt": "2025-02-04T16:42:30Z",
+      "updatedAt": "2025-02-10T22:00:55Z",
+      "baseRepository": "privacysandbox/draft-ietf-bidding-and-auction-services",
+      "baseRefName": "main",
+      "baseRefOid": "300eee82a0396c44110a92b521cd82a6d62f3d39",
+      "headRepository": "privacysandbox/draft-ietf-bidding-and-auction-services",
+      "headRefName": "UpdateNonce",
+      "headRefOid": "cf0f936f2d9cae20c7ca6bf19b2953ecfc547101",
+      "closedAt": null,
+      "mergedAt": null,
+      "mergedBy": null,
+      "mergeCommit": null,
+      "comments": [],
+      "reviews": [
+        {
+          "id": "PRR_kwDOMnZLVc6anIoa",
+          "commit": {
+            "abbreviatedOid": "8899ea6"
+          },
+          "author": "qingxinwu",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-02-04T20:23:52Z",
+          "updatedAt": "2025-02-04T20:23:53Z",
+          "comments": [
+            {
+              "originalPosition": 15,
+              "body": "do we change `response[\"nonce\"]` to lowercase before setting to processed response? https://source.chromium.org/chromium/chromium/src/+/main:content/browser/interest_group/bidding_and_auction_response.cc;l=115?q=output.nonce%20%3D%20nonce_uuid.A&sq=&ss=chromium",
+              "createdAt": "2025-02-04T20:23:53Z",
+              "updatedAt": "2025-02-04T20:23:53Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6bZ-Xx",
+          "commit": {
+            "abbreviatedOid": "8899ea6"
+          },
+          "author": "brusshamilton",
+          "authorAssociation": "COLLABORATOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-02-10T22:00:55Z",
+          "updatedAt": "2025-02-10T22:00:55Z",
+          "comments": [
+            {
+              "originalPosition": 15,
+              "body": "Done.",
+              "createdAt": "2025-02-10T22:00:55Z",
+              "updatedAt": "2025-02-10T22:00:55Z"
+            }
+          ]
         }
       ]
     }
