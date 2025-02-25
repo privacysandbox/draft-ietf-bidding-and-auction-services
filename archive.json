@@ -1,6 +1,6 @@
 {
   "magic": "E!vIA5L86J2I",
-  "timestamp": "2025-02-23T00:09:14.084791+00:00",
+  "timestamp": "2025-02-25T00:12:09.149411+00:00",
   "repo": "privacysandbox/draft-ietf-bidding-and-auction-services",
   "labels": [
     {
@@ -2829,7 +2829,7 @@
       "labels": [],
       "body": "Adds fields needed for k-anonymity enforcement support.\r\nAdjusts request/response processing to generate/parse these additional fields.\r\n\r\nNote: Links to new W3C structures are notional and depend on https://github.com/WICG/turtledove/pull/1360.",
       "createdAt": "2024-12-09T19:08:03Z",
-      "updatedAt": "2025-02-13T21:50:31Z",
+      "updatedAt": "2025-02-24T02:11:28Z",
       "baseRepository": "privacysandbox/draft-ietf-bidding-and-auction-services",
       "baseRefName": "main",
       "baseRefOid": "300eee82a0396c44110a92b521cd82a6d62f3d39",
@@ -2879,6 +2879,26 @@
               "body": "Fixed.",
               "createdAt": "2024-12-16T16:01:29Z",
               "updatedAt": "2024-12-16T16:01:29Z"
+            }
+          ]
+        },
+        {
+          "id": "PRR_kwDOMnZLVc6dHORM",
+          "commit": {
+            "abbreviatedOid": "63949d1"
+          },
+          "author": "qingxinwu",
+          "authorAssociation": "CONTRIBUTOR",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2025-02-24T02:11:28Z",
+          "updatedAt": "2025-02-24T02:11:28Z",
+          "comments": [
+            {
+              "originalPosition": 119,
+              "body": "Need to update the link, since the w3C spec changed 'candidates' to 'candidate'.\r\nProbably also rename the variables in this spec?\r\n```suggestion\r\n   [server auction join candidates](https://wicg.github.io/turtledove/#server-auction-join-candidate).\r\n```",
+              "createdAt": "2025-02-24T02:11:28Z",
+              "updatedAt": "2025-02-24T02:13:44Z"
             }
           ]
         }
