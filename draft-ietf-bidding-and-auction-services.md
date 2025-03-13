@@ -953,18 +953,19 @@ response from Bidding and Auction Services. It takes as input the
 1. If `response["interestGroupOwner"]` does not exist or is not a string, return failure.
 1. Set `processed response["interest group owner"]` to `response["interestGroupOwner"]`
    parsed as an [ORIGIN], returning failure if there is an error.
-1. If `response["biddingGroups"]` does not exist or is not a map, return failure.
-1. For each `key`, `value` in `response["biddingGroups"]`:
-   1. Let `owner` be equal to `key` parsed as an [ORIGIN], returning failure if
-      there is an error.
-   1. If `request context`'s `included_groups` does not contain `owner` as a key, return failure.
-   1. If `value` is not a list, return failure.
-   1. For each `element` in `value`:
-      1. If `element` is not an integer or `element < 0`, return failure.
-      1. If `element` is greater than or equal to the length of
-         `included_groups[owner]`, return failure.
-      1. Let `name` be the `interest group name` for `included_groups[owner][element]`.
-      1. Append the tuple (`owner`, `name`) to `processed response["bidding groups"]`.
+1. If `response["biddingGroups"]` exists:
+   1. If `response["biddingGroups"]` is not a map, return failure.
+   1. For each `key`, `value` in `response["biddingGroups"]`:
+      1. Let `owner` be equal to `key` parsed as an [ORIGIN], returning failure if
+         there is an error.
+      1. If `request context`'s `included_groups` does not contain `owner` as a key, return failure.
+      1. If `value` is not a list, return failure.
+      1. For each `element` in `value`:
+         1. If `element` is not an integer or `element < 0`, return failure.
+         1. If `element` is greater than or equal to the length of
+            `included_groups[owner]`, return failure.
+         1. Let `name` be the `interest group name` for `included_groups[owner][element]`.
+         1. Append the tuple (`owner`, `name`) to `processed response["bidding groups"]`.
 1. If `response["updateGroups"]` exists and is a map:
    1. For each `key`, `value` in `response["updateGroups"]`:
       1. Let `owner` be equal to `key` parsed as an [ORIGIN], continuing the next
