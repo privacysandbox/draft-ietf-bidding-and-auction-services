@@ -322,6 +322,7 @@ request = {
     * interestGroupOwner => bstr
   },
   ? enableDebugReporting: bool
+  ? enforceKAnon: bool ; default false
 }
 ~~~~~
 
@@ -413,7 +414,8 @@ tuple.
 1. Construct a request, `request` with `request["publisher"]` set to `publisher`,
    `request["version"]` set to 0, `request["generationId"]` set to a new [UUID]
    [Version 4](https://www.rfc-editor.org/rfc/rfc9562.html#section-5.4),
-   and `request["enableDebugReporting"]` set to `debugging report locked out`.
+   `request["enableDebugReporting"]` set to `debugging report locked out`, and
+   `request["enforceKAnon"]` set to true.
 1. Set `current_size` to be the serialized size of the encrypted request
    created from `request` without padding.
 1. Set `remaining_allocated_size` to 0.
@@ -522,6 +524,9 @@ consume along with an HPKE context.
    1. If `request["enableDebugReporting"]` is not a boolean, return failure.
    1. Set `processed request["enableDebugReporting"]` to
       `request["enableDebugReporting"]`.
+1. If `request["enforceKAnon"]` exists:
+   1. If `request["enforceKAnon"]` is not a boolean, return failure.
+   1. Set `processed request["enforceKAnon"]` to `request["enforceKAnon"]`.
 1. If `request["interestGroups]` does not exist or is not a map, return failure.
 1. Set `processed request["interestGroups"]` to an empty map.
 1. For each `key`, `value` map entry of `request["interestGroups"]`:
@@ -830,6 +835,10 @@ response = {
   ; If not present, map as Null.
   ? topLevelSeller: origin,
 
+  ; Fields used for k-anonymity enforcement
+  ? kAnonWinnerJoinCandidates: KAnonJoinCandidate,
+  ? kAnonGhostWinners: [1* KAnonGhostWinner]
+
   ; Optional list of forDebuggingOnly reports.
   ; If not present, map as an empty list.
   ; Maps to https://wicg.github.io/turtledove/#server-auction-response-component-win-debugging-only-reports
@@ -874,6 +883,34 @@ reportingUrls = {
   ; Maps directly to https://wicg.github.io/turtledove/#server-auction-reporting-info-beacon-urls.
   ; If not present, map as an empty ordered map (https://infra.spec.whatwg.org/#ordered-map).
   ? interactionReportingUrls: { * tstr => tstr }
+}
+
+; Defines k-anonymity keys to increment the count for after the auction is over.
+KAnonJoinCandidate = {
+  adRenderURLHash: bstr, ; sha256 hash
+  ? adComponentRenderURLsHash: [1* bstr], ; sha256 hash
+  reportingIdHash: bstr ; sha256 hash
+}
+
+; Describes details about the auction's non-k-anonymous winner.
+KAnonGhostWinner = {
+  kAnonJoinCandidates: KAnonJoinCandidate,
+  interestGroupIndex: int, ; index into groups that were sent in the request
+  owner: tstr,             ; origin
+  ? ghostWinnerForTopLevelAuction: GhostWinnerForTopLevelAuction,
+}
+
+; Additional details from the non-k-anonymous winner in case this is a
+; component auction.
+GhostWinnerForTopLevelAuction = {
+  adRenderURL: tstr, ; URL
+  ? adComponentRenderURLs: [* tstr], ; URLs
+  modifiedBid: float,
+  ? bidCurrency: tstr, ; 3 character ISO 4217 currency code
+  ? adMetadata: tstr,
+  ? buyerReportingId: tstr,
+  ? buyerAndSellerReportingId: tstr,
+  ? selectedBuyerAndSellerReportingId: tstr,
 }
 
 ~~~~~
@@ -1122,6 +1159,13 @@ response from Bidding and Auction Services. It takes as input the
                       to `processed response["server filtered private aggregation contributions reserved"][key]`.
                    1. Otherwise, append `private aggregation contribution` to
                       `processed response["server filtered private aggregation contributions non reserved"][key]`.
+1. If `response["kAnonWinnerJoinCandidates"]` exists and is a map:
+   1. Set `processed response["winner join candidate"]` to the result of
+      {{response-parsing-kanon-join-candidate}} on `response["kAnonWinnerJoinCandidates"]`.
+1. If `response["kAnonGhostWinners"]` exists and is an array and has at least 1 element:
+   1. Set `processed response["ghost winner"]` to the result of
+      {{response-parsing-ghost-winner}} on `response["kAnonGhostWinners"][0]` and
+      `request context`'s `included_groups`.
 1. Return `processed response`.
 
 #### Parsing reporting URLs {#response-parsing-reporting}
@@ -1132,17 +1176,111 @@ To parse reporting URLs on a [CBOR] map `reporting URLs` with a schema like
 1. Let `processed reporting URLs` be a new structure analogous to
    [server auction reporting info](https://wicg.github.io/turtledove/#server-auction-reporting-info).
 1. If `reporting URLs["reportingURL"]` exists and is a string:
-  1. Let `reporting URL` be `reporting URLs["reportingURL"]` parsed as a [URL],
-     or null if there is an error.
-  1. If `reporting URL` is not null, set
-     `processed reporting URLs["reporting url"]` to `reporting URL`.
+   1. Let `reporting URL` be `reporting URLs["reportingURL"]` parsed as a [URL],
+      or null if there is an error.
+   1. If `reporting URL` is not null, set
+      `processed reporting URLs["reporting url"]` to `reporting URL`.
 1. If `reporting URLs["interactionReportingURLs"]` exists and is a map:
-  1. For each `key`, `value` in `reporting URLs["interactionReportingURLs"]`:
-    1. If `key` is not a string, continue with the next iteration.
-    1. Let `reporting URL` be `value` parsed as a [URL]. If there is an error,
-       continue with the next iteration.
-    1. Set `processed reporting URLs["beacon urls"][key]` to `reporting URL`.
+   1. For each `key`, `value` in `reporting URLs["interactionReportingURLs"]`:
+      1. If `key` is not a string, continue with the next iteration.
+      1. Let `reporting URL` be `value` parsed as a [URL]. If there is an error,
+         continue with the next iteration.
+      1. Set `processed reporting URLs["beacon urls"][key]` to `reporting URL`.
 1. Return `processed reporting URLs`.
+
+#### Parsing k-Anonymity Join Candidate {#response-parsing-kanon-join-candidate}
+
+To parse k-Anonymity Join Candidate on a [CBOR] map `candidate` with a schema
+like `KAnonJoinCandidate` from {{response-message}}:
+
+1. Let `winner join candidate` be a new structure analogous to
+   [server auction join candidate](https://wicg.github.io/turtledove/#server-auction-join-candidate).
+1. If `candidate["adRenderURLHash"]` does not exist or is not a byte string, return null.
+1. Set `winner join candidate["ad render url hash"]` to `candidate["adRenderURLHash"]`.
+1. If `candidate["adComponentRenderURLsHash"]` exists:
+   1. If `candidate["adComponentRenderURLsHash"]` is not an array, return null.
+   1. For each `component` in `candidate["adComponentRenderURLsHash"]`:
+      1. If `component` is not a byte string, return null.
+      1. Append `component` to `winner join candidate["ad component render url hashes"]`.
+1. If `candidate["reportingIdHash"]` does not exist or is not a byte string, return null.
+1. Set `winner join candidate["reporting id hash"]` to `candidate["reportingIdHash"]`.
+1. Return `winner join candidate`.
+
+#### Parsing a Ghost Winner {#response-parsing-ghost-winner}
+
+To parse a Ghost Winner on a [CBOR] map `ghost winner` with a schema like
+`KAnonGhostWinner` from {{response-message}} and `included_groups` map included
+in the tuple returned from {{request-generate}}:
+
+1. Let `result` be a new structure analogous to
+   [server auction ghost winner](https://wicg.github.io/turtledove/#server-auction-ghost-winner).
+1. If `ghost winner["kAnonJoinCandidates"]` does not exist or is not a map return null.
+1. Let `candidate` be the result of {{response-parsing-kanon-join-candidate}} on
+   `ghost winner["kAnonJoinCandidates"]`.
+1. If `candidate` is null, return null.
+1. Set `result["candidate"]` to `candidate`.
+1. If `ghost winner["owner"]` does not exist or is not a string, return null.
+1. Let `owner` be equal to `ghost winner["owner"]` parsed as an [ORIGIN],
+   returning null if there is an error.
+1. Set `result["interest group owner"]` to `owner`.
+1. If `included_groups` does not contain `owner` as a key, return null.
+1. If `ghost winner["interestGroupIndex"]` does not exist or is not an integer, return null.
+1. Let `index` be equal to `ghost winner["interestGroupIndex"]`.
+1. If `index < 0` or `index` is greater than or equal to the length of
+       `included_groups[owner]`, return null.
+1. Let `name` be the `interest group name` for `included_groups[owner][element]`.
+1. Set `result["interest group name"]` to `name`.
+1. If `ghost winner["ghostWinnerForTopLevelAuction"]` exists:
+   1. If `ghost winner["ghostWinnerForTopLevelAuction"]` is not a map, return null.
+   1. Let `result["ghost winner bid info"]` be a new structure analogous to
+      [server auction ghost winner bid info](https://wicg.github.io/turtledove/#server-auction-ghost-winner-bid-info).
+   1. If `ghost winner["ghostWinnerForTopLevelAuction"]["adRenderURL"]` does not
+      exist, return null.
+   1. Set `result["ghost winner bid info"]["ad render url"]` to
+      `ghost winner["ghostWinnerForTopLevelAuction"]["adRenderURL"]` parsed as a
+      [URL], returning null if there is an error.
+   1. If `ghost winner["ghostWinnerForTopLevelAuction"]["adComponentRenderURLs"]` exists:
+      1. If `ghost winner["ghostWinnerForTopLevelAuction"]["adComponentRenderURLs"]`
+         is not an array, return null.
+      1. For each `component` in `ghost winner["ghostWinnerForTopLevelAuction"]["adComponentRenderURLs"]`:
+         1. Append `component` parsed as a [URL] to
+         `result["ghost winner bid info"]["ad components"]`, returning null if
+         there is an error.
+   1. If `ghost winner["ghostWinnerForTopLevelAuction"]["modifiedBid"]` does not
+      exist or is not a floating point number, return null.
+   1. Let `bid` be a new structure analogous to
+      [bid with currency](https://wicg.github.io/turtledove/#bid-with-currency).
+   1. Set `bid`s `value` field to `ghost winner["ghostWinnerForTopLevelAuction"]["modifiedBid"]`.
+   1. If `ghost winner["ghostWinnerForTopLevelAuction"]["bidCurrency"]` exists:
+      1. If ``ghost winner["ghostWinnerForTopLevelAuction"]["bidCurrency"]` is not
+         a string, return null.
+      1. If `ghost winner["ghostWinnerForTopLevelAuction"]["bidCurrency"]` is not
+         3 bytes long or contains characters other than upper case ASCII letters,
+         return null.
+      1. Set `bid`'s `currency` field to
+         `ghost winner["ghostWinnerForTopLevelAuction"]["bidCurrency"]`.
+   1. Set `result["ghost winner bid info"]["modified bid"]` to `bid`.
+   1. If `ghost winner["ghostWinnerForTopLevelAuction"]["adMetadata"]` exists:
+      1. If `ghost winner["ghostWinnerForTopLevelAuction"]["adMetadata"]` is not a
+         string, return null.
+      1. Set `result["ghost winner bid info"]["ad metadata"]` to
+         `ghost winner["ghostWinnerForTopLevelAuction"]["adMetadata"]`.
+   1. If `ghost winner["ghostWinnerForTopLevelAuction"]["buyerReportingId"]` exists:
+      1. If `ghost winner["ghostWinnerForTopLevelAuction"]["buyerReportingId"]` is not a
+         string, return null.
+      1. Set `result["ghost winner bid info"]["buyer reporting id"]` to
+         `ghost winner["ghostWinnerForTopLevelAuction"]["buyerReportingId"]`.
+   1. If `ghost winner["ghostWinnerForTopLevelAuction"]["buyerAndSellerReportingId"]` exists:
+      1. If `ghost winner["ghostWinnerForTopLevelAuction"]["buyerAndSellerReportingId"]` is not a
+         string, return null.
+      1. Set `result["ghost winner bid info"]["buyer and seller reporting id"]` to
+         `ghost winner["ghostWinnerForTopLevelAuction"]["buyerAndSellerReportingId"]`.
+   1. If `ghost winner["ghostWinnerForTopLevelAuction"]["selectedBuyerAndSellerReportingId"]` exists:
+      1. If `ghost winner["ghostWinnerForTopLevelAuction"]["selectedBuyerAndSellerReportingId"]` is not a
+         string, return null.
+      1. Set `result["ghost winner bid info"]["selected buyer and seller reporting id"]` to
+         `ghost winner["ghostWinnerForTopLevelAuction"]["selectedBuyerAndSellerReportingId"]`.
+1. Return `result`
 
 # Security Considerations
 
