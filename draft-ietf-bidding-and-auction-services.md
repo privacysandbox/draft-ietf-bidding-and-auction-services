@@ -1154,8 +1154,8 @@ response from Bidding and Auction Services. It takes as input the
                    1. Otherwise, append `private aggregation contribution` to
                       `processed response["server filtered private aggregation contributions non reserved"][key]`.
 1. If `response["kAnonWinnerJoinCandidates"]` exists and is a map:
-   1. Set `processed response["winner join candidates"]` to the result of
-      {{response-parsing-kanon-join-candidates}} on `response["kAnonWinnerJoinCandidates"]`.
+   1. Set `processed response["winner join candidate"]` to the result of
+      {{response-parsing-kanon-join-candidate}} on `response["kAnonWinnerJoinCandidates"]`.
 1. If `response["kAnonGhostWinners"]` exists and is an array and has at least 1 element:
    1. Set `processed response["ghost winner"]` to the result of
       {{response-parsing-ghost-winner}} on `response["kAnonGhostWinners"][0]` and
@@ -1182,23 +1182,23 @@ To parse reporting URLs on a [CBOR] map `reporting URLs` with a schema like
       1. Set `processed reporting URLs["beacon urls"][key]` to `reporting URL`.
 1. Return `processed reporting URLs`.
 
-#### Parsing k-Anonymity Join Candidates {#response-parsing-kanon-join-candidates}
+#### Parsing k-Anonymity Join Candidate {#response-parsing-kanon-join-candidate}
 
-To parse k-Anonymity Join Candidates on a [CBOR] map `candidates` with a schema
+To parse k-Anonymity Join Candidate on a [CBOR] map `candidate` with a schema
 like `KAnonJoinCandidate` from {{response-message}}:
 
-1. Let `winner join candidates` be a new structure analogous to
-   [server auction join candidates](https://wicg.github.io/turtledove/#server-auction-join-candidates).
-1. If `candidates["adRenderURLHash"]` does not exist or is not a byte string, return null.
-1. Set `winner join candidates["ad render url hash"]` to `candidates["adRenderURLHash"]`.
-1. If `candidates["adComponentRenderURLsHash"]` exists:
-   1. If `candidates["adComponentRenderURLsHash"]` is not an array, return null.
-   1. For each `component` in `candidates["adComponentRenderURLsHash"]`:
+1. Let `winner join candidate` be a new structure analogous to
+   [server auction join candidate](https://wicg.github.io/turtledove/#server-auction-join-candidate).
+1. If `candidate["adRenderURLHash"]` does not exist or is not a byte string, return null.
+1. Set `winner join candidate["ad render url hash"]` to `candidate["adRenderURLHash"]`.
+1. If `candidate["adComponentRenderURLsHash"]` exists:
+   1. If `candidate["adComponentRenderURLsHash"]` is not an array, return null.
+   1. For each `component` in `candidate["adComponentRenderURLsHash"]`:
       1. If `component` is not a byte string, return null.
-      1. Append `component` to `winner join candidates["ad component render url hashes"]`.
-1. If `candidates["reportingIdHash"]` does not exist or is not a byte string, return null.
-1. Set `winner join candidates["reporting id hash"]` to `candidates["reportingIdHash"]`.
-1. Return `winner join candidates`.
+      1. Append `component` to `winner join candidate["ad component render url hashes"]`.
+1. If `candidate["reportingIdHash"]` does not exist or is not a byte string, return null.
+1. Set `winner join candidate["reporting id hash"]` to `candidate["reportingIdHash"]`.
+1. Return `winner join candidate`.
 
 #### Parsing a Ghost Winner {#response-parsing-ghost-winner}
 
@@ -1209,10 +1209,10 @@ in the tuple returned from {{request-generate}}:
 1. Let `result` be a new structure analogous to
    [server auction ghost winner](https://wicg.github.io/turtledove/#server-auction-ghost-winner).
 1. If `ghost winner["kAnonJoinCandidates"]` does not exist or is not a map return null.
-1. Let `candidates` be the result of {{response-parsing-kanon-join-candidates}} on
+1. Let `candidate` be the result of {{response-parsing-kanon-join-candidate}} on
    `ghost winner["kAnonJoinCandidates"]`.
-1. If `candidates` is null, return null.
-1. Set `result["candidates"]` to `candidates`.
+1. If `candidate` is null, return null.
+1. Set `result["candidate"]` to `candidate`.
 1. If `ghost winner["owner"]` does not exist or is not a string, return null.
 1. Let `owner` be equal to `ghost winner["owner"]` parsed as an [ORIGIN],
    returning null if there is an error.
