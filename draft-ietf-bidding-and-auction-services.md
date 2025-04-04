@@ -321,7 +321,9 @@ request = {
     ; groups compressed as described in § Generating a Request.
     * interestGroupOwner => bstr
   },
-  ? enableDebugReporting: bool
+  ? enableDebugReporting: bool,
+  ; Whether the seller is in cooldown or lockout for forDebuggingOnly.
+  ? inCooldownOrLockout: bool
 }
 ~~~~~
 
@@ -356,6 +358,8 @@ interestGroup = {
   ; specific "products". See
   ; https://wicg.github.io/turtledove/#interest-group-ad-components.
   ? components: [* adRenderId],
+  ; Whether the interest group's owner is in cooldown or lockout for forDebuggingOnly.
+  ? inCooldownOrLockout: bool,
   ? browserSignals: {
     ; Number of times the group was joined in the last 30 days.
     ? joinCount: int,
@@ -395,10 +399,10 @@ This algorithm takes as input all of the `relevant interest groups`, a config
 consisting of the `publisher`, a map of from (origin, string) tuple to origin
 `ig pagg coordinators`,
 an optional `desired total size`, an optional boolean `debugging report locked out`
-defaults to false, an optional list of `interest group owners` to
-include each with an optional `desired size`, and the [HPKE] `public key` with
-its associated `key ID`. It returns an `encrypted request` and a `request context`
-tuple.
+defaults to false, a map from origin to boolean `debugging report cooldown map`,
+an optional list of `interest group owners` to include each with an optional
+`desired size`, and the [HPKE] `public key` with its associated `key ID`.
+It returns an `encrypted request` and a `request context` tuple.
 
 1. Let `included_groups` be an empty map.
 1. If `desired total size` is not specified, but the list of `interest group owners`
@@ -410,10 +414,13 @@ tuple.
    priority, `interest group map`.
 1. If the list of `interest group owners` is specified, remove interest groups
    whose owner is not on the list.
+1. Let `seller in cooldown or lockout` be `debugging report locked out`. Note that
+   this will incorporate cooldown afterwards where seller origin is available.
 1. Construct a request, `request` with `request["publisher"]` set to `publisher`,
    `request["version"]` set to 0, `request["generationId"]` set to a new [UUID]
    [Version 4](https://www.rfc-editor.org/rfc/rfc9562.html#section-5.4),
-   and `request["enableDebugReporting"]` set to `debugging report locked out`.
+   `request["enableDebugReporting"]` set to true, and
+   `request["inCooldownOrLockout"]` set to `seller in cooldown or lockout`.
 1. Set `current_size` to be the serialized size of the encrypted request
    created from `request` without padding.
 1. Set `remaining_allocated_size` to 0.
@@ -522,6 +529,10 @@ consume along with an HPKE context.
    1. If `request["enableDebugReporting"]` is not a boolean, return failure.
    1. Set `processed request["enableDebugReporting"]` to
       `request["enableDebugReporting"]`.
+1. If `request["inCooldownOrLockout"]` exists:
+   1. If `request["inCooldownOrLockout"]` is not a boolean, return failure.
+   1. Set `processed request["inCooldownOrLockout"]` to
+      `request["inCooldownOrLockout"]`.
 1. If `request["interestGroups]` does not exist or is not a map, return failure.
 1. Set `processed request["interestGroups"]` to an empty map.
 1. For each `key`, `value` map entry of `request["interestGroups"]`:
@@ -552,6 +563,9 @@ consume along with an HPKE context.
          1. If `interest group["component"]` is not an array
          of strings, return failure.
          1. Set `ig["component"]` to `interest group["component"]`.
+      1. If `interest group["inCooldownOrLockout"]` exists:
+         1. If `interest group["inCooldownOrLockout"]` is not a boolean, return failure.
+         1. Set `ig["inCooldownOrLockout"]` to `interest group["inCooldownOrLockout"]`.
       1. If `interest group["browserSignals"]` exists:
          1. If `interest group["browserSignals"]` is not a map, return failure.
          1. Let `igbs` be an empty struct similar to `browserSignals` as
