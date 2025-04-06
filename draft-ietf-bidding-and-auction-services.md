@@ -395,11 +395,11 @@ the {{framing}} header.
 This section describes how the client MAY form and serialize request messages
 in order to communicate with the Bidding and Auction services.
 
-This algorithm takes as input all of the `relevant interest groups`, a config
-consisting of the `publisher`, a map of from (origin, string) tuple to origin
-`ig pagg coordinators`,
-an optional `desired total size`, an optional boolean `debugging report locked out`
-defaults to false, a map from origin to boolean `debugging report cooldown map`,
+This algorithm takes as input all of the `relevant interest groups`,
+a boolean `debugging report locked out`,
+a map from origin to boolean `debugging report cooldown map`,
+a map of from (origin, string) tuple to origin `ig pagg coordinators`,
+a config consisting of: the `publisher`, an optional `desired total size`,
 an optional list of `interest group owners` to include each with an optional
 `desired size`, and the [HPKE] `public key` with its associated `key ID`.
 It returns an `encrypted request` and a `request context` tuple.
