@@ -395,7 +395,7 @@ the {{framing}} header.
 This section describes how the client MAY form and serialize request messages
 in order to communicate with the Bidding and Auction services.
 
-#### Form a Request Message {#request-message-form}
+#### Forming a Request Message {#request-message-form}
 
 This section describes how the client MAY form request messages, which will
 be seriallized afterwards to communicate with the Bidding and Auction services.
@@ -481,7 +481,7 @@ a tuple of a `request`, an `included_groups` and a `desired total size`.
    return failure.
 1. Return `request`, `included_groups` and `desired total size`.
 
-#### Serialize a Request {#request-serialize}
+#### Serializing a Request {#request-serialize}
 
 This section describes how the client MAY serialize request messages in order to
 communicate with the Bidding and Auction services.
