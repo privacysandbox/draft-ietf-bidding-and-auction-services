@@ -395,14 +395,17 @@ the {{framing}} header.
 This section describes how the client MAY form and serialize request messages
 in order to communicate with the Bidding and Auction services.
 
+#### Form a Request Message {#request-message-form}
+
+This section describes how the client MAY form request messages, which will
+be seriallized afterwards to communicate with the Bidding and Auction services.
+
 This algorithm takes as input all of the `relevant interest groups`,
-a boolean `debugging report locked out`,
-a map from origin to boolean `debugging report cooldown map`,
 a map of from (origin, string) tuple to origin `ig pagg coordinators`,
-a config consisting of: the `publisher`, an optional `desired total size`,
+and a config consisting of: the `publisher`, an optional `desired total size`,
 an optional list of `interest group owners` to include each with an optional
-`desired size`, and the [HPKE] `public key` with its associated `key ID`.
-It returns an `encrypted request` and a `request context` tuple.
+`desired size`. It returns failure, or
+a tuple of a `request`, an `included_groups` and a `desired total size`.
 
 1. Let `included_groups` be an empty map.
 1. If `desired total size` is not specified, but the list of `interest group owners`
@@ -414,8 +417,10 @@ It returns an `encrypted request` and a `request context` tuple.
    priority, `interest group map`.
 1. If the list of `interest group owners` is specified, remove interest groups
    whose owner is not on the list.
-1. Let `seller in cooldown or lockout` be `debugging report locked out`. Note that
-   this will incorporate cooldown afterwards where seller origin is available.
+1. Let `seller in cooldown or lockout` be false. Note that this will be set to
+   its correct value afterwards in algorithm
+   [getInterestGroupAdAuctionData()](https://wicg.github.io/turtledove/#dom-navigator-getinterestgroupadauctiondata)
+   where seller origin is available.
 1. Construct a request, `request` with `request["publisher"]` set to `publisher`,
    `request["version"]` set to 0, `request["generationId"]` set to a new [UUID]
    [Version 4](https://www.rfc-editor.org/rfc/rfc9562.html#section-5.4),
@@ -474,15 +479,30 @@ It returns an `encrypted request` and a `request context` tuple.
       created from `request` without padding.
 1. If there are no interest groups in the request, discard the `request` and
    return failure.
+1. Return `request`, `included_groups` and `desired total size`.
+
+#### Serialize a Request {#request-serialize}
+
+This section describes how the client MAY serialize request messages in order to
+communicate with the Bidding and Auction services.
+
+This algorithm takes as input a request `request`, a non-empty map `included_groups`
+and a `desired total size` returned from {{request-message-form}},
+the [HPKE] `public key` with its associated `key ID`,
+a map of from (origin, string) tuple to origin `ig pagg coordinators`, and
+a boolean `seller in cooldown or lockout`.
+It returns an `encrypted request` and a `request context` tuple.
+
 1. Prepend the framing header to `request` with `Compression` set to 2.
 1. If `desired total size` is set then zero pad `request` to `desired total size`.
    Otherwise zero pad `request` up to the smallest bin size in {{request-framing}}
    larger than request.
 1. Encrypt `request` using the `public key` and its `key id` as in
-   {{request-encryption}} to get the `encrypted message` and `hpke context`.
+   {{request-encryption}} to get the `encrypted request` and `hpke context`.
 1. Let the `request context` be the tuple
    (`included_groups`, `hpke context`, `ig pagg coordinators`).
-1. Return the `encrypted message` and the `request context`.
+1. Return the `encrypted request` and the `request context`.
+
 
 ### Parsing a Request {#request-parsing}
 
