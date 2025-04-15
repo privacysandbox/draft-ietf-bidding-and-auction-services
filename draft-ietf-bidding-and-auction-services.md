@@ -321,7 +321,9 @@ request = {
     ; groups compressed as described in § Generating a Request.
     * interestGroupOwner => bstr
   },
-  ? enableDebugReporting: bool
+  ? enableDebugReporting: bool,
+  ; Whether the seller is in cooldown or lockout for forDebuggingOnly.
+  ? inCooldownOrLockout: bool
 }
 ~~~~~
 
@@ -356,6 +358,8 @@ interestGroup = {
   ; specific "products". See
   ; https://wicg.github.io/turtledove/#interest-group-ad-components.
   ? components: [* adRenderId],
+  ; Whether the interest group's owner is in cooldown or lockout for forDebuggingOnly.
+  ? inCooldownOrLockout: bool,
   ? browserSignals: {
     ; Number of times the group was joined in the last 30 days.
     ? joinCount: int,
@@ -391,14 +395,17 @@ the {{framing}} header.
 This section describes how the client MAY form and serialize request messages
 in order to communicate with the Bidding and Auction services.
 
-This algorithm takes as input all of the `relevant interest groups`, a config
-consisting of the `publisher`, a map of from (origin, string) tuple to origin
-`ig pagg coordinators`,
-an optional `desired total size`, an optional boolean `debugging report locked out`
-defaults to false, an optional list of `interest group owners` to
-include each with an optional `desired size`, and the [HPKE] `public key` with
-its associated `key ID`. It returns an `encrypted request` and a `request context`
-tuple.
+#### Forming a Request Message {#request-message-form}
+
+This section describes how the client MAY form request messages, which will
+be seriallized afterwards to communicate with the Bidding and Auction services.
+
+This algorithm takes as input all of the `relevant interest groups`,
+a map of from (origin, string) tuple to origin `ig pagg coordinators`,
+and a config consisting of: the `publisher`, an optional `desired total size`,
+an optional list of `interest group owners` to include each with an optional
+`desired size`. It returns failure, or
+a tuple of a `request`, an `included_groups` and a `desired total size`.
 
 1. Let `included_groups` be an empty map.
 1. If `desired total size` is not specified, but the list of `interest group owners`
@@ -410,10 +417,15 @@ tuple.
    priority, `interest group map`.
 1. If the list of `interest group owners` is specified, remove interest groups
    whose owner is not on the list.
+1. Let `seller in cooldown or lockout` be false. Note that this will be set to
+   its correct value afterwards in algorithm
+   [getInterestGroupAdAuctionData()](https://wicg.github.io/turtledove/#dom-navigator-getinterestgroupadauctiondata)
+   where seller origin is available.
 1. Construct a request, `request` with `request["publisher"]` set to `publisher`,
    `request["version"]` set to 0, `request["generationId"]` set to a new [UUID]
    [Version 4](https://www.rfc-editor.org/rfc/rfc9562.html#section-5.4),
-   and `request["enableDebugReporting"]` set to `debugging report locked out`.
+   `request["enableDebugReporting"]` set to true, and
+   `request["inCooldownOrLockout"]` set to `seller in cooldown or lockout`.
 1. Set `current_size` to be the serialized size of the encrypted request
    created from `request` without padding.
 1. Set `remaining_allocated_size` to 0.
@@ -467,15 +479,30 @@ tuple.
       created from `request` without padding.
 1. If there are no interest groups in the request, discard the `request` and
    return failure.
+1. Return `request`, `included_groups` and `desired total size`.
+
+#### Serializing a Request {#request-serialize}
+
+This section describes how the client MAY serialize request messages in order to
+communicate with the Bidding and Auction services.
+
+This algorithm takes as input a request `request`, a non-empty map `included_groups`
+and a `desired total size` returned from {{request-message-form}},
+the [HPKE] `public key` with its associated `key ID`,
+a map of from (origin, string) tuple to origin `ig pagg coordinators`, and
+a boolean `seller in cooldown or lockout`.
+It returns an `encrypted request` and a `request context` tuple.
+
 1. Prepend the framing header to `request` with `Compression` set to 2.
 1. If `desired total size` is set then zero pad `request` to `desired total size`.
    Otherwise zero pad `request` up to the smallest bin size in {{request-framing}}
    larger than request.
 1. Encrypt `request` using the `public key` and its `key id` as in
-   {{request-encryption}} to get the `encrypted message` and `hpke context`.
+   {{request-encryption}} to get the `encrypted request` and `hpke context`.
 1. Let the `request context` be the tuple
    (`included_groups`, `hpke context`, `ig pagg coordinators`).
-1. Return the `encrypted message` and the `request context`.
+1. Return the `encrypted request` and the `request context`.
+
 
 ### Parsing a Request {#request-parsing}
 
@@ -522,6 +549,10 @@ consume along with an HPKE context.
    1. If `request["enableDebugReporting"]` is not a boolean, return failure.
    1. Set `processed request["enableDebugReporting"]` to
       `request["enableDebugReporting"]`.
+1. If `request["inCooldownOrLockout"]` exists:
+   1. If `request["inCooldownOrLockout"]` is not a boolean, return failure.
+   1. Set `processed request["inCooldownOrLockout"]` to
+      `request["inCooldownOrLockout"]`.
 1. If `request["interestGroups]` does not exist or is not a map, return failure.
 1. Set `processed request["interestGroups"]` to an empty map.
 1. For each `key`, `value` map entry of `request["interestGroups"]`:
@@ -552,6 +583,9 @@ consume along with an HPKE context.
          1. If `interest group["component"]` is not an array
          of strings, return failure.
          1. Set `ig["component"]` to `interest group["component"]`.
+      1. If `interest group["inCooldownOrLockout"]` exists:
+         1. If `interest group["inCooldownOrLockout"]` is not a boolean, return failure.
+         1. Set `ig["inCooldownOrLockout"]` to `interest group["inCooldownOrLockout"]`.
       1. If `interest group["browserSignals"]` exists:
          1. If `interest group["browserSignals"]` is not a map, return failure.
          1. Let `igbs` be an empty struct similar to `browserSignals` as
