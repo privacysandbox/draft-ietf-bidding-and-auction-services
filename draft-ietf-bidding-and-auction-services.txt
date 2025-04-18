@@ -5,7 +5,7 @@
 TBD                                                             D. Kocoj
 Internet-Draft                                            B. R. Hamilton
 Intended status: Standards Track                                  Google
-Expires: 17 August 2025                                 13 February 2025
+Expires: 20 October 2025                                   18 April 2025
 
 
                       Bidding and Auction Services
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 17 August 2025.
+   This Internet-Draft will expire on 20 October 2025.
 
 Copyright Notice
 
@@ -396,7 +396,9 @@ Table of Contents
        ; groups compressed as described in § Generating a Request.
        * interestGroupOwner => bstr
      },
-     ? enableDebugReporting: bool
+     ? enableDebugReporting: bool,
+     ; Whether the seller is in cooldown or lockout for forDebuggingOnly.
+     ? inCooldownOrLockout: bool
    }
 
    The version field SHOULD be set to 0 for this version of the
@@ -431,6 +433,8 @@ Table of Contents
      ; specific "products". See
      ; https://wicg.github.io/turtledove/#interest-group-ad-components.
      ? components: [* adRenderId],
+     ; Whether the interest group's owner is in cooldown or lockout for forDebuggingOnly.
+     ? inCooldownOrLockout: bool,
      ? browserSignals: {
        ; Number of times the group was joined in the last 30 days.
        ? joinCount: int,
@@ -466,13 +470,18 @@ Table of Contents
    messages in order to communicate with the Bidding and Auction
    services.
 
+2.2.4.1.  Forming a Request Message
+
+   This section describes how the client MAY form request messages,
+   which will be seriallized afterwards to communicate with the Bidding
+   and Auction services.
+
    This algorithm takes as input all of the relevant interest groups, a
-   config consisting of the publisher, a map of from (origin, string)
-   tuple to origin ig pagg coordinators, an optional desired total size,
-   an optional boolean debugging report locked out defaults to false, an
-   optional list of interest group owners to include each with an
-   optional desired size, and the [HPKE] public key with its associated
-   key ID.  It returns an encrypted request and a request context tuple.
+   map of from (origin, string) tuple to origin ig pagg coordinators,
+   and a config consisting of: the publisher, an optional desired total
+   size, an optional list of interest group owners to include each with
+   an optional desired size.  It returns failure, or a tuple of a
+   request, an included_groups and a desired total size.
 
    1.   Let included_groups be an empty map.
 
@@ -490,20 +499,27 @@ Table of Contents
    4.   If the list of interest group owners is specified, remove
         interest groups whose owner is not on the list.
 
-   5.   Construct a request, request with request["publisher"] set to
+   5.   Let seller in cooldown or lockout be false.  Note that this will
+        be set to its correct value afterwards in algorithm
+        getInterestGroupAdAuctionData() (https://wicg.github.io/
+        turtledove/#dom-navigator-getinterestgroupadauctiondata) where
+        seller origin is available.
+
+   6.   Construct a request, request with request["publisher"] set to
         publisher, request["version"] set to 0, request["generationId"]
         set to a new [UUID] Version 4 (https://www.rfc-editor.org/rfc/
-        rfc9562.html#section-5.4), and request["enableDebugReporting"]
-        set to debugging report locked out.
+        rfc9562.html#section-5.4), request["enableDebugReporting"] set
+        to true, and request["inCooldownOrLockout"] set to seller in
+        cooldown or lockout.
 
-   6.   Set current_size to be the serialized size of the encrypted
+   7.   Set current_size to be the serialized size of the encrypted
         request created from request without padding.
 
-   7.   Set remaining_allocated_size to 0.
+   8.   Set remaining_allocated_size to 0.
 
-   8.   Set remaining_unsized_owners to 0.
+   9.   Set remaining_unsized_owners to 0.
 
-   9.   For each interest group owner, interest group list in interest
+   10.  For each interest group owner, interest group list in interest
         group map:
 
         1.  If there is a desired size for interest group owner:
@@ -514,7 +530,7 @@ Table of Contents
 
             1.  Increment remaining_unsized_owners by 1.
 
-   10.  For each interest group owner, interest group list in interest
+   11.  For each interest group owner, interest group list in interest
         group map where there is a desired size specified for interest
         group owner:
 
@@ -555,7 +571,7 @@ Table of Contents
         9.  Set current_size to be the serialized size of the encrypted
             request created from request without padding.
 
-   11.  For each interest group owner, interest group list in interest
+   12.  For each interest group owner, interest group list in interest
         group map where there is not desired size specified for interest
         group owner:
 
@@ -586,22 +602,36 @@ Table of Contents
         9.  Set current_size to be the serialized size of the encrypted
             request created from request without padding.
 
-   12.  If there are no interest groups in the request, discard the
+   13.  If there are no interest groups in the request, discard the
         request and return failure.
 
-   13.  Prepend the framing header to request with Compression set to 2.
+   14.  Return request, included_groups and desired total size.
 
-   14.  If desired total size is set then zero pad request to desired
-        total size.  Otherwise zero pad request up to the smallest bin
-        size in Section 2.2.2 larger than request.
+2.2.4.2.  Serializing a Request
 
-   15.  Encrypt request using the public key and its key id as in
-        Section 2.2.1 to get the encrypted message and hpke context.
+   This section describes how the client MAY serialize request messages
+   in order to communicate with the Bidding and Auction services.
 
-   16.  Let the request context be the tuple (included_groups, hpke
-        context, ig pagg coordinators).
+   This algorithm takes as input a request request, a non-empty map
+   included_groups and a desired total size returned from
+   Section 2.2.4.1, the [HPKE] public key with its associated key ID, a
+   map of from (origin, string) tuple to origin ig pagg coordinators,
+   and a boolean seller in cooldown or lockout.  It returns an encrypted
+   request and a request context tuple.
 
-   17.  Return the encrypted message and the request context.
+   1.  Prepend the framing header to request with Compression set to 2.
+
+   2.  If desired total size is set then zero pad request to desired
+       total size.  Otherwise zero pad request up to the smallest bin
+       size in Section 2.2.2 larger than request.
+
+   3.  Encrypt request using the public key and its key id as in
+       Section 2.2.1 to get the encrypted request and hpke context.
+
+   4.  Let the request context be the tuple (included_groups, hpke
+       context, ig pagg coordinators).
+
+   5.  Return the encrypted request and the request context.
 
 2.2.5.  Parsing a Request
 
@@ -678,12 +708,20 @@ Table of Contents
         2.  Set processed request["enableDebugReporting"] to
             request["enableDebugReporting"].
 
-   20.  If request["interestGroups] does not exist or is not a map,
+   20.  If request["inCooldownOrLockout"] exists:
+
+        1.  If request["inCooldownOrLockout"] is not a boolean, return
+            failure.
+
+        2.  Set processed request["inCooldownOrLockout"] to
+            request["inCooldownOrLockout"].
+
+   21.  If request["interestGroups] does not exist or is not a map,
         return failure.
 
-   21.  Set processed request["interestGroups"] to an empty map.
+   22.  Set processed request["interestGroups"] to an empty map.
 
-   22.  For each key, value map entry of request["interestGroups"]:
+   23.  For each key, value map entry of request["interestGroups"]:
 
         1.  If key is not a string, append an error message to
             error_msg.  Proceed to Section 2.2.5.1.
@@ -741,7 +779,15 @@ Table of Contents
 
                  2.  Set ig["component"] to interest group["component"].
 
-            9.   If interest group["browserSignals"] exists:
+            9.   If interest group["inCooldownOrLockout"] exists:
+
+                 1.  If interest group["inCooldownOrLockout"] is not a
+                     boolean, return failure.
+
+                 2.  Set ig["inCooldownOrLockout"] to interest
+                     group["inCooldownOrLockout"].
+
+            10.  If interest group["browserSignals"] exists:
 
                  1.  If interest group["browserSignals"] is not a map,
                      return failure.
@@ -800,10 +846,10 @@ Table of Contents
 
                  8.  Set ig["browserSignals"] to igbs.
 
-            10.  Append ig to processed request["interestGroups"][ key
+            11.  Append ig to processed request["interestGroups"][ key
                  ].
 
-   23.  Return processed request and rctxt to the Bidding and Auction
+   24.  Return processed request and rctxt to the Bidding and Auction
         Services.
 
 2.2.5.1.  Request Parse Error Handling
@@ -931,6 +977,9 @@ Table of Contents
    following [CDDL] schema:
 
    response = {
+     ; An unguessable nonce to use when authorizing this response.
+     ? nonce: tstr,
+
      ; The ad to render.
      ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-ad-render-url.
      adRenderURL: adRenderUrl,
@@ -1194,13 +1243,17 @@ Table of Contents
         auction response (https://wicg.github.io/turtledove/#server-
         auction-response).
 
-   14.  If response["adRenderURL"] does not exist, return failure.
+   14.  If response["nonce"] exists and is a valid [UUID], set processed
+        response["nonce"] to the lowercase ASCII representation of
+        response["nonce"].
 
-   15.  Set processed response["ad render url"] to
+   15.  If response["adRenderURL"] does not exist, return failure.
+
+   16.  Set processed response["ad render url"] to
         response["adRenderURL"] parsed as a [URL], returning failure if
         there is an error.
 
-   16.  If response["components"] exists:
+   17.  If response["components"] exists:
 
         1.  If response["components"] is not an array, return failure.
 
@@ -1210,45 +1263,46 @@ Table of Contents
                 response["ad components"], returning failure if there is
                 an error.
 
-   17.  If response["interestGroupName"] does not exist or is not a
+   18.  If response["interestGroupName"] does not exist or is not a
         string, return failure.
 
-   18.  Set processed response["interest group name"] to
+   19.  Set processed response["interest group name"] to
         response["interestGroupName"].
 
-   19.  If response["interestGroupOwner"] does not exist or is not a
+   20.  If response["interestGroupOwner"] does not exist or is not a
         string, return failure.
 
-   20.  Set processed response["interest group owner"] to
+   21.  Set processed response["interest group owner"] to
         response["interestGroupOwner"] parsed as an [ORIGIN], returning
         failure if there is an error.
 
-   21.  If response["biddingGroups"] does not exist or is not a map,
-        return failure.
+   22.  If response["biddingGroups"] exists:
 
-   22.  For each key, value in response["biddingGroups"]:
+        1.  If response["biddingGroups"] is not a map, return failure.
 
-        1.  Let owner be equal to key parsed as an [ORIGIN], returning
-            failure if there is an error.
+        2.  For each key, value in response["biddingGroups"]:
 
-        2.  If request context's included_groups does not contain owner
-            as a key, return failure.
+            1.  Let owner be equal to key parsed as an [ORIGIN],
+                returning failure if there is an error.
 
-        3.  If value is not a list, return failure.
+            2.  If request context's included_groups does not contain
+                owner as a key, return failure.
 
-        4.  For each element in value:
+            3.  If value is not a list, return failure.
 
-            1.  If element is not an integer or element < 0, return
-                failure.
+            4.  For each element in value:
 
-            2.  If element is greater than or equal to the length of
-                included_groups[owner], return failure.
+                1.  If element is not an integer or element < 0, return
+                    failure.
 
-            3.  Let name be the interest group name for
-                included_groups[owner][element].
+                2.  If element is greater than or equal to the length of
+                    included_groups[owner], return failure.
 
-            4.  Append the tuple (owner, name) to processed
-                response["bidding groups"].
+                3.  Let name be the interest group name for
+                    included_groups[owner][element].
+
+                4.  Append the tuple (owner, name) to processed
+                    response["bidding groups"].
 
    23.  If response["updateGroups"] exists and is a map:
 

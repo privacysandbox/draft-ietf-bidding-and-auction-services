@@ -11,18 +11,18 @@
        The Bidding and Auction Services provide a way for advertising auctions to execute in
 remote environments while preserving user privacy. 
     " name="description">
-<meta content="xml2rfc 3.26.0" name="generator">
+<meta content="xml2rfc 3.28.1" name="generator">
 <meta content="Internet-Draft" name="keyword">
 <meta content="draft-ietf-bidding-and-auction-services-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.26.0
-    Python 3.12.8
+  xml2rfc 3.28.1
+    Python 3.12.10
     ConfigArgParse 1.7
     google-i18n-address 3.1.1
     intervaltree 3.1.0
-    Jinja2 3.1.5
+    Jinja2 3.1.6
     lxml 5.3.0
-    platformdirs 4.3.6
+    platformdirs 4.3.7
     pycountry 24.6.1
     PyYAML 6.0.2
     requests 2.32.3
@@ -437,7 +437,7 @@ dl {
     margin-bottom: 0;
   }
 }
-dl > dt {
+dl:not(.dlNewline) > dt {
   float: left;
   margin-right: 2ch;
   min-width: 8ch;
@@ -1046,11 +1046,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">Bidding and Auction Services</td>
-<td class="right">February 2025</td>
+<td class="right">April 2025</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Kocoj &amp; Hamilton</td>
-<td class="center">Expires 17 August 2025</td>
+<td class="center">Expires 20 October 2025</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1063,12 +1063,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-ietf-bidding-and-auction-services-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2025-02-13" class="published">13 February 2025</time>
+<time datetime="2025-04-18" class="published">18 April 2025</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2025-08-17">17 August 2025</time></dd>
+<dd class="expires"><time datetime="2025-10-20">20 October 2025</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1115,7 +1115,7 @@ remote environments while preserving user privacy.<a href="#section-abstract-1" 
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 17 August 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 20 October 2025.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1676,7 +1676,9 @@ request = {
     ; groups compressed as described in § Generating a Request.
     * interestGroupOwner =&gt; bstr
   },
-  ? enableDebugReporting: bool
+  ? enableDebugReporting: bool,
+  ; Whether the seller is in cooldown or lockout for forDebuggingOnly.
+  ? inCooldownOrLockout: bool
 }
 </pre><a href="#section-2.2.3-2" class="pilcrow">¶</a>
 </div>
@@ -1689,7 +1691,7 @@ request = {
 <a href="#section-2.2.3.1" class="section-number selfRef">2.2.3.1. </a><a href="#name-list-of-interest-groups" class="section-name selfRef">List of Interest Groups</a>
             </h5>
 <p id="section-2.2.3.1-1">A list of interest group is encoded in <span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span> with the following <span>[<a href="#CDDL" class="cite xref">CDDL</a>]</span> schema:<a href="#section-2.2.3.1-1" class="pilcrow">¶</a></p>
-<div class="lang-cddl sourcecode" id="section-2.2.3.1-2">
+<div class="breakable lang-cddl sourcecode" id="section-2.2.3.1-2">
 <pre>
 interestGroups = [ * interestGroup ]
 interestGroup = {
@@ -1713,6 +1715,8 @@ interestGroup = {
   ; specific "products". See
   ; https://wicg.github.io/turtledove/#interest-group-ad-components.
   ? components: [* adRenderId],
+  ; Whether the interest group's owner is in cooldown or lockout for forDebuggingOnly.
+  ? inCooldownOrLockout: bool,
   ? browserSignals: {
     ; Number of times the group was joined in the last 30 days.
     ? joinCount: int,
@@ -1753,194 +1757,228 @@ the <a href="#framing" class="auto internal xref">Section 2.1.2</a> header.<a hr
           </h4>
 <p id="section-2.2.4-1">This section describes how the client MAY form and serialize request messages
 in order to communicate with the Bidding and Auction services.<a href="#section-2.2.4-1" class="pilcrow">¶</a></p>
-<p id="section-2.2.4-2">This algorithm takes as input all of the <code>relevant interest groups</code>, a config
-consisting of the <code>publisher</code>, a map of from (origin, string) tuple to origin
-<code>ig pagg coordinators</code>,
-an optional <code>desired total size</code>, an optional boolean <code>debugging report locked out</code>
-defaults to false, an optional list of <code>interest group owners</code> to
-include each with an optional <code>desired size</code>, and the <span>[<a href="#HPKE" class="cite xref">HPKE</a>]</span> <code>public key</code> with
-its associated <code>key ID</code>. It returns an <code>encrypted request</code> and a <code>request context</code>
-tuple.<a href="#section-2.2.4-2" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.2.4-3">
-<li id="section-2.2.4-3.1">
-              <p id="section-2.2.4-3.1.1">Let <code>included_groups</code> be an empty map.<a href="#section-2.2.4-3.1.1" class="pilcrow">¶</a></p>
+<div id="request-message-form">
+<section id="section-2.2.4.1">
+            <h5 id="name-forming-a-request-message">
+<a href="#section-2.2.4.1" class="section-number selfRef">2.2.4.1. </a><a href="#name-forming-a-request-message" class="section-name selfRef">Forming a Request Message</a>
+            </h5>
+<p id="section-2.2.4.1-1">This section describes how the client MAY form request messages, which will
+be seriallized afterwards to communicate with the Bidding and Auction services.<a href="#section-2.2.4.1-1" class="pilcrow">¶</a></p>
+<p id="section-2.2.4.1-2">This algorithm takes as input all of the <code>relevant interest groups</code>,
+a map of from (origin, string) tuple to origin <code>ig pagg coordinators</code>,
+and a config consisting of: the <code>publisher</code>, an optional <code>desired total size</code>,
+an optional list of <code>interest group owners</code> to include each with an optional
+<code>desired size</code>. It returns failure, or
+a tuple of a <code>request</code>, an <code>included_groups</code> and a <code>desired total size</code>.<a href="#section-2.2.4.1-2" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.4.1-3">
+<li id="section-2.2.4.1-3.1">
+                <p id="section-2.2.4.1-3.1.1">Let <code>included_groups</code> be an empty map.<a href="#section-2.2.4.1-3.1.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-2.2.4-3.2">
-              <p id="section-2.2.4-3.2.1">If <code>desired total size</code> is not specified, but the list of <code>interest group owners</code>
-includes at least one entry with a specified <code>desired size</code>:<a href="#section-2.2.4-3.2.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.2.4-3.2.2">
-<li id="section-2.2.4-3.2.2.1">
-                  <p id="section-2.2.4-3.2.2.1.1">Set <code>desired total size</code> to the sum of all specified <code>desired size</code> in the
-list of <code>interest group owners</code>.<a href="#section-2.2.4-3.2.2.1.1" class="pilcrow">¶</a></p>
+              <li id="section-2.2.4.1-3.2">
+                <p id="section-2.2.4.1-3.2.1">If <code>desired total size</code> is not specified, but the list of <code>interest group owners</code>
+includes at least one entry with a specified <code>desired size</code>:<a href="#section-2.2.4.1-3.2.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.4.1-3.2.2">
+<li id="section-2.2.4.1-3.2.2.1">
+                    <p id="section-2.2.4.1-3.2.2.1.1">Set <code>desired total size</code> to the sum of all specified <code>desired size</code> in the
+list of <code>interest group owners</code>.<a href="#section-2.2.4.1-3.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
-              </ol>
+                </ol>
 </li>
-            <li id="section-2.2.4-3.3">
-              <p id="section-2.2.4-3.3.1">Group the list of <code>relevant interest groups</code> by owner into a map of from
+              <li id="section-2.2.4.1-3.3">
+                <p id="section-2.2.4.1-3.3.1">Group the list of <code>relevant interest groups</code> by owner into a map of from
 interest group owner to a list of interest groups sorted by decreasing
-priority, <code>interest group map</code>.<a href="#section-2.2.4-3.3.1" class="pilcrow">¶</a></p>
+priority, <code>interest group map</code>.<a href="#section-2.2.4.1-3.3.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-2.2.4-3.4">
-              <p id="section-2.2.4-3.4.1">If the list of <code>interest group owners</code> is specified, remove interest groups
-whose owner is not on the list.<a href="#section-2.2.4-3.4.1" class="pilcrow">¶</a></p>
+              <li id="section-2.2.4.1-3.4">
+                <p id="section-2.2.4.1-3.4.1">If the list of <code>interest group owners</code> is specified, remove interest groups
+whose owner is not on the list.<a href="#section-2.2.4.1-3.4.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-2.2.4-3.5">
-              <p id="section-2.2.4-3.5.1">Construct a request, <code>request</code> with <code>request["publisher"]</code> set to <code>publisher</code>,
+              <li id="section-2.2.4.1-3.5">
+                <p id="section-2.2.4.1-3.5.1">Let <code>seller in cooldown or lockout</code> be false. Note that this will be set to
+its correct value afterwards in algorithm
+<a href="https://wicg.github.io/turtledove/#dom-navigator-getinterestgroupadauctiondata">getInterestGroupAdAuctionData()</a>
+where seller origin is available.<a href="#section-2.2.4.1-3.5.1" class="pilcrow">¶</a></p>
+</li>
+              <li id="section-2.2.4.1-3.6">
+                <p id="section-2.2.4.1-3.6.1">Construct a request, <code>request</code> with <code>request["publisher"]</code> set to <code>publisher</code>,
 <code>request["version"]</code> set to 0, <code>request["generationId"]</code> set to a new [UUID]
 <a href="https://www.rfc-editor.org/rfc/rfc9562.html#section-5.4">Version 4</a>,
-and <code>request["enableDebugReporting"]</code> set to <code>debugging report locked out</code>.<a href="#section-2.2.4-3.5.1" class="pilcrow">¶</a></p>
+<code>request["enableDebugReporting"]</code> set to true, and
+<code>request["inCooldownOrLockout"]</code> set to <code>seller in cooldown or lockout</code>.<a href="#section-2.2.4.1-3.6.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-2.2.4-3.6">
-              <p id="section-2.2.4-3.6.1">Set <code>current_size</code> to be the serialized size of the encrypted request
-created from <code>request</code> without padding.<a href="#section-2.2.4-3.6.1" class="pilcrow">¶</a></p>
+              <li id="section-2.2.4.1-3.7">
+                <p id="section-2.2.4.1-3.7.1">Set <code>current_size</code> to be the serialized size of the encrypted request
+created from <code>request</code> without padding.<a href="#section-2.2.4.1-3.7.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-2.2.4-3.7">
-              <p id="section-2.2.4-3.7.1">Set <code>remaining_allocated_size</code> to 0.<a href="#section-2.2.4-3.7.1" class="pilcrow">¶</a></p>
+              <li id="section-2.2.4.1-3.8">
+                <p id="section-2.2.4.1-3.8.1">Set <code>remaining_allocated_size</code> to 0.<a href="#section-2.2.4.1-3.8.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-2.2.4-3.8">
-              <p id="section-2.2.4-3.8.1">Set <code>remaining_unsized_owners</code> to 0.<a href="#section-2.2.4-3.8.1" class="pilcrow">¶</a></p>
+              <li id="section-2.2.4.1-3.9">
+                <p id="section-2.2.4.1-3.9.1">Set <code>remaining_unsized_owners</code> to 0.<a href="#section-2.2.4.1-3.9.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-2.2.4-3.9">
-              <p id="section-2.2.4-3.9.1">For each <code>interest group owner</code>, <code>interest group list</code> in
-<code>interest group map</code>:<a href="#section-2.2.4-3.9.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.2.4-3.9.2">
-<li id="section-2.2.4-3.9.2.1">
-                  <p id="section-2.2.4-3.9.2.1.1">If there is a <code>desired size</code> for <code>interest group owner</code>:<a href="#section-2.2.4-3.9.2.1.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.2.4-3.9.2.1.2">
-<li id="section-2.2.4-3.9.2.1.2.1">
-                      <p id="section-2.2.4-3.9.2.1.2.1.1">Increment <code>remaining_allocated_size</code> by <code>desired size</code>.<a href="#section-2.2.4-3.9.2.1.2.1.1" class="pilcrow">¶</a></p>
+              <li id="section-2.2.4.1-3.10">
+                <p id="section-2.2.4.1-3.10.1">For each <code>interest group owner</code>, <code>interest group list</code> in
+<code>interest group map</code>:<a href="#section-2.2.4.1-3.10.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.4.1-3.10.2">
+<li id="section-2.2.4.1-3.10.2.1">
+                    <p id="section-2.2.4.1-3.10.2.1.1">If there is a <code>desired size</code> for <code>interest group owner</code>:<a href="#section-2.2.4.1-3.10.2.1.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.4.1-3.10.2.1.2">
+<li id="section-2.2.4.1-3.10.2.1.2.1">
+                        <p id="section-2.2.4.1-3.10.2.1.2.1.1">Increment <code>remaining_allocated_size</code> by <code>desired size</code>.<a href="#section-2.2.4.1-3.10.2.1.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                  </ol>
+                    </ol>
 </li>
-                <li id="section-2.2.4-3.9.2.2">
-                  <p id="section-2.2.4-3.9.2.2.1">Otherwise<a href="#section-2.2.4-3.9.2.2.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.2.4-3.9.2.2.2">
-<li id="section-2.2.4-3.9.2.2.2.1">
-                      <p id="section-2.2.4-3.9.2.2.2.1.1">Increment <code>remaining_unsized_owners</code> by 1.<a href="#section-2.2.4-3.9.2.2.2.1.1" class="pilcrow">¶</a></p>
+                  <li id="section-2.2.4.1-3.10.2.2">
+                    <p id="section-2.2.4.1-3.10.2.2.1">Otherwise<a href="#section-2.2.4.1-3.10.2.2.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.4.1-3.10.2.2.2">
+<li id="section-2.2.4.1-3.10.2.2.2.1">
+                        <p id="section-2.2.4.1-3.10.2.2.2.1.1">Increment <code>remaining_unsized_owners</code> by 1.<a href="#section-2.2.4.1-3.10.2.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                  </ol>
+                    </ol>
 </li>
-              </ol>
+                </ol>
 </li>
-            <li id="section-2.2.4-3.10">
-              <p id="section-2.2.4-3.10.1">For each <code>interest group owner</code>, <code>interest group list</code> in
+              <li id="section-2.2.4.1-3.11">
+                <p id="section-2.2.4.1-3.11.1">For each <code>interest group owner</code>, <code>interest group list</code> in
 <code>interest group map</code> where there is a <code>desired size</code> specified for
-<code>interest group owner</code>:<a href="#section-2.2.4-3.10.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.2.4-3.10.2">
-<li id="section-2.2.4-3.10.2.1">
-                  <p id="section-2.2.4-3.10.2.1.1">If the number of <code>unsized_owners</code> is not 0:<a href="#section-2.2.4-3.10.2.1.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.2.4-3.10.2.1.2">
-<li id="section-2.2.4-3.10.2.1.2.1">
-                      <p id="section-2.2.4-3.10.2.1.2.1.1">Set the <code>allowed_interest_group_size</code> to the <code>desired size</code> for this
-<code>interest group owner</code>. This is a fixed size allocation.<a href="#section-2.2.4-3.10.2.1.2.1.1" class="pilcrow">¶</a></p>
+<code>interest group owner</code>:<a href="#section-2.2.4.1-3.11.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.4.1-3.11.2">
+<li id="section-2.2.4.1-3.11.2.1">
+                    <p id="section-2.2.4.1-3.11.2.1.1">If the number of <code>unsized_owners</code> is not 0:<a href="#section-2.2.4.1-3.11.2.1.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.4.1-3.11.2.1.2">
+<li id="section-2.2.4.1-3.11.2.1.2.1">
+                        <p id="section-2.2.4.1-3.11.2.1.2.1.1">Set the <code>allowed_interest_group_size</code> to the <code>desired size</code> for this
+<code>interest group owner</code>. This is a fixed size allocation.<a href="#section-2.2.4.1-3.11.2.1.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                  </ol>
+                    </ol>
 </li>
-                <li id="section-2.2.4-3.10.2.2">
-                  <p id="section-2.2.4-3.10.2.2.1">Otherwise:<a href="#section-2.2.4-3.10.2.2.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.2.4-3.10.2.2.2">
-<li id="section-2.2.4-3.10.2.2.2.1">
-                      <p id="section-2.2.4-3.10.2.2.2.1.1">Let <code>remaining_size</code> be equal to the <code>desired total size</code>-<code>current_size</code>.<a href="#section-2.2.4-3.10.2.2.2.1.1" class="pilcrow">¶</a></p>
+                  <li id="section-2.2.4.1-3.11.2.2">
+                    <p id="section-2.2.4.1-3.11.2.2.1">Otherwise:<a href="#section-2.2.4.1-3.11.2.2.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.4.1-3.11.2.2.2">
+<li id="section-2.2.4.1-3.11.2.2.2.1">
+                        <p id="section-2.2.4.1-3.11.2.2.2.1.1">Let <code>remaining_size</code> be equal to the <code>desired total size</code>-<code>current_size</code>.<a href="#section-2.2.4.1-3.11.2.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-2.2.4-3.10.2.2.2.2">
-                      <p id="section-2.2.4-3.10.2.2.2.2.1">Set the <code>allowed_interest_group_size</code> to
+                      <li id="section-2.2.4.1-3.11.2.2.2.2">
+                        <p id="section-2.2.4.1-3.11.2.2.2.2.1">Set the <code>allowed_interest_group_size</code> to
 <code>remaining_size</code>*<code>desired_size</code>/<code>remaining_allocated_size</code>. This is a
-proportional allocation.<a href="#section-2.2.4-3.10.2.2.2.2.1" class="pilcrow">¶</a></p>
+proportional allocation.<a href="#section-2.2.4.1-3.11.2.2.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                  </ol>
+                    </ol>
 </li>
-                <li id="section-2.2.4-3.10.2.3">
-                  <p id="section-2.2.4-3.10.2.3.1">Set <code>remaining_allocated_size</code> = <code>remaining_allocated_size</code>-<code>current_size</code>.<a href="#section-2.2.4-3.10.2.3.1" class="pilcrow">¶</a></p>
+                  <li id="section-2.2.4.1-3.11.2.3">
+                    <p id="section-2.2.4.1-3.11.2.3.1">Set <code>remaining_allocated_size</code> = <code>remaining_allocated_size</code>-<code>current_size</code>.<a href="#section-2.2.4.1-3.11.2.3.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-2.2.4-3.10.2.4">
-                  <p id="section-2.2.4-3.10.2.4.1"><span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span> encode the <code>interest group list</code> into <code>serialized list</code>.<a href="#section-2.2.4-3.10.2.4.1" class="pilcrow">¶</a></p>
+                  <li id="section-2.2.4.1-3.11.2.4">
+                    <p id="section-2.2.4.1-3.11.2.4.1"><span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span> encode the <code>interest group list</code> into <code>serialized list</code>.<a href="#section-2.2.4.1-3.11.2.4.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-2.2.4-3.10.2.5">
-                  <p id="section-2.2.4-3.10.2.5.1"><span>[<a href="#GZIP" class="cite xref">GZIP</a>]</span> the <code>serialized list</code> into <code>compressed list</code>.<a href="#section-2.2.4-3.10.2.5.1" class="pilcrow">¶</a></p>
+                  <li id="section-2.2.4.1-3.11.2.5">
+                    <p id="section-2.2.4.1-3.11.2.5.1"><span>[<a href="#GZIP" class="cite xref">GZIP</a>]</span> the <code>serialized list</code> into <code>compressed list</code>.<a href="#section-2.2.4.1-3.11.2.5.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-2.2.4-3.10.2.6">
-                  <p id="section-2.2.4-3.10.2.6.1">If setting <code>request["interestGroups"][interest group owner]</code> to
+                  <li id="section-2.2.4.1-3.11.2.6">
+                    <p id="section-2.2.4.1-3.11.2.6.1">If setting <code>request["interestGroups"][interest group owner]</code> to
 <code>compressed list</code> would make it's serialized size more than
 <code>allowed_interest_group_size</code> larger than the current size, then remove
-the lowest priority interest group and repeat from the previous step.<a href="#section-2.2.4-3.10.2.6.1" class="pilcrow">¶</a></p>
+the lowest priority interest group and repeat from the previous step.<a href="#section-2.2.4.1-3.11.2.6.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-2.2.4-3.10.2.7">
-                  <p id="section-2.2.4-3.10.2.7.1">Set <code>request["interestGroups"][interest group owner]</code> to
-<code>compressed list</code>.<a href="#section-2.2.4-3.10.2.7.1" class="pilcrow">¶</a></p>
+                  <li id="section-2.2.4.1-3.11.2.7">
+                    <p id="section-2.2.4.1-3.11.2.7.1">Set <code>request["interestGroups"][interest group owner]</code> to
+<code>compressed list</code>.<a href="#section-2.2.4.1-3.11.2.7.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-2.2.4-3.10.2.8">
-                  <p id="section-2.2.4-3.10.2.8.1">Set <code>included_groups[interest group owner]</code> to <code>interest group list</code>.<a href="#section-2.2.4-3.10.2.8.1" class="pilcrow">¶</a></p>
+                  <li id="section-2.2.4.1-3.11.2.8">
+                    <p id="section-2.2.4.1-3.11.2.8.1">Set <code>included_groups[interest group owner]</code> to <code>interest group list</code>.<a href="#section-2.2.4.1-3.11.2.8.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-2.2.4-3.10.2.9">
-                  <p id="section-2.2.4-3.10.2.9.1">Set <code>current_size</code> to be the serialized size of the encrypted request
-created from <code>request</code> without padding.<a href="#section-2.2.4-3.10.2.9.1" class="pilcrow">¶</a></p>
+                  <li id="section-2.2.4.1-3.11.2.9">
+                    <p id="section-2.2.4.1-3.11.2.9.1">Set <code>current_size</code> to be the serialized size of the encrypted request
+created from <code>request</code> without padding.<a href="#section-2.2.4.1-3.11.2.9.1" class="pilcrow">¶</a></p>
 </li>
-              </ol>
+                </ol>
 </li>
-            <li id="section-2.2.4-3.11">
-              <p id="section-2.2.4-3.11.1">For each <code>interest group owner</code>, <code>interest group list</code> in
+              <li id="section-2.2.4.1-3.12">
+                <p id="section-2.2.4.1-3.12.1">For each <code>interest group owner</code>, <code>interest group list</code> in
 <code>interest group map</code> where there is not <code>desired size</code> specified for
-<code>interest group owner</code>:<a href="#section-2.2.4-3.11.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.2.4-3.11.2">
-<li id="section-2.2.4-3.11.2.1">
-                  <p id="section-2.2.4-3.11.2.1.1">Let <code>remaining_size</code> be equal to the <code>desired total size</code>-<code>current_size</code>.<a href="#section-2.2.4-3.11.2.1.1" class="pilcrow">¶</a></p>
+<code>interest group owner</code>:<a href="#section-2.2.4.1-3.12.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.4.1-3.12.2">
+<li id="section-2.2.4.1-3.12.2.1">
+                    <p id="section-2.2.4.1-3.12.2.1.1">Let <code>remaining_size</code> be equal to the <code>desired total size</code>-<code>current_size</code>.<a href="#section-2.2.4.1-3.12.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-2.2.4-3.11.2.2">
-                  <p id="section-2.2.4-3.11.2.2.1">Set the <code>allowed_interest_group_size</code> to
+                  <li id="section-2.2.4.1-3.12.2.2">
+                    <p id="section-2.2.4.1-3.12.2.2.1">Set the <code>allowed_interest_group_size</code> to
 <code>remaining_size</code>*/<code>remaining_unsized_owners</code>. This is a
-equal size allocation.<a href="#section-2.2.4-3.11.2.2.1" class="pilcrow">¶</a></p>
+equal size allocation.<a href="#section-2.2.4.1-3.12.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-2.2.4-3.11.2.3">
-                  <p id="section-2.2.4-3.11.2.3.1">Decrement <code>remaining_unsized_owners</code> by 1.<a href="#section-2.2.4-3.11.2.3.1" class="pilcrow">¶</a></p>
+                  <li id="section-2.2.4.1-3.12.2.3">
+                    <p id="section-2.2.4.1-3.12.2.3.1">Decrement <code>remaining_unsized_owners</code> by 1.<a href="#section-2.2.4.1-3.12.2.3.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-2.2.4-3.11.2.4">
-                  <p id="section-2.2.4-3.11.2.4.1"><span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span> encode the <code>interest group list</code> into <code>serialized list</code>.<a href="#section-2.2.4-3.11.2.4.1" class="pilcrow">¶</a></p>
+                  <li id="section-2.2.4.1-3.12.2.4">
+                    <p id="section-2.2.4.1-3.12.2.4.1"><span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span> encode the <code>interest group list</code> into <code>serialized list</code>.<a href="#section-2.2.4.1-3.12.2.4.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-2.2.4-3.11.2.5">
-                  <p id="section-2.2.4-3.11.2.5.1"><span>[<a href="#GZIP" class="cite xref">GZIP</a>]</span> the <code>serialized list</code> into <code>compressed list</code>.<a href="#section-2.2.4-3.11.2.5.1" class="pilcrow">¶</a></p>
+                  <li id="section-2.2.4.1-3.12.2.5">
+                    <p id="section-2.2.4.1-3.12.2.5.1"><span>[<a href="#GZIP" class="cite xref">GZIP</a>]</span> the <code>serialized list</code> into <code>compressed list</code>.<a href="#section-2.2.4.1-3.12.2.5.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-2.2.4-3.11.2.6">
-                  <p id="section-2.2.4-3.11.2.6.1">If adding the <code>compressed list</code> to <code>request</code> would make it more than
+                  <li id="section-2.2.4.1-3.12.2.6">
+                    <p id="section-2.2.4.1-3.12.2.6.1">If adding the <code>compressed list</code> to <code>request</code> would make it more than
 <code>allowed_interest_group_size</code> larger than the current size, then remove
-the lowest priority interest group and repeat from the previous step.<a href="#section-2.2.4-3.11.2.6.1" class="pilcrow">¶</a></p>
+the lowest priority interest group and repeat from the previous step.<a href="#section-2.2.4.1-3.12.2.6.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-2.2.4-3.11.2.7">
-                  <p id="section-2.2.4-3.11.2.7.1">Set <code>request["interestGroups"][interest group owner]</code> to
-<code>compressed list</code>.<a href="#section-2.2.4-3.11.2.7.1" class="pilcrow">¶</a></p>
+                  <li id="section-2.2.4.1-3.12.2.7">
+                    <p id="section-2.2.4.1-3.12.2.7.1">Set <code>request["interestGroups"][interest group owner]</code> to
+<code>compressed list</code>.<a href="#section-2.2.4.1-3.12.2.7.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-2.2.4-3.11.2.8">
-                  <p id="section-2.2.4-3.11.2.8.1">Set <code>included_groups[interest group owner]</code> to <code>interest group list</code>.<a href="#section-2.2.4-3.11.2.8.1" class="pilcrow">¶</a></p>
+                  <li id="section-2.2.4.1-3.12.2.8">
+                    <p id="section-2.2.4.1-3.12.2.8.1">Set <code>included_groups[interest group owner]</code> to <code>interest group list</code>.<a href="#section-2.2.4.1-3.12.2.8.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-2.2.4-3.11.2.9">
-                  <p id="section-2.2.4-3.11.2.9.1">Set <code>current_size</code> to be the serialized size of the encrypted request
-created from <code>request</code> without padding.<a href="#section-2.2.4-3.11.2.9.1" class="pilcrow">¶</a></p>
+                  <li id="section-2.2.4.1-3.12.2.9">
+                    <p id="section-2.2.4.1-3.12.2.9.1">Set <code>current_size</code> to be the serialized size of the encrypted request
+created from <code>request</code> without padding.<a href="#section-2.2.4.1-3.12.2.9.1" class="pilcrow">¶</a></p>
 </li>
-              </ol>
+                </ol>
 </li>
-            <li id="section-2.2.4-3.12">
-              <p id="section-2.2.4-3.12.1">If there are no interest groups in the request, discard the <code>request</code> and
-return failure.<a href="#section-2.2.4-3.12.1" class="pilcrow">¶</a></p>
+              <li id="section-2.2.4.1-3.13">
+                <p id="section-2.2.4.1-3.13.1">If there are no interest groups in the request, discard the <code>request</code> and
+return failure.<a href="#section-2.2.4.1-3.13.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-2.2.4-3.13">
-              <p id="section-2.2.4-3.13.1">Prepend the framing header to <code>request</code> with <code>Compression</code> set to 2.<a href="#section-2.2.4-3.13.1" class="pilcrow">¶</a></p>
+              <li id="section-2.2.4.1-3.14">
+                <p id="section-2.2.4.1-3.14.1">Return <code>request</code>, <code>included_groups</code> and <code>desired total size</code>.<a href="#section-2.2.4.1-3.14.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-2.2.4-3.14">
-              <p id="section-2.2.4-3.14.1">If <code>desired total size</code> is set then zero pad <code>request</code> to <code>desired total size</code>.
+            </ol>
+</section>
+</div>
+<div id="request-serialize">
+<section id="section-2.2.4.2">
+            <h5 id="name-serializing-a-request">
+<a href="#section-2.2.4.2" class="section-number selfRef">2.2.4.2. </a><a href="#name-serializing-a-request" class="section-name selfRef">Serializing a Request</a>
+            </h5>
+<p id="section-2.2.4.2-1">This section describes how the client MAY serialize request messages in order to
+communicate with the Bidding and Auction services.<a href="#section-2.2.4.2-1" class="pilcrow">¶</a></p>
+<p id="section-2.2.4.2-2">This algorithm takes as input a request <code>request</code>, a non-empty map <code>included_groups</code>
+and a <code>desired total size</code> returned from <a href="#request-message-form" class="auto internal xref">Section 2.2.4.1</a>,
+the <span>[<a href="#HPKE" class="cite xref">HPKE</a>]</span> <code>public key</code> with its associated <code>key ID</code>,
+a map of from (origin, string) tuple to origin <code>ig pagg coordinators</code>, and
+a boolean <code>seller in cooldown or lockout</code>.
+It returns an <code>encrypted request</code> and a <code>request context</code> tuple.<a href="#section-2.2.4.2-2" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.4.2-3">
+<li id="section-2.2.4.2-3.1">
+                <p id="section-2.2.4.2-3.1.1">Prepend the framing header to <code>request</code> with <code>Compression</code> set to 2.<a href="#section-2.2.4.2-3.1.1" class="pilcrow">¶</a></p>
+</li>
+              <li id="section-2.2.4.2-3.2">
+                <p id="section-2.2.4.2-3.2.1">If <code>desired total size</code> is set then zero pad <code>request</code> to <code>desired total size</code>.
 Otherwise zero pad <code>request</code> up to the smallest bin size in <a href="#request-framing" class="auto internal xref">Section 2.2.2</a>
-larger than request.<a href="#section-2.2.4-3.14.1" class="pilcrow">¶</a></p>
+larger than request.<a href="#section-2.2.4.2-3.2.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-2.2.4-3.15">
-              <p id="section-2.2.4-3.15.1">Encrypt <code>request</code> using the <code>public key</code> and its <code>key id</code> as in
-<a href="#request-encryption" class="auto internal xref">Section 2.2.1</a> to get the <code>encrypted message</code> and <code>hpke context</code>.<a href="#section-2.2.4-3.15.1" class="pilcrow">¶</a></p>
+              <li id="section-2.2.4.2-3.3">
+                <p id="section-2.2.4.2-3.3.1">Encrypt <code>request</code> using the <code>public key</code> and its <code>key id</code> as in
+<a href="#request-encryption" class="auto internal xref">Section 2.2.1</a> to get the <code>encrypted request</code> and <code>hpke context</code>.<a href="#section-2.2.4.2-3.3.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-2.2.4-3.16">
-              <p id="section-2.2.4-3.16.1">Let the <code>request context</code> be the tuple
-(<code>included_groups</code>, <code>hpke context</code>, <code>ig pagg coordinators</code>).<a href="#section-2.2.4-3.16.1" class="pilcrow">¶</a></p>
+              <li id="section-2.2.4.2-3.4">
+                <p id="section-2.2.4.2-3.4.1">Let the <code>request context</code> be the tuple
+(<code>included_groups</code>, <code>hpke context</code>, <code>ig pagg coordinators</code>).<a href="#section-2.2.4.2-3.4.1" class="pilcrow">¶</a></p>
 </li>
-            <li id="section-2.2.4-3.17">
-              <p id="section-2.2.4-3.17.1">Return the <code>encrypted message</code> and the <code>request context</code>.<a href="#section-2.2.4-3.17.1" class="pilcrow">¶</a></p>
+              <li id="section-2.2.4.2-3.5">
+                <p id="section-2.2.4.2-3.5.1">Return the <code>encrypted request</code> and the <code>request context</code>.<a href="#section-2.2.4.2-3.5.1" class="pilcrow">¶</a></p>
 </li>
-          </ol>
+            </ol>
+</section>
+</div>
 </section>
 </div>
 <div id="request-parsing">
@@ -2040,195 +2078,218 @@ Let this be <code>request</code>.<a href="#section-2.2.5-4.10.1" class="pilcrow"
               </ol>
 </li>
             <li id="section-2.2.5-4.20">
-              <p id="section-2.2.5-4.20.1">If <code>request["interestGroups]</code> does not exist or is not a map, return failure.<a href="#section-2.2.5-4.20.1" class="pilcrow">¶</a></p>
+              <p id="section-2.2.5-4.20.1">If <code>request["inCooldownOrLockout"]</code> exists:<a href="#section-2.2.5-4.20.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.20.2">
+<li id="section-2.2.5-4.20.2.1">
+                  <p id="section-2.2.5-4.20.2.1.1">If <code>request["inCooldownOrLockout"]</code> is not a boolean, return failure.<a href="#section-2.2.5-4.20.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.2.5-4.20.2.2">
+                  <p id="section-2.2.5-4.20.2.2.1">Set <code>processed request["inCooldownOrLockout"]</code> to
+<code>request["inCooldownOrLockout"]</code>.<a href="#section-2.2.5-4.20.2.2.1" class="pilcrow">¶</a></p>
+</li>
+              </ol>
 </li>
             <li id="section-2.2.5-4.21">
-              <p id="section-2.2.5-4.21.1">Set <code>processed request["interestGroups"]</code> to an empty map.<a href="#section-2.2.5-4.21.1" class="pilcrow">¶</a></p>
+              <p id="section-2.2.5-4.21.1">If <code>request["interestGroups]</code> does not exist or is not a map, return failure.<a href="#section-2.2.5-4.21.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-2.2.5-4.22">
-              <p id="section-2.2.5-4.22.1">For each <code>key</code>, <code>value</code> map entry of <code>request["interestGroups"]</code>:<a href="#section-2.2.5-4.22.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.22.2">
-<li id="section-2.2.5-4.22.2.1">
-                  <p id="section-2.2.5-4.22.2.1.1">If <code>key</code> is not a string, append an error message to
-<code>error_msg</code>. Proceed to <a href="#request-parse-error" class="auto internal xref">Section 2.2.5.1</a>.<a href="#section-2.2.5-4.22.2.1.1" class="pilcrow">¶</a></p>
+              <p id="section-2.2.5-4.22.1">Set <code>processed request["interestGroups"]</code> to an empty map.<a href="#section-2.2.5-4.22.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-2.2.5-4.22.2.2">
-                  <p id="section-2.2.5-4.22.2.2.1">Set <code>processed request["interestGroups"]</code><code>[key]</code> to an empty list.<a href="#section-2.2.5-4.22.2.2.1" class="pilcrow">¶</a></p>
+            <li id="section-2.2.5-4.23">
+              <p id="section-2.2.5-4.23.1">For each <code>key</code>, <code>value</code> map entry of <code>request["interestGroups"]</code>:<a href="#section-2.2.5-4.23.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.23.2">
+<li id="section-2.2.5-4.23.2.1">
+                  <p id="section-2.2.5-4.23.2.1.1">If <code>key</code> is not a string, append an error message to
+<code>error_msg</code>. Proceed to <a href="#request-parse-error" class="auto internal xref">Section 2.2.5.1</a>.<a href="#section-2.2.5-4.23.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-2.2.5-4.22.2.3">
-                  <p id="section-2.2.5-4.22.2.3.1">Decompress <code>value</code> according to <code>compression type</code> and set as
-<code>buyer input cbor</code>. If decompression fails, return failure.<a href="#section-2.2.5-4.22.2.3.1" class="pilcrow">¶</a></p>
+                <li id="section-2.2.5-4.23.2.2">
+                  <p id="section-2.2.5-4.23.2.2.1">Set <code>processed request["interestGroups"]</code><code>[key]</code> to an empty list.<a href="#section-2.2.5-4.23.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-2.2.5-4.22.2.4">
-                  <p id="section-2.2.5-4.22.2.4.1"><span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span> decode <code>buyer input cbor</code> into <code>buyer input</code>. If decoding fails, return failure.<a href="#section-2.2.5-4.22.2.4.1" class="pilcrow">¶</a></p>
+                <li id="section-2.2.5-4.23.2.3">
+                  <p id="section-2.2.5-4.23.2.3.1">Decompress <code>value</code> according to <code>compression type</code> and set as
+<code>buyer input cbor</code>. If decompression fails, return failure.<a href="#section-2.2.5-4.23.2.3.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-2.2.5-4.22.2.5">
-                  <p id="section-2.2.5-4.22.2.5.1">If <code>buyer input</code> is not an array, return failure.<a href="#section-2.2.5-4.22.2.5.1" class="pilcrow">¶</a></p>
+                <li id="section-2.2.5-4.23.2.4">
+                  <p id="section-2.2.5-4.23.2.4.1"><span>[<a href="#CBOR" class="cite xref">CBOR</a>]</span> decode <code>buyer input cbor</code> into <code>buyer input</code>. If decoding fails, return failure.<a href="#section-2.2.5-4.23.2.4.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-2.2.5-4.22.2.6">
-                  <p id="section-2.2.5-4.22.2.6.1">For each <code>interest group</code> in <code>buyer input</code>:<a href="#section-2.2.5-4.22.2.6.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.22.2.6.2">
-<li id="section-2.2.5-4.22.2.6.2.1">
-                      <p id="section-2.2.5-4.22.2.6.2.1.1">If the <code>interest groups</code> is not a map, append an error message to
-<code>error_msg</code>. Proceed to <a href="#request-parse-error" class="auto internal xref">Section 2.2.5.1</a>.<a href="#section-2.2.5-4.22.2.6.2.1.1" class="pilcrow">¶</a></p>
+                <li id="section-2.2.5-4.23.2.5">
+                  <p id="section-2.2.5-4.23.2.5.1">If <code>buyer input</code> is not an array, return failure.<a href="#section-2.2.5-4.23.2.5.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-2.2.5-4.22.2.6.2.2">
-                      <p id="section-2.2.5-4.22.2.6.2.2.1">Let <code>ig</code> be an empty struct similar to <a href="#request-groups" class="auto internal xref">Section 2.2.3.1</a>.<a href="#section-2.2.5-4.22.2.6.2.2.1" class="pilcrow">¶</a></p>
+                <li id="section-2.2.5-4.23.2.6">
+                  <p id="section-2.2.5-4.23.2.6.1">For each <code>interest group</code> in <code>buyer input</code>:<a href="#section-2.2.5-4.23.2.6.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.23.2.6.2">
+<li id="section-2.2.5-4.23.2.6.2.1">
+                      <p id="section-2.2.5-4.23.2.6.2.1.1">If the <code>interest groups</code> is not a map, append an error message to
+<code>error_msg</code>. Proceed to <a href="#request-parse-error" class="auto internal xref">Section 2.2.5.1</a>.<a href="#section-2.2.5-4.23.2.6.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-2.2.5-4.22.2.6.2.3">
-                      <p id="section-2.2.5-4.22.2.6.2.3.1">If <code>interest group["name"]</code> does not exist or is not a string, return failure.<a href="#section-2.2.5-4.22.2.6.2.3.1" class="pilcrow">¶</a></p>
+                    <li id="section-2.2.5-4.23.2.6.2.2">
+                      <p id="section-2.2.5-4.23.2.6.2.2.1">Let <code>ig</code> be an empty struct similar to <a href="#request-groups" class="auto internal xref">Section 2.2.3.1</a>.<a href="#section-2.2.5-4.23.2.6.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-2.2.5-4.22.2.6.2.4">
-                      <p id="section-2.2.5-4.22.2.6.2.4.1">Set <code>ig["name"]</code> to <code>interest group["name"]</code>.<a href="#section-2.2.5-4.22.2.6.2.4.1" class="pilcrow">¶</a></p>
+                    <li id="section-2.2.5-4.23.2.6.2.3">
+                      <p id="section-2.2.5-4.23.2.6.2.3.1">If <code>interest group["name"]</code> does not exist or is not a string, return failure.<a href="#section-2.2.5-4.23.2.6.2.3.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-2.2.5-4.22.2.6.2.5">
-                      <p id="section-2.2.5-4.22.2.6.2.5.1">If <code>interest group["userBiddingSignals"]</code> exists:<a href="#section-2.2.5-4.22.2.6.2.5.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.22.2.6.2.5.2">
-<li id="section-2.2.5-4.22.2.6.2.5.2.1">
-                          <p id="section-2.2.5-4.22.2.6.2.5.2.1.1">If <code>interest group["userBiddingSignals"]</code> is not a string, return failure.<a href="#section-2.2.5-4.22.2.6.2.5.2.1.1" class="pilcrow">¶</a></p>
+                    <li id="section-2.2.5-4.23.2.6.2.4">
+                      <p id="section-2.2.5-4.23.2.6.2.4.1">Set <code>ig["name"]</code> to <code>interest group["name"]</code>.<a href="#section-2.2.5-4.23.2.6.2.4.1" class="pilcrow">¶</a></p>
 </li>
-                        <li id="section-2.2.5-4.22.2.6.2.5.2.2">
-                          <p id="section-2.2.5-4.22.2.6.2.5.2.2.1">Set <code>ig["userBiddingSignals"]</code> to <code>interest group["userBiddingSignals"]</code>.<a href="#section-2.2.5-4.22.2.6.2.5.2.2.1" class="pilcrow">¶</a></p>
+                    <li id="section-2.2.5-4.23.2.6.2.5">
+                      <p id="section-2.2.5-4.23.2.6.2.5.1">If <code>interest group["userBiddingSignals"]</code> exists:<a href="#section-2.2.5-4.23.2.6.2.5.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.23.2.6.2.5.2">
+<li id="section-2.2.5-4.23.2.6.2.5.2.1">
+                          <p id="section-2.2.5-4.23.2.6.2.5.2.1.1">If <code>interest group["userBiddingSignals"]</code> is not a string, return failure.<a href="#section-2.2.5-4.23.2.6.2.5.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                      </ol>
-</li>
-                    <li id="section-2.2.5-4.22.2.6.2.6">
-                      <p id="section-2.2.5-4.22.2.6.2.6.1">If <code>interest group["biddingSignalsKeys"]</code> exists:<a href="#section-2.2.5-4.22.2.6.2.6.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.22.2.6.2.6.2">
-<li id="section-2.2.5-4.22.2.6.2.6.2.1">
-                          <p id="section-2.2.5-4.22.2.6.2.6.2.1.1">If <code>interest group["biddingSignalsKeys"]</code> is not an array of strings,
-return failure.<a href="#section-2.2.5-4.22.2.6.2.6.2.1.1" class="pilcrow">¶</a></p>
-</li>
-                        <li id="section-2.2.5-4.22.2.6.2.6.2.2">
-                          <p id="section-2.2.5-4.22.2.6.2.6.2.2.1">Set <code>ig["biddingSignalsKeys"]</code> to <code>interest group["biddingSignalsKeys"]</code>.<a href="#section-2.2.5-4.22.2.6.2.6.2.2.1" class="pilcrow">¶</a></p>
+                        <li id="section-2.2.5-4.23.2.6.2.5.2.2">
+                          <p id="section-2.2.5-4.23.2.6.2.5.2.2.1">Set <code>ig["userBiddingSignals"]</code> to <code>interest group["userBiddingSignals"]</code>.<a href="#section-2.2.5-4.23.2.6.2.5.2.2.1" class="pilcrow">¶</a></p>
 </li>
                       </ol>
 </li>
-                    <li id="section-2.2.5-4.22.2.6.2.7">
-                      <p id="section-2.2.5-4.22.2.6.2.7.1">If <code>interest group["ads"]</code> exists:<a href="#section-2.2.5-4.22.2.6.2.7.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.22.2.6.2.7.2">
-<li id="section-2.2.5-4.22.2.6.2.7.2.1">
-                          <p id="section-2.2.5-4.22.2.6.2.7.2.1.1">If <code>interest group["ads"]</code> is not an array of strings, return failure.<a href="#section-2.2.5-4.22.2.6.2.7.2.1.1" class="pilcrow">¶</a></p>
+                    <li id="section-2.2.5-4.23.2.6.2.6">
+                      <p id="section-2.2.5-4.23.2.6.2.6.1">If <code>interest group["biddingSignalsKeys"]</code> exists:<a href="#section-2.2.5-4.23.2.6.2.6.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.23.2.6.2.6.2">
+<li id="section-2.2.5-4.23.2.6.2.6.2.1">
+                          <p id="section-2.2.5-4.23.2.6.2.6.2.1.1">If <code>interest group["biddingSignalsKeys"]</code> is not an array of strings,
+return failure.<a href="#section-2.2.5-4.23.2.6.2.6.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                        <li id="section-2.2.5-4.22.2.6.2.7.2.2">
-                          <p id="section-2.2.5-4.22.2.6.2.7.2.2.1">Set <code>ig["ads"]</code> to <code>interest group["ads"]</code>.<a href="#section-2.2.5-4.22.2.6.2.7.2.2.1" class="pilcrow">¶</a></p>
-</li>
-                      </ol>
-</li>
-                    <li id="section-2.2.5-4.22.2.6.2.8">
-                      <p id="section-2.2.5-4.22.2.6.2.8.1">If <code>interest group["component"]</code> exists:<a href="#section-2.2.5-4.22.2.6.2.8.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.22.2.6.2.8.2">
-<li id="section-2.2.5-4.22.2.6.2.8.2.1">
-                          <p id="section-2.2.5-4.22.2.6.2.8.2.1.1">If <code>interest group["component"]</code> is not an array
-of strings, return failure.<a href="#section-2.2.5-4.22.2.6.2.8.2.1.1" class="pilcrow">¶</a></p>
-</li>
-                        <li id="section-2.2.5-4.22.2.6.2.8.2.2">
-                          <p id="section-2.2.5-4.22.2.6.2.8.2.2.1">Set <code>ig["component"]</code> to <code>interest group["component"]</code>.<a href="#section-2.2.5-4.22.2.6.2.8.2.2.1" class="pilcrow">¶</a></p>
+                        <li id="section-2.2.5-4.23.2.6.2.6.2.2">
+                          <p id="section-2.2.5-4.23.2.6.2.6.2.2.1">Set <code>ig["biddingSignalsKeys"]</code> to <code>interest group["biddingSignalsKeys"]</code>.<a href="#section-2.2.5-4.23.2.6.2.6.2.2.1" class="pilcrow">¶</a></p>
 </li>
                       </ol>
 </li>
-                    <li id="section-2.2.5-4.22.2.6.2.9">
-                      <p id="section-2.2.5-4.22.2.6.2.9.1">If <code>interest group["browserSignals"]</code> exists:<a href="#section-2.2.5-4.22.2.6.2.9.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.22.2.6.2.9.2">
-<li id="section-2.2.5-4.22.2.6.2.9.2.1">
-                          <p id="section-2.2.5-4.22.2.6.2.9.2.1.1">If <code>interest group["browserSignals"]</code> is not a map, return failure.<a href="#section-2.2.5-4.22.2.6.2.9.2.1.1" class="pilcrow">¶</a></p>
+                    <li id="section-2.2.5-4.23.2.6.2.7">
+                      <p id="section-2.2.5-4.23.2.6.2.7.1">If <code>interest group["ads"]</code> exists:<a href="#section-2.2.5-4.23.2.6.2.7.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.23.2.6.2.7.2">
+<li id="section-2.2.5-4.23.2.6.2.7.2.1">
+                          <p id="section-2.2.5-4.23.2.6.2.7.2.1.1">If <code>interest group["ads"]</code> is not an array of strings, return failure.<a href="#section-2.2.5-4.23.2.6.2.7.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                        <li id="section-2.2.5-4.22.2.6.2.9.2.2">
-                          <p id="section-2.2.5-4.22.2.6.2.9.2.2.1">Let <code>igbs</code> be an empty struct similar to <code>browserSignals</code> as
-defined in <a href="#request-groups" class="auto internal xref">Section 2.2.3.1</a>.<a href="#section-2.2.5-4.22.2.6.2.9.2.2.1" class="pilcrow">¶</a></p>
+                        <li id="section-2.2.5-4.23.2.6.2.7.2.2">
+                          <p id="section-2.2.5-4.23.2.6.2.7.2.2.1">Set <code>ig["ads"]</code> to <code>interest group["ads"]</code>.<a href="#section-2.2.5-4.23.2.6.2.7.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                        <li id="section-2.2.5-4.22.2.6.2.9.2.3">
-                          <p id="section-2.2.5-4.22.2.6.2.9.2.3.1">Let <code>signals</code> be <code>interest group["browserSignals"]</code>.<a href="#section-2.2.5-4.22.2.6.2.9.2.3.1" class="pilcrow">¶</a></p>
+                      </ol>
 </li>
-                        <li id="section-2.2.5-4.22.2.6.2.9.2.4">
-                          <p id="section-2.2.5-4.22.2.6.2.9.2.4.1">If <code>signals["bidCount"]</code> exists:<a href="#section-2.2.5-4.22.2.6.2.9.2.4.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.22.2.6.2.9.2.4.2">
-<li id="section-2.2.5-4.22.2.6.2.9.2.4.2.1">
-                              <p id="section-2.2.5-4.22.2.6.2.9.2.4.2.1.1">If <code>signals["bidCount"]</code> is not a valid 64-bit unsigned integer,
-return failure.<a href="#section-2.2.5-4.22.2.6.2.9.2.4.2.1.1" class="pilcrow">¶</a></p>
+                    <li id="section-2.2.5-4.23.2.6.2.8">
+                      <p id="section-2.2.5-4.23.2.6.2.8.1">If <code>interest group["component"]</code> exists:<a href="#section-2.2.5-4.23.2.6.2.8.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.23.2.6.2.8.2">
+<li id="section-2.2.5-4.23.2.6.2.8.2.1">
+                          <p id="section-2.2.5-4.23.2.6.2.8.2.1.1">If <code>interest group["component"]</code> is not an array
+of strings, return failure.<a href="#section-2.2.5-4.23.2.6.2.8.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                            <li id="section-2.2.5-4.22.2.6.2.9.2.4.2.2">
-                              <p id="section-2.2.5-4.22.2.6.2.9.2.4.2.2.1">Set <code>igbs["bidCount"]</code> to <code>signals["bidCount"]</code>.<a href="#section-2.2.5-4.22.2.6.2.9.2.4.2.2.1" class="pilcrow">¶</a></p>
+                        <li id="section-2.2.5-4.23.2.6.2.8.2.2">
+                          <p id="section-2.2.5-4.23.2.6.2.8.2.2.1">Set <code>ig["component"]</code> to <code>interest group["component"]</code>.<a href="#section-2.2.5-4.23.2.6.2.8.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                      </ol>
+</li>
+                    <li id="section-2.2.5-4.23.2.6.2.9">
+                      <p id="section-2.2.5-4.23.2.6.2.9.1">If <code>interest group["inCooldownOrLockout"]</code> exists:<a href="#section-2.2.5-4.23.2.6.2.9.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.23.2.6.2.9.2">
+<li id="section-2.2.5-4.23.2.6.2.9.2.1">
+                          <p id="section-2.2.5-4.23.2.6.2.9.2.1.1">If <code>interest group["inCooldownOrLockout"]</code> is not a boolean, return failure.<a href="#section-2.2.5-4.23.2.6.2.9.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                        <li id="section-2.2.5-4.23.2.6.2.9.2.2">
+                          <p id="section-2.2.5-4.23.2.6.2.9.2.2.1">Set <code>ig["inCooldownOrLockout"]</code> to <code>interest group["inCooldownOrLockout"]</code>.<a href="#section-2.2.5-4.23.2.6.2.9.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                      </ol>
+</li>
+                    <li id="section-2.2.5-4.23.2.6.2.10">
+                      <p id="section-2.2.5-4.23.2.6.2.10.1">If <code>interest group["browserSignals"]</code> exists:<a href="#section-2.2.5-4.23.2.6.2.10.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.23.2.6.2.10.2">
+<li id="section-2.2.5-4.23.2.6.2.10.2.1">
+                          <p id="section-2.2.5-4.23.2.6.2.10.2.1.1">If <code>interest group["browserSignals"]</code> is not a map, return failure.<a href="#section-2.2.5-4.23.2.6.2.10.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                        <li id="section-2.2.5-4.23.2.6.2.10.2.2">
+                          <p id="section-2.2.5-4.23.2.6.2.10.2.2.1">Let <code>igbs</code> be an empty struct similar to <code>browserSignals</code> as
+defined in <a href="#request-groups" class="auto internal xref">Section 2.2.3.1</a>.<a href="#section-2.2.5-4.23.2.6.2.10.2.2.1" class="pilcrow">¶</a></p>
+</li>
+                        <li id="section-2.2.5-4.23.2.6.2.10.2.3">
+                          <p id="section-2.2.5-4.23.2.6.2.10.2.3.1">Let <code>signals</code> be <code>interest group["browserSignals"]</code>.<a href="#section-2.2.5-4.23.2.6.2.10.2.3.1" class="pilcrow">¶</a></p>
+</li>
+                        <li id="section-2.2.5-4.23.2.6.2.10.2.4">
+                          <p id="section-2.2.5-4.23.2.6.2.10.2.4.1">If <code>signals["bidCount"]</code> exists:<a href="#section-2.2.5-4.23.2.6.2.10.2.4.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.23.2.6.2.10.2.4.2">
+<li id="section-2.2.5-4.23.2.6.2.10.2.4.2.1">
+                              <p id="section-2.2.5-4.23.2.6.2.10.2.4.2.1.1">If <code>signals["bidCount"]</code> is not a valid 64-bit unsigned integer,
+return failure.<a href="#section-2.2.5-4.23.2.6.2.10.2.4.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                            <li id="section-2.2.5-4.23.2.6.2.10.2.4.2.2">
+                              <p id="section-2.2.5-4.23.2.6.2.10.2.4.2.2.1">Set <code>igbs["bidCount"]</code> to <code>signals["bidCount"]</code>.<a href="#section-2.2.5-4.23.2.6.2.10.2.4.2.2.1" class="pilcrow">¶</a></p>
 </li>
                           </ol>
 </li>
-                        <li id="section-2.2.5-4.22.2.6.2.9.2.5">
-                          <p id="section-2.2.5-4.22.2.6.2.9.2.5.1">If <code>signals["joinCount"]</code> exists:<a href="#section-2.2.5-4.22.2.6.2.9.2.5.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.22.2.6.2.9.2.5.2">
-<li id="section-2.2.5-4.22.2.6.2.9.2.5.2.1">
-                              <p id="section-2.2.5-4.22.2.6.2.9.2.5.2.1.1">If <code>signals["joinCount"]</code> is not a valid 64-bit unsigned integer,
-return failure.<a href="#section-2.2.5-4.22.2.6.2.9.2.5.2.1.1" class="pilcrow">¶</a></p>
+                        <li id="section-2.2.5-4.23.2.6.2.10.2.5">
+                          <p id="section-2.2.5-4.23.2.6.2.10.2.5.1">If <code>signals["joinCount"]</code> exists:<a href="#section-2.2.5-4.23.2.6.2.10.2.5.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.23.2.6.2.10.2.5.2">
+<li id="section-2.2.5-4.23.2.6.2.10.2.5.2.1">
+                              <p id="section-2.2.5-4.23.2.6.2.10.2.5.2.1.1">If <code>signals["joinCount"]</code> is not a valid 64-bit unsigned integer,
+return failure.<a href="#section-2.2.5-4.23.2.6.2.10.2.5.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                            <li id="section-2.2.5-4.22.2.6.2.9.2.5.2.2">
-                              <p id="section-2.2.5-4.22.2.6.2.9.2.5.2.2.1">Set <code>igbs["joinCount"]</code> to <code>signals["joinCount"]</code>.<a href="#section-2.2.5-4.22.2.6.2.9.2.5.2.2.1" class="pilcrow">¶</a></p>
-</li>
-                          </ol>
-</li>
-                        <li id="section-2.2.5-4.22.2.6.2.9.2.6">
-                          <p id="section-2.2.5-4.22.2.6.2.9.2.6.1">If <code>signals["recencyMs"]</code> exists:<a href="#section-2.2.5-4.22.2.6.2.9.2.6.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.22.2.6.2.9.2.6.2">
-<li id="section-2.2.5-4.22.2.6.2.9.2.6.2.1">
-                              <p id="section-2.2.5-4.22.2.6.2.9.2.6.2.1.1">If <code>signals["recencyMs"]</code> is not a valid 64-bit unsigned integer,
-return failure.<a href="#section-2.2.5-4.22.2.6.2.9.2.6.2.1.1" class="pilcrow">¶</a></p>
-</li>
-                            <li id="section-2.2.5-4.22.2.6.2.9.2.6.2.2">
-                              <p id="section-2.2.5-4.22.2.6.2.9.2.6.2.2.1">Set <code>igbs["recencyMs"]</code> to <code>signals["recencyMs"]</code>.<a href="#section-2.2.5-4.22.2.6.2.9.2.6.2.2.1" class="pilcrow">¶</a></p>
+                            <li id="section-2.2.5-4.23.2.6.2.10.2.5.2.2">
+                              <p id="section-2.2.5-4.23.2.6.2.10.2.5.2.2.1">Set <code>igbs["joinCount"]</code> to <code>signals["joinCount"]</code>.<a href="#section-2.2.5-4.23.2.6.2.10.2.5.2.2.1" class="pilcrow">¶</a></p>
 </li>
                           </ol>
 </li>
-                        <li id="section-2.2.5-4.22.2.6.2.9.2.7">
-                          <p id="section-2.2.5-4.22.2.6.2.9.2.7.1">If <code>signals["prevWins"]</code> exists:<a href="#section-2.2.5-4.22.2.6.2.9.2.7.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.22.2.6.2.9.2.7.2">
-<li id="section-2.2.5-4.22.2.6.2.9.2.7.2.1">
-                              <p id="section-2.2.5-4.22.2.6.2.9.2.7.2.1.1">Let <code>pw</code> be an empty array.<a href="#section-2.2.5-4.22.2.6.2.9.2.7.2.1.1" class="pilcrow">¶</a></p>
+                        <li id="section-2.2.5-4.23.2.6.2.10.2.6">
+                          <p id="section-2.2.5-4.23.2.6.2.10.2.6.1">If <code>signals["recencyMs"]</code> exists:<a href="#section-2.2.5-4.23.2.6.2.10.2.6.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.23.2.6.2.10.2.6.2">
+<li id="section-2.2.5-4.23.2.6.2.10.2.6.2.1">
+                              <p id="section-2.2.5-4.23.2.6.2.10.2.6.2.1.1">If <code>signals["recencyMs"]</code> is not a valid 64-bit unsigned integer,
+return failure.<a href="#section-2.2.5-4.23.2.6.2.10.2.6.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                            <li id="section-2.2.5-4.22.2.6.2.9.2.7.2.2">
-                              <p id="section-2.2.5-4.22.2.6.2.9.2.7.2.2.1">If <code>signals["prevWins"]</code> is not an array, return failure.<a href="#section-2.2.5-4.22.2.6.2.9.2.7.2.2.1" class="pilcrow">¶</a></p>
+                            <li id="section-2.2.5-4.23.2.6.2.10.2.6.2.2">
+                              <p id="section-2.2.5-4.23.2.6.2.10.2.6.2.2.1">Set <code>igbs["recencyMs"]</code> to <code>signals["recencyMs"]</code>.<a href="#section-2.2.5-4.23.2.6.2.10.2.6.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                            <li id="section-2.2.5-4.22.2.6.2.9.2.7.2.3">
-                              <p id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.1">For each <code>prevWinTuple</code> in <code>signals["prevWins"]</code>:<a href="#section-2.2.5-4.22.2.6.2.9.2.7.2.3.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.2">
-<li id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.1">
-                                  <p id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.1.1">Let <code>pwt</code> be an empty array.<a href="#section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.1.1" class="pilcrow">¶</a></p>
+                          </ol>
 </li>
-                                <li id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.2">
-                                  <p id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.2.1">If <code>prevWinTuple</code> is not an array of size 2, return failure.<a href="#section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.2.1" class="pilcrow">¶</a></p>
+                        <li id="section-2.2.5-4.23.2.6.2.10.2.7">
+                          <p id="section-2.2.5-4.23.2.6.2.10.2.7.1">If <code>signals["prevWins"]</code> exists:<a href="#section-2.2.5-4.23.2.6.2.10.2.7.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.23.2.6.2.10.2.7.2">
+<li id="section-2.2.5-4.23.2.6.2.10.2.7.2.1">
+                              <p id="section-2.2.5-4.23.2.6.2.10.2.7.2.1.1">Let <code>pw</code> be an empty array.<a href="#section-2.2.5-4.23.2.6.2.10.2.7.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                                <li id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.3">
-                                  <p id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.3.1">If <code>prevWinTuple[0]</code> is not a valid 64-bit unsigned integer,
-return failure.<a href="#section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.3.1" class="pilcrow">¶</a></p>
+                            <li id="section-2.2.5-4.23.2.6.2.10.2.7.2.2">
+                              <p id="section-2.2.5-4.23.2.6.2.10.2.7.2.2.1">If <code>signals["prevWins"]</code> is not an array, return failure.<a href="#section-2.2.5-4.23.2.6.2.10.2.7.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                                <li id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.4">
-                                  <p id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.4.1">If <code>prevWinTuple[1]</code> is not a string, return failure.<a href="#section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.4.1" class="pilcrow">¶</a></p>
+                            <li id="section-2.2.5-4.23.2.6.2.10.2.7.2.3">
+                              <p id="section-2.2.5-4.23.2.6.2.10.2.7.2.3.1">For each <code>prevWinTuple</code> in <code>signals["prevWins"]</code>:<a href="#section-2.2.5-4.23.2.6.2.10.2.7.2.3.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.2.5-4.23.2.6.2.10.2.7.2.3.2">
+<li id="section-2.2.5-4.23.2.6.2.10.2.7.2.3.2.1">
+                                  <p id="section-2.2.5-4.23.2.6.2.10.2.7.2.3.2.1.1">Let <code>pwt</code> be an empty array.<a href="#section-2.2.5-4.23.2.6.2.10.2.7.2.3.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                                <li id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.5">
-                                  <p id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.5.1">Set <code>pwt</code> to <code>prevWinTuple</code>.<a href="#section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.5.1" class="pilcrow">¶</a></p>
+                                <li id="section-2.2.5-4.23.2.6.2.10.2.7.2.3.2.2">
+                                  <p id="section-2.2.5-4.23.2.6.2.10.2.7.2.3.2.2.1">If <code>prevWinTuple</code> is not an array of size 2, return failure.<a href="#section-2.2.5-4.23.2.6.2.10.2.7.2.3.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                                <li id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.6">
-                                  <p id="section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.6.1">Append <code>pwt</code> to <code>pw</code>.<a href="#section-2.2.5-4.22.2.6.2.9.2.7.2.3.2.6.1" class="pilcrow">¶</a></p>
+                                <li id="section-2.2.5-4.23.2.6.2.10.2.7.2.3.2.3">
+                                  <p id="section-2.2.5-4.23.2.6.2.10.2.7.2.3.2.3.1">If <code>prevWinTuple[0]</code> is not a valid 64-bit unsigned integer,
+return failure.<a href="#section-2.2.5-4.23.2.6.2.10.2.7.2.3.2.3.1" class="pilcrow">¶</a></p>
+</li>
+                                <li id="section-2.2.5-4.23.2.6.2.10.2.7.2.3.2.4">
+                                  <p id="section-2.2.5-4.23.2.6.2.10.2.7.2.3.2.4.1">If <code>prevWinTuple[1]</code> is not a string, return failure.<a href="#section-2.2.5-4.23.2.6.2.10.2.7.2.3.2.4.1" class="pilcrow">¶</a></p>
+</li>
+                                <li id="section-2.2.5-4.23.2.6.2.10.2.7.2.3.2.5">
+                                  <p id="section-2.2.5-4.23.2.6.2.10.2.7.2.3.2.5.1">Set <code>pwt</code> to <code>prevWinTuple</code>.<a href="#section-2.2.5-4.23.2.6.2.10.2.7.2.3.2.5.1" class="pilcrow">¶</a></p>
+</li>
+                                <li id="section-2.2.5-4.23.2.6.2.10.2.7.2.3.2.6">
+                                  <p id="section-2.2.5-4.23.2.6.2.10.2.7.2.3.2.6.1">Append <code>pwt</code> to <code>pw</code>.<a href="#section-2.2.5-4.23.2.6.2.10.2.7.2.3.2.6.1" class="pilcrow">¶</a></p>
 </li>
                               </ol>
 </li>
-                            <li id="section-2.2.5-4.22.2.6.2.9.2.7.2.4">
-                              <p id="section-2.2.5-4.22.2.6.2.9.2.7.2.4.1">Set <code>igbs["prevWins"]</code> to <code>pw</code>.<a href="#section-2.2.5-4.22.2.6.2.9.2.7.2.4.1" class="pilcrow">¶</a></p>
+                            <li id="section-2.2.5-4.23.2.6.2.10.2.7.2.4">
+                              <p id="section-2.2.5-4.23.2.6.2.10.2.7.2.4.1">Set <code>igbs["prevWins"]</code> to <code>pw</code>.<a href="#section-2.2.5-4.23.2.6.2.10.2.7.2.4.1" class="pilcrow">¶</a></p>
 </li>
                           </ol>
 </li>
-                        <li id="section-2.2.5-4.22.2.6.2.9.2.8">
-                          <p id="section-2.2.5-4.22.2.6.2.9.2.8.1">Set <code>ig["browserSignals"]</code> to <code>igbs</code>.<a href="#section-2.2.5-4.22.2.6.2.9.2.8.1" class="pilcrow">¶</a></p>
+                        <li id="section-2.2.5-4.23.2.6.2.10.2.8">
+                          <p id="section-2.2.5-4.23.2.6.2.10.2.8.1">Set <code>ig["browserSignals"]</code> to <code>igbs</code>.<a href="#section-2.2.5-4.23.2.6.2.10.2.8.1" class="pilcrow">¶</a></p>
 </li>
                       </ol>
 </li>
-                    <li id="section-2.2.5-4.22.2.6.2.10">
-                      <p id="section-2.2.5-4.22.2.6.2.10.1">Append <code>ig</code> to <code>processed request["interestGroups"]</code><code>[ key ]</code>.<a href="#section-2.2.5-4.22.2.6.2.10.1" class="pilcrow">¶</a></p>
+                    <li id="section-2.2.5-4.23.2.6.2.11">
+                      <p id="section-2.2.5-4.23.2.6.2.11.1">Append <code>ig</code> to <code>processed request["interestGroups"]</code><code>[ key ]</code>.<a href="#section-2.2.5-4.23.2.6.2.11.1" class="pilcrow">¶</a></p>
 </li>
                   </ol>
 </li>
               </ol>
 </li>
-            <li id="section-2.2.5-4.23">
-              <p id="section-2.2.5-4.23.1">Return <code>processed request</code> and <code>rctxt</code> to the Bidding and Auction
-Services.<a href="#section-2.2.5-4.23.1" class="pilcrow">¶</a></p>
+            <li id="section-2.2.5-4.24">
+              <p id="section-2.2.5-4.24.1">Return <code>processed request</code> and <code>rctxt</code> to the Bidding and Auction
+Services.<a href="#section-2.2.5-4.24.1" class="pilcrow">¶</a></p>
 </li>
           </ol>
 <div id="request-parse-error">
@@ -2386,6 +2447,9 @@ and follows the following <span>[<a href="#CDDL" class="cite xref">CDDL</a>]</sp
 <div class="breakable lang-cddl sourcecode" id="section-2.3.3-2">
 <pre>
 response = {
+  ; An unguessable nonce to use when authorizing this response.
+  ? nonce: tstr,
+
   ; The ad to render.
   ; Maps directly to https://wicg.github.io/turtledove/#server-auction-response-ad-render-url.
   adRenderURL: adRenderUrl,
@@ -2683,73 +2747,82 @@ return failure.<a href="#section-2.3.5-2.12.1" class="pilcrow">¶</a></p>
 <a href="https://wicg.github.io/turtledove/#server-auction-response">server auction response</a>.<a href="#section-2.3.5-2.13.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-2.3.5-2.14">
-              <p id="section-2.3.5-2.14.1">If <code>response["adRenderURL"]</code> does not exist, return failure.<a href="#section-2.3.5-2.14.1" class="pilcrow">¶</a></p>
+              <p id="section-2.3.5-2.14.1">If <code>response["nonce"]</code> exists and is a valid <span>[<a href="#UUID" class="cite xref">UUID</a>]</span>, set
+<code>processed response["nonce"]</code> to the lowercase ASCII representation of <code>response["nonce"]</code>.<a href="#section-2.3.5-2.14.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-2.3.5-2.15">
-              <p id="section-2.3.5-2.15.1">Set <code>processed response["ad render url"]</code> to <code>response["adRenderURL"]</code> parsed
-as a <span>[<a href="#URL" class="cite xref">URL</a>]</span>, returning failure if there is an error.<a href="#section-2.3.5-2.15.1" class="pilcrow">¶</a></p>
+              <p id="section-2.3.5-2.15.1">If <code>response["adRenderURL"]</code> does not exist, return failure.<a href="#section-2.3.5-2.15.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-2.3.5-2.16">
-              <p id="section-2.3.5-2.16.1">If <code>response["components"]</code> exists:<a href="#section-2.3.5-2.16.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.16.2">
-<li id="section-2.3.5-2.16.2.1">
-                  <p id="section-2.3.5-2.16.2.1.1">If <code>response["components"]</code> is not an array, return failure.<a href="#section-2.3.5-2.16.2.1.1" class="pilcrow">¶</a></p>
+              <p id="section-2.3.5-2.16.1">Set <code>processed response["ad render url"]</code> to <code>response["adRenderURL"]</code> parsed
+as a <span>[<a href="#URL" class="cite xref">URL</a>]</span>, returning failure if there is an error.<a href="#section-2.3.5-2.16.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-2.3.5-2.16.2.2">
-                  <p id="section-2.3.5-2.16.2.2.1">For each <code>component</code> in <code>response["components"]</code>:<a href="#section-2.3.5-2.16.2.2.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.16.2.2.2">
-<li id="section-2.3.5-2.16.2.2.2.1">
-                      <p id="section-2.3.5-2.16.2.2.2.1.1">Append <code>component</code> parsed as a <span>[<a href="#URL" class="cite xref">URL</a>]</span> to <code>processed response["ad components"]</code>,
-returning failure if there is an error.<a href="#section-2.3.5-2.16.2.2.2.1.1" class="pilcrow">¶</a></p>
+            <li id="section-2.3.5-2.17">
+              <p id="section-2.3.5-2.17.1">If <code>response["components"]</code> exists:<a href="#section-2.3.5-2.17.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.17.2">
+<li id="section-2.3.5-2.17.2.1">
+                  <p id="section-2.3.5-2.17.2.1.1">If <code>response["components"]</code> is not an array, return failure.<a href="#section-2.3.5-2.17.2.1.1" class="pilcrow">¶</a></p>
+</li>
+                <li id="section-2.3.5-2.17.2.2">
+                  <p id="section-2.3.5-2.17.2.2.1">For each <code>component</code> in <code>response["components"]</code>:<a href="#section-2.3.5-2.17.2.2.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.17.2.2.2">
+<li id="section-2.3.5-2.17.2.2.2.1">
+                      <p id="section-2.3.5-2.17.2.2.2.1.1">Append <code>component</code> parsed as a <span>[<a href="#URL" class="cite xref">URL</a>]</span> to <code>processed response["ad components"]</code>,
+returning failure if there is an error.<a href="#section-2.3.5-2.17.2.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
                   </ol>
 </li>
               </ol>
 </li>
-            <li id="section-2.3.5-2.17">
-              <p id="section-2.3.5-2.17.1">If <code>response["interestGroupName"]</code> does not exist or is not a string, return failure.<a href="#section-2.3.5-2.17.1" class="pilcrow">¶</a></p>
-</li>
             <li id="section-2.3.5-2.18">
-              <p id="section-2.3.5-2.18.1">Set <code>processed response["interest group name"]</code> to <code>response["interestGroupName"]</code>.<a href="#section-2.3.5-2.18.1" class="pilcrow">¶</a></p>
+              <p id="section-2.3.5-2.18.1">If <code>response["interestGroupName"]</code> does not exist or is not a string, return failure.<a href="#section-2.3.5-2.18.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-2.3.5-2.19">
-              <p id="section-2.3.5-2.19.1">If <code>response["interestGroupOwner"]</code> does not exist or is not a string, return failure.<a href="#section-2.3.5-2.19.1" class="pilcrow">¶</a></p>
+              <p id="section-2.3.5-2.19.1">Set <code>processed response["interest group name"]</code> to <code>response["interestGroupName"]</code>.<a href="#section-2.3.5-2.19.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-2.3.5-2.20">
-              <p id="section-2.3.5-2.20.1">Set <code>processed response["interest group owner"]</code> to <code>response["interestGroupOwner"]</code>
-parsed as an <span>[<a href="#ORIGIN" class="cite xref">ORIGIN</a>]</span>, returning failure if there is an error.<a href="#section-2.3.5-2.20.1" class="pilcrow">¶</a></p>
+              <p id="section-2.3.5-2.20.1">If <code>response["interestGroupOwner"]</code> does not exist or is not a string, return failure.<a href="#section-2.3.5-2.20.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-2.3.5-2.21">
-              <p id="section-2.3.5-2.21.1">If <code>response["biddingGroups"]</code> does not exist or is not a map, return failure.<a href="#section-2.3.5-2.21.1" class="pilcrow">¶</a></p>
+              <p id="section-2.3.5-2.21.1">Set <code>processed response["interest group owner"]</code> to <code>response["interestGroupOwner"]</code>
+parsed as an <span>[<a href="#ORIGIN" class="cite xref">ORIGIN</a>]</span>, returning failure if there is an error.<a href="#section-2.3.5-2.21.1" class="pilcrow">¶</a></p>
 </li>
             <li id="section-2.3.5-2.22">
-              <p id="section-2.3.5-2.22.1">For each <code>key</code>, <code>value</code> in <code>response["biddingGroups"]</code>:<a href="#section-2.3.5-2.22.1" class="pilcrow">¶</a></p>
+              <p id="section-2.3.5-2.22.1">If <code>response["biddingGroups"]</code> exists:<a href="#section-2.3.5-2.22.1" class="pilcrow">¶</a></p>
 <ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.22.2">
 <li id="section-2.3.5-2.22.2.1">
-                  <p id="section-2.3.5-2.22.2.1.1">Let <code>owner</code> be equal to <code>key</code> parsed as an <span>[<a href="#ORIGIN" class="cite xref">ORIGIN</a>]</span>, returning failure if
-there is an error.<a href="#section-2.3.5-2.22.2.1.1" class="pilcrow">¶</a></p>
+                  <p id="section-2.3.5-2.22.2.1.1">If <code>response["biddingGroups"]</code> is not a map, return failure.<a href="#section-2.3.5-2.22.2.1.1" class="pilcrow">¶</a></p>
 </li>
                 <li id="section-2.3.5-2.22.2.2">
-                  <p id="section-2.3.5-2.22.2.2.1">If <code>request context</code>'s <code>included_groups</code> does not contain <code>owner</code> as a key, return failure.<a href="#section-2.3.5-2.22.2.2.1" class="pilcrow">¶</a></p>
+                  <p id="section-2.3.5-2.22.2.2.1">For each <code>key</code>, <code>value</code> in <code>response["biddingGroups"]</code>:<a href="#section-2.3.5-2.22.2.2.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.22.2.2.2">
+<li id="section-2.3.5-2.22.2.2.2.1">
+                      <p id="section-2.3.5-2.22.2.2.2.1.1">Let <code>owner</code> be equal to <code>key</code> parsed as an <span>[<a href="#ORIGIN" class="cite xref">ORIGIN</a>]</span>, returning failure if
+there is an error.<a href="#section-2.3.5-2.22.2.2.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-2.3.5-2.22.2.3">
-                  <p id="section-2.3.5-2.22.2.3.1">If <code>value</code> is not a list, return failure.<a href="#section-2.3.5-2.22.2.3.1" class="pilcrow">¶</a></p>
+                    <li id="section-2.3.5-2.22.2.2.2.2">
+                      <p id="section-2.3.5-2.22.2.2.2.2.1">If <code>request context</code>'s <code>included_groups</code> does not contain <code>owner</code> as a key, return failure.<a href="#section-2.3.5-2.22.2.2.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                <li id="section-2.3.5-2.22.2.4">
-                  <p id="section-2.3.5-2.22.2.4.1">For each <code>element</code> in <code>value</code>:<a href="#section-2.3.5-2.22.2.4.1" class="pilcrow">¶</a></p>
-<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.22.2.4.2">
-<li id="section-2.3.5-2.22.2.4.2.1">
-                      <p id="section-2.3.5-2.22.2.4.2.1.1">If <code>element</code> is not an integer or <code>element &lt; 0</code>, return failure.<a href="#section-2.3.5-2.22.2.4.2.1.1" class="pilcrow">¶</a></p>
+                    <li id="section-2.3.5-2.22.2.2.2.3">
+                      <p id="section-2.3.5-2.22.2.2.2.3.1">If <code>value</code> is not a list, return failure.<a href="#section-2.3.5-2.22.2.2.2.3.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-2.3.5-2.22.2.4.2.2">
-                      <p id="section-2.3.5-2.22.2.4.2.2.1">If <code>element</code> is greater than or equal to the length of
-<code>included_groups[owner]</code>, return failure.<a href="#section-2.3.5-2.22.2.4.2.2.1" class="pilcrow">¶</a></p>
+                    <li id="section-2.3.5-2.22.2.2.2.4">
+                      <p id="section-2.3.5-2.22.2.2.2.4.1">For each <code>element</code> in <code>value</code>:<a href="#section-2.3.5-2.22.2.2.2.4.1" class="pilcrow">¶</a></p>
+<ol start="1" type="1" class="normal type-1" id="section-2.3.5-2.22.2.2.2.4.2">
+<li id="section-2.3.5-2.22.2.2.2.4.2.1">
+                          <p id="section-2.3.5-2.22.2.2.2.4.2.1.1">If <code>element</code> is not an integer or <code>element &lt; 0</code>, return failure.<a href="#section-2.3.5-2.22.2.2.2.4.2.1.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-2.3.5-2.22.2.4.2.3">
-                      <p id="section-2.3.5-2.22.2.4.2.3.1">Let <code>name</code> be the <code>interest group name</code> for <code>included_groups[owner][element]</code>.<a href="#section-2.3.5-2.22.2.4.2.3.1" class="pilcrow">¶</a></p>
+                        <li id="section-2.3.5-2.22.2.2.2.4.2.2">
+                          <p id="section-2.3.5-2.22.2.2.2.4.2.2.1">If <code>element</code> is greater than or equal to the length of
+<code>included_groups[owner]</code>, return failure.<a href="#section-2.3.5-2.22.2.2.2.4.2.2.1" class="pilcrow">¶</a></p>
 </li>
-                    <li id="section-2.3.5-2.22.2.4.2.4">
-                      <p id="section-2.3.5-2.22.2.4.2.4.1">Append the tuple (<code>owner</code>, <code>name</code>) to <code>processed response["bidding groups"]</code>.<a href="#section-2.3.5-2.22.2.4.2.4.1" class="pilcrow">¶</a></p>
+                        <li id="section-2.3.5-2.22.2.2.2.4.2.3">
+                          <p id="section-2.3.5-2.22.2.2.2.4.2.3.1">Let <code>name</code> be the <code>interest group name</code> for <code>included_groups[owner][element]</code>.<a href="#section-2.3.5-2.22.2.2.2.4.2.3.1" class="pilcrow">¶</a></p>
+</li>
+                        <li id="section-2.3.5-2.22.2.2.2.4.2.4">
+                          <p id="section-2.3.5-2.22.2.2.2.4.2.4.1">Append the tuple (<code>owner</code>, <code>name</code>) to <code>processed response["bidding groups"]</code>.<a href="#section-2.3.5-2.22.2.2.2.4.2.4.1" class="pilcrow">¶</a></p>
+</li>
+                      </ol>
 </li>
                   </ol>
 </li>
