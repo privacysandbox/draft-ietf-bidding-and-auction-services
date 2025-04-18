@@ -383,6 +383,12 @@ interestGroup = {
     ; one of the recency or recencyMs is expected to present in
     ; the request.
     ? recencyMs: int
+
+    ; User "clickiness" metrics. Contains the number of user clicks and ad view
+    ; for the past hour, day, week, 30 days, and 90 days in that order. See
+    ; https://github.com/WICG/turtledove/pull/1279 for more details.
+    ? viewCounts [* int],
+    ? clickCounts [* int],
   }
 }
 ~~~~~
@@ -603,6 +609,10 @@ consume along with an HPKE context.
             1. If `signals["recencyMs"]` is not a valid 64-bit unsigned integer,
                return failure.
             1. Set `igbs["recencyMs"]` to `signals["recencyMs"]`.
+         1. If `signals["viewCounts"]` exists:
+            1. Set `igbs["viewCounts"]` to `signals["viewCounts"]`.
+         1. If `signals["clickCounts"]` exists:
+            1. Set `igbs["clickCounts"]` to `signals["clickCounts"]`.
          1. If `signals["prevWins"]` exists:
             1. Let `pw` be an empty array.
             1. If `signals["prevWins"]` is not an array, return failure.
